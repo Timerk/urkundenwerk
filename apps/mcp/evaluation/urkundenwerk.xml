@@ -1,0 +1,51 @@
+<!--
+  Read-only evaluation of the Urkundenwerk MCP server (mcp-builder format).
+  Run against a freshly reset local database (`pnpm db:reset`) with the
+  server signed in as the fictional seed user mia.multi@demo.test, who is an
+  editor in Demo-Kanzlei Nord and a viewer in Demo-Kanzlei Süd. Answers were
+  verified with the tools on 2026-11-24 and depend only on the seed data.
+  Every question can be answered without creating, changing, or deleting
+  anything; exporting without saveTo writes nothing.
+-->
+<evaluation>
+  <qa_pair>
+    <question>In one of your firms you may read and export documents but not change them. What is that firm's name?</question>
+    <answer>Demo-Kanzlei Süd</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>The draft in your read-only firm is for a UG. What is the full name (first and last name) of its founder?</question>
+    <answer>Jonas Beispiel</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>How many fields of the Südmuster Design UG draft still have to be completed before Urkundenwerk allows exporting it? Answer with a number.</question>
+    <answer>6</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>The Südmuster Design UG draft cannot be exported yet. Which legal reference does Urkundenwerk cite for every one of the blocking issues? Answer with the reference exactly as reported.</question>
+    <answer>§ 2 Abs. 1a GmbHG, Anlage 1 a) GmbHG</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Is the deed for Südmuster Design UG to be notarised in person or by video? Answer with the stored value.</question>
+    <answer>video</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>In the firm where you are an editor, one seeded Musterprotokoll is ready to export. Under which deed number was it notarised?</question>
+    <answer>117/2026</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>What filename does Urkundenwerk suggest when the Nordmuster Logistik GmbH deed is exported as DOCX?</question>
+    <answer>Musterprotokoll-Nordmuster-Logistik-GmbH.docx</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>What is the share capital of Nordmuster Logistik GmbH in whole euros? Answer with digits only.</question>
+    <answer>25000</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Who will be the managing director of Nordmuster Logistik GmbH? Answer with the person's first and last name.</question>
+    <answer>Erika Mustermann</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>The founders of the two seeded companies are a woman and a man. In which year was the woman born?</question>
+    <answer>1990</answer>
+  </qa_pair>
+</evaluation>
