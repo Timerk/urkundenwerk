@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { DocumentModel, InlineRun } from "../../documents/model";
 import { toPlainText } from "../../documents/plain-text";
-import { exampleCase, exampleDirector, exampleEntity } from "./fixtures";
+import {
+  exampleCase,
+  exampleContext,
+  exampleDirector,
+  exampleEntity,
+} from "./fixtures";
 import { buildMusterprotokoll, buildMusterprotokollPreview } from "./template";
 
 function runsOf(model: DocumentModel): InlineRun[] {
@@ -19,7 +24,7 @@ function blankPaths(model: DocumentModel): string[] {
 describe("buildMusterprotokollPreview", () => {
   it("matches the validated model for complete input", () => {
     expect(buildMusterprotokollPreview(exampleCase)).toEqual(
-      buildMusterprotokoll(exampleCase),
+      buildMusterprotokoll(exampleCase, exampleContext),
     );
     const entityCase = {
       ...exampleCase,
@@ -28,7 +33,7 @@ describe("buildMusterprotokollPreview", () => {
       managingDirector: exampleDirector,
     } as const;
     expect(buildMusterprotokollPreview(entityCase)).toEqual(
-      buildMusterprotokoll(entityCase),
+      buildMusterprotokoll(entityCase, exampleContext),
     );
   });
 

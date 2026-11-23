@@ -1,9 +1,10 @@
 import "server-only";
 import {
   buildMusterprotokoll,
+  type MusterprotokollIssue,
   musterprotokollDraftSchema,
   musterprotokollMetadata,
-  parseDraftAsInput,
+  validateMusterprotokoll,
 } from "@urkundenwerk/core";
 import { renderDocx, renderPdf } from "@urkundenwerk/render";
 import type { z } from "zod";
@@ -21,27 +22,31 @@ const CONTENT_TYPES: Record<ExportFormat, string> = {
 
 const RENDERERS = { pdf: renderPdf, docx: renderDocx } as const;
 
-/** A validation problem reported to the client with its stable code. */
+/** A problem reported to the client with its stable code. */
 export type ExportIssue = {
   path: string;
   code: string;
   message: string;
-  rule?: string;
 };
 
-function toExportIssues(error: z.ZodError): ExportIssue[] {
-  return error.issues.map((issue) => {
-    const rule =
-      issue.code === "custom" && typeof issue.params?.rule === "string"
-        ? issue.params.rule
-        : undefined;
-    return {
-      path: issue.path.join("."),
+/** Stored data that is not even a draft: Zod issue codes. */
+function draftIssues(error: z.ZodError): ExportIssue[] {
+  return error.issues.map((issue) => ({
+    path: issue.path.join("."),
+    code: issue.code,
+    message: issue.message,
+  }));
+}
+
+/** Errors from the rule engine: stable rule codes such as `field_required`. */
+function ruleErrors(issues: readonly MusterprotokollIssue[]): ExportIssue[] {
+  return issues
+    .filter((issue) => issue.severity === "error")
+    .map((issue) => ({
+      path: issue.paths[0] ?? "",
       code: issue.code,
       message: issue.message,
-      ...(rule ? { rule } : {}),
-    };
-  });
+    }));
 }
 
 function problem(
@@ -85,7 +90,7 @@ export function exportFilename(title: string, format: ExportFormat): string {
 export async function exportDocument(
   supabase: AppSupabaseClient,
   userId: string | null,
-  params: { id: string; format: string | null },
+  params: { id: string; format: string | null; referenceDate: string },
 ): Promise<Response> {
   if (!userId) return problem(401, "unauthenticated");
 
@@ -115,16 +120,18 @@ export async function exportDocument(
   const draft = musterprotokollDraftSchema.safeParse(document.data);
   if (!draft.success) {
     return problem(422, "invalid_draft", {
-      issues: toExportIssues(draft.error),
+      issues: draftIssues(draft.error),
     });
   }
 
-  const input = parseDraftAsInput(draft.data);
-  if (!input.success) {
-    return problem(422, "incomplete", { issues: toExportIssues(input.error) });
+  // The same rules as in the builder decide; warnings do not block.
+  const context = { referenceDate: params.referenceDate };
+  const result = validateMusterprotokoll(draft.data, context);
+  if (!result.success) {
+    return problem(422, "incomplete", { issues: ruleErrors(result.issues) });
   }
 
-  const model = buildMusterprotokoll(input.data);
+  const model = buildMusterprotokoll(result.data, context);
   const bytes = await RENDERERS[format.data](model);
 
   return new Response(new Blob([new Uint8Array(bytes)]), {

@@ -72,6 +72,7 @@ function renderBuilder(
       canEdit
       firmName="Demo-Kanzlei Nord"
       templateLabel="Musterprotokoll, single founder"
+      referenceDate="2026-11-23"
       {...overrides}
     />,
   );

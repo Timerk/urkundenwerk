@@ -3,12 +3,14 @@ import { toPlainText } from "../../documents/plain-text";
 import { getTemplate } from "../registry";
 import {
   exampleCase,
+  exampleContext,
   exampleDirector,
   exampleEntity,
   exampleFounder,
 } from "./fixtures";
 import type { MusterprotokollInput } from "./schema";
 import source from "./SOURCE.md?raw";
+import { MusterprotokollValidationError } from "./validate";
 import { buildMusterprotokoll, musterprotokollTemplate } from "./template";
 
 // Fictional first names that match each salutation, so the goldens read naturally.
@@ -70,7 +72,7 @@ const variants: { name: string; input: MusterprotokollInput }[] = [
 it.each(variants)(
   "matches the $name plain-text golden",
   async ({ name, input }) => {
-    const document = toPlainText(buildMusterprotokoll(input));
+    const document = toPlainText(buildMusterprotokoll(input, exampleContext));
     await expect(document).toMatchFileSnapshot(`./goldens/${name}.txt`);
   },
 );
@@ -120,7 +122,7 @@ it("preserves all fixed statutory wording for every alternative after normalizin
       .split("\u0000")
       .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
       .join(".+?");
-    const model = buildMusterprotokoll(input);
+    const model = buildMusterprotokoll(input, exampleContext);
     // The procedural closing is outside Anlage 1 and checked separately.
     const statutoryBlocks = model.blocks.filter(
       (block) => block.kind !== "signatures",
@@ -136,7 +138,7 @@ it("preserves all fixed statutory wording for every alternative after normalizin
 });
 
 it("ends an in-person deed with the closing and founder and notary signature lines", () => {
-  const model = buildMusterprotokoll(exampleCase);
+  const model = buildMusterprotokoll(exampleCase, exampleContext);
   expect(model.blocks.at(-2)).toMatchObject({ kind: "clause", number: 7 });
   expect(model.blocks.at(-1)).toEqual({
     kind: "signatures",
@@ -151,10 +153,13 @@ it("ends an in-person deed with the closing and founder and notary signature lin
 });
 
 it("ends a video deed at clause 7 without a signature block", () => {
-  const model = buildMusterprotokoll({
-    ...exampleCase,
-    notarisation: { ...exampleCase.notarisation, mode: "video" },
-  });
+  const model = buildMusterprotokoll(
+    {
+      ...exampleCase,
+      notarisation: { ...exampleCase.notarisation, mode: "video" },
+    },
+    exampleContext,
+  );
   expect(model.blocks.at(-1)).toMatchObject({ kind: "clause", number: 7 });
   expect(model.blocks.some((block) => block.kind === "signatures")).toBe(false);
 });
@@ -164,7 +169,7 @@ it("preserves field paths for preview highlighting, including blanks and reused 
     ...exampleCase,
     notarisation: { mode: "in_person" },
   } as const;
-  const model = buildMusterprotokoll(input);
+  const model = buildMusterprotokoll(input, exampleContext);
   const runs = model.blocks.flatMap((block) =>
     block.kind === "signatures" ? block.closing : block.runs,
   );
@@ -190,8 +195,27 @@ it("looks up a registered template and handles unknown ids", () => {
   expect(getTemplate("toString")).toBeUndefined();
 });
 
-it("rejects unvalidated input at build time", () => {
+it("rejects input that breaks a rule at build time", () => {
   expect(() =>
-    buildMusterprotokoll({ ...exampleCase, shareCapitalCents: 123 }),
-  ).toThrow();
+    buildMusterprotokoll(
+      { ...exampleCase, shareCapitalCents: 123 },
+      exampleContext,
+    ),
+  ).toThrow(MusterprotokollValidationError);
+});
+
+it("builds input that only has warnings and notes", () => {
+  const model = buildMusterprotokoll(
+    {
+      ...exampleCase,
+      company: {
+        ...exampleCase.company,
+        name: "Musterlicht UG (haftungsbeschränkt)",
+        purpose: "Handel mit Waren aller Art",
+      },
+      shareCapitalCents: 100,
+    },
+    exampleContext,
+  );
+  expect(toPlainText(model)).toContain("Handel mit Waren aller Art");
 });

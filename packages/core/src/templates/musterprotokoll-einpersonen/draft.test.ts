@@ -2,10 +2,16 @@ import { describe, expect, it } from "vitest";
 import {
   draftToInput,
   musterprotokollDraftSchema,
-  parseDraftAsInput,
+  normaliseDraft,
   type MusterprotokollDraft,
 } from "./draft";
-import { exampleCase, exampleDirector, exampleEntity } from "./fixtures";
+import {
+  exampleCase,
+  exampleContext,
+  exampleDirector,
+  exampleEntity,
+} from "./fixtures";
+import { validateMusterprotokoll } from "./validate";
 
 describe("musterprotokollDraftSchema", () => {
   it("accepts an empty draft", () => {
@@ -69,9 +75,8 @@ describe("musterprotokollDraftSchema", () => {
 
 describe("draftToInput", () => {
   it("turns a complete draft into valid input", () => {
-    const result = parseDraftAsInput(exampleCase);
-    expect(result.success).toBe(true);
-    expect(result.data).toEqual(exampleCase);
+    const result = validateMusterprotokoll(exampleCase, exampleContext);
+    expect(result).toEqual({ success: true, data: exampleCase, issues: [] });
   });
 
   it("selects the fields of the chosen alternatives", () => {
@@ -94,11 +99,17 @@ describe("draftToInput", () => {
   });
 
   it("reports missing required fields of an incomplete draft", () => {
-    const result = parseDraftAsInput({
-      founder: { kind: "natural_person", firstName: "Erika" },
-      company: { name: "Musterlicht GmbH", seat: " " },
-    });
-    const paths = result.error?.issues.map((issue) => issue.path.join("."));
+    const result = validateMusterprotokoll(
+      {
+        founder: { kind: "natural_person", firstName: "Erika" },
+        company: { name: "Musterlicht GmbH", seat: " " },
+      },
+      exampleContext,
+    );
+    expect(result.success).toBe(false);
+    const paths = result.issues
+      .filter((issue) => issue.code === "field_required")
+      .map((issue) => issue.paths[0]);
 
     expect(paths).toEqual(
       expect.arrayContaining([
@@ -111,5 +122,18 @@ describe("draftToInput", () => {
       ]),
     );
     expect(paths).not.toContain("notarisation.deedNumber");
+  });
+
+  it("trims text as the schema does", () => {
+    expect(
+      normaliseDraft({
+        company: {
+          name: "  Musterlicht GmbH ",
+          purpose: "Software\r\nund mehr",
+        },
+      }),
+    ).toMatchObject({
+      company: { name: "Musterlicht GmbH", purpose: "Software\nund mehr" },
+    });
   });
 });

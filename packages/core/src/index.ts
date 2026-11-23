@@ -24,15 +24,48 @@ export {
 export {
   draftToInput,
   musterprotokollDraftSchema,
-  parseDraftAsInput,
+  normaliseDraft,
+  type MusterprotokollCandidate,
   type MusterprotokollDraft,
 } from "./templates/musterprotokoll-einpersonen/draft";
 export {
   musterprotokollSchema,
   type MusterprotokollData,
   type MusterprotokollInput,
-  type MusterprotokollRuleCode,
 } from "./templates/musterprotokoll-einpersonen/schema";
+export {
+  FORMATION_COST_CAP_CENTS,
+  FULL_AGE_YEARS,
+  GENERIC_PURPOSES,
+  legalFormOf,
+  MINIMUM_GMBH_CAPITAL_CENTS,
+  musterprotokollRules,
+  type LegalForm,
+  type MusterprotokollRuleCode,
+} from "./templates/musterprotokoll-einpersonen/rules";
+export {
+  checkMusterprotokoll,
+  MusterprotokollValidationError,
+  validateMusterprotokoll,
+  type MusterprotokollIssue,
+  type MusterprotokollValidation,
+} from "./templates/musterprotokoll-einpersonen/validate";
+export { passes } from "./rules/engine";
+export {
+  getRule,
+  rulesFor,
+  runRules,
+  type RuleCode,
+  type RuleTemplateId,
+} from "./rules";
+export {
+  SEVERITIES,
+  type Issue,
+  type IssueParams,
+  type Rule,
+  type RuleContext,
+  type Severity,
+} from "./rules/types";
 export {
   buildMusterprotokoll,
   buildMusterprotokollPreview,

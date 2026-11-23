@@ -1,3 +1,4 @@
+import { todayInGermany } from "../../../../../../lib/dates";
 import { exportDocument } from "../../../../../../lib/documents/export";
 import {
   createClient,
@@ -19,5 +20,6 @@ export async function GET(
   return exportDocument(supabase, user?.id ?? null, {
     id,
     format: new URL(request.url).searchParams.get("format"),
+    referenceDate: todayInGermany(),
   });
 }

@@ -60,6 +60,14 @@ function focusHandlers(path: string, context: DraftContextValue) {
   };
 }
 
+/** Errors show as errors; warnings and notes take the place of the hint. */
+function messages(issue: FieldIssue | undefined, hint?: ReactNode) {
+  if (!issue) return { error: undefined, hint };
+  return issue.severity === "error"
+    ? { error: issue.message, hint }
+    : { error: undefined, hint: issue.message };
+}
+
 // Matches the draft schema's limits in @urkundenwerk/core.
 const SHORT_TEXT = 200;
 const LONG_TEXT = 2000;
@@ -104,8 +112,7 @@ export function TextField({
       id={controlId(path)}
       label={label}
       description={description}
-      hint={hint}
-      error={issue?.message}
+      {...messages(issue, hint)}
       optional={optional}
       className={className}
     >
@@ -147,7 +154,7 @@ export function DateField({
       id={controlId(path)}
       label={label}
       description={description}
-      error={issue?.message}
+      {...messages(issue)}
       optional={optional}
       className={className}
     >
@@ -206,8 +213,7 @@ export function ChoiceField<T extends string>({
         context.touch(path);
       }}
       disabled={context.readOnly}
-      error={issue?.message}
-      hint={hint}
+      {...messages(issue, hint)}
       description={description}
       layout={layout}
     />
@@ -230,15 +236,17 @@ export function CapitalField({
   );
   const parsed = parseEuros(text);
   const issue = context.visibleIssue(path);
-  const error = parsed.kind === "invalid" ? parsed.message : issue?.message;
+  const shown =
+    parsed.kind === "invalid"
+      ? { error: parsed.message, hint }
+      : messages(issue, hint);
 
   return (
     <Field
       id={controlId(path)}
       label={fieldLabel(path)}
       description={description}
-      hint={hint}
-      error={error}
+      {...shown}
     >
       {(ids) => (
         <div className="relative max-w-56">

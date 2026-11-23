@@ -21,6 +21,7 @@ import { fieldLabel } from "../../../../../lib/builder/fields";
 import { DEFAULT_DOCUMENT_TITLE } from "../../../../../lib/documents/schemas";
 import {
   analyseDraft,
+  isFieldRule,
   legalFormOf,
   setAt,
   withDefaults,
@@ -41,6 +42,8 @@ export type BuilderProps = {
   canEdit: boolean;
   firmName: string;
   templateLabel: string;
+  /** Today's date in Germany, from the server, for date rules. */
+  referenceDate: string;
 };
 
 const timeFormat = new Intl.DateTimeFormat("en-GB", {
@@ -138,6 +141,7 @@ export function Builder({
   canEdit,
   firmName,
   templateLabel,
+  referenceDate,
 }: BuilderProps) {
   const [draft, setDraft] = useState(() =>
     canEdit ? withDefaults(initialDraft) : initialDraft,
@@ -180,7 +184,10 @@ export function Builder({
     };
   }, []);
 
-  const analysis = useMemo(() => analyseDraft(draft), [draft]);
+  const analysis = useMemo(
+    () => analyseDraft(draft, referenceDate),
+    [draft, referenceDate],
+  );
   const model = useMemo(() => buildMusterprotokollPreview(draft), [draft]);
   const legalForm = useMemo(
     () => legalFormOf(draft.company?.name),
@@ -286,7 +293,11 @@ export function Builder({
       visibleIssue: (path: string) => {
         const issue = analysis.issues.get(path);
         if (!issue) return undefined;
-        return issue.rule || showAll || touched.has(path) ? issue : undefined;
+        // Rules show as soon as their values exist; missing values once the
+        // field was visited or the user asked for all of them.
+        return !isFieldRule(issue.code) || showAll || touched.has(path)
+          ? issue
+          : undefined;
       },
       touch: (path: string) =>
         setTouched((current) =>

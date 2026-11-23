@@ -3,30 +3,32 @@ import type {
   DocumentModel,
   InlineRun,
   SignaturesBlock,
-  TemplateMetadata,
 } from "../../documents/model";
 import {
   formatEuroAmount,
   formatEuroInWords,
   formatGermanDate,
 } from "../../formatting";
-import { draftToInput, type MusterprotokollDraft } from "./draft";
+import type { RuleContext } from "../../rules/types";
 import {
-  musterprotokollSchema,
-  type MusterprotokollData,
-  type MusterprotokollInput,
-} from "./schema";
+  type MusterprotokollCandidate,
+  type MusterprotokollDraft,
+  normaliseDraft,
+} from "./draft";
+import { musterprotokollMetadata } from "./metadata";
+import { musterprotokollRules } from "./rules";
+import { musterprotokollSchema, type MusterprotokollInput } from "./schema";
+import {
+  checkMusterprotokoll,
+  MusterprotokollValidationError,
+  validateMusterprotokoll,
+} from "./validate";
+
+export { musterprotokollMetadata };
 
 // "a)" in Anlage 1 only enumerates the annex variants; it is not part of the deed.
 const heading =
   "Musterprotokoll\nfür die Gründung einer Einpersonengesellschaft";
-
-export const musterprotokollMetadata = {
-  id: "musterprotokoll-einpersonen",
-  version: "2022-08-01",
-  legalBasis: "Anlage 1 a) zu § 2 Abs. 1a GmbHG",
-  sourceUrl: "https://www.gesetze-im-internet.de/gmbhg/anlage_1.html",
-} as const satisfies TemplateMetadata;
 
 type RunInput = InlineRun | string;
 
@@ -50,44 +52,14 @@ function clause(number: number, ...content: RunInput[]): DocumentBlock {
   return { kind: "clause", number, runs: runs(content) };
 }
 
+type Founder = NonNullable<MusterprotokollCandidate["founder"]>;
+type PersonName = Pick<Founder, "salutation" | "firstName" | "lastName">;
+type Director = NonNullable<MusterprotokollCandidate["managingDirector"]>;
 /**
  * The data the template assembles. Validated input satisfies it. A preview of
  * an incomplete draft leaves values out, and the template shows them as blanks.
  */
-type Founder = {
-  kind?: "natural_person" | "legal_entity";
-  salutation?: "Herr" | "Frau" | null;
-  firstName?: string;
-  lastName?: string;
-  birthDate?: string;
-  address?: { street?: string; postalCode?: string; city?: string };
-  name?: string;
-  registerCourt?: string;
-  registerNumber?: string;
-  seat?: string;
-  identificationDetails?: string;
-};
-type PersonName = Pick<Founder, "salutation" | "firstName" | "lastName">;
-type Director = PersonName & {
-  kind?: "founder" | "other";
-  birthDate?: string;
-  residence?: string;
-};
-type DeedData = {
-  notarisation?: {
-    mode?: "in_person" | "video";
-    deedNumber?: string;
-    date?: string;
-    notaryName?: string;
-    notarySeat?: string;
-  };
-  founder?: Founder;
-  company?: { name?: string; seat?: string; purpose?: string };
-  shareCapitalCents?: number;
-  contribution?: "full" | "half";
-  managingDirector?: Director;
-  notaryNotes?: string;
-};
+type DeedData = MusterprotokollCandidate;
 
 const germanDate = (isoDate: string | undefined) =>
   isoDate === undefined ? undefined : formatGermanDate(isoDate);
@@ -288,25 +260,18 @@ function assemble(data: DeedData): DocumentModel {
   };
 }
 
-/** Validate structured input and assemble the versioned deed template. */
+/**
+ * Validates structured input with the schema and the rules and assembles the
+ * versioned deed. Throws `MusterprotokollValidationError` if any rule reports
+ * an error. The reference date is today's date, which date rules compare to.
+ */
 export function buildMusterprotokoll(
   input: MusterprotokollInput,
+  context: RuleContext,
 ): DocumentModel {
-  const data: MusterprotokollData = musterprotokollSchema.parse(input);
-  return assemble(data);
-}
-
-/** Applies the schema's text normalisation without validating. */
-function tidy<T>(value: T): T {
-  if (typeof value === "string") {
-    return value.trim().replace(/\r\n?/g, "\n") as T;
-  }
-  if (value && typeof value === "object") {
-    return Object.fromEntries(
-      Object.entries(value).map(([key, entry]) => [key, tidy(entry)]),
-    ) as T;
-  }
-  return value;
+  const result = validateMusterprotokoll(input, context);
+  if (!result.success) throw new MusterprotokollValidationError(result.issues);
+  return assemble(result.data);
 }
 
 /**
@@ -317,12 +282,15 @@ function tidy<T>(value: T): T {
 export function buildMusterprotokollPreview(
   draft: MusterprotokollDraft,
 ): DocumentModel {
-  return assemble(tidy(draftToInput(draft)));
+  return assemble(normaliseDraft(draft));
 }
 
 export const musterprotokollTemplate = {
   metadata: musterprotokollMetadata,
   schema: musterprotokollSchema,
+  rules: musterprotokollRules,
+  check: checkMusterprotokoll,
+  validate: validateMusterprotokoll,
   build: buildMusterprotokoll,
   preview: buildMusterprotokollPreview,
 } as const;
