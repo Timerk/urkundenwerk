@@ -1,0 +1,10 @@
+packages:
+  - apps/*
+  - packages/*
+
+catalog:
+  vitest: ^5.1.1
+
+allowBuilds:
+  esbuild: true
+  sharp: true
