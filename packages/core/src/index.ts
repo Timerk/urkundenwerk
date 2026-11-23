@@ -7,3 +7,28 @@ export const eurAmountSchema = z.object({
 });
 
 export type EurAmount = z.infer<typeof eurAmountSchema>;
+
+export type {
+  DocumentBlock,
+  DocumentModel,
+  InlineRun,
+  TemplateMetadata,
+} from "./documents/model";
+export { inlineRunText, toPlainText } from "./documents/plain-text";
+export {
+  formatEuroAmount,
+  formatEuroInWords,
+  formatGermanDate,
+} from "./formatting";
+export {
+  musterprotokollSchema,
+  type MusterprotokollData,
+  type MusterprotokollInput,
+  type MusterprotokollRuleCode,
+} from "./templates/musterprotokoll-einpersonen/schema";
+export {
+  buildMusterprotokoll,
+  musterprotokollMetadata,
+  musterprotokollTemplate,
+} from "./templates/musterprotokoll-einpersonen/template";
+export { getTemplate, type TemplateId } from "./templates/registry";
