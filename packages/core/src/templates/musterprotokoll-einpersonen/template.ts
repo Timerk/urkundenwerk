@@ -2,6 +2,7 @@ import type {
   DocumentBlock,
   DocumentModel,
   InlineRun,
+  SignaturesBlock,
   TemplateMetadata,
 } from "../../documents/model";
 import {
@@ -134,7 +135,24 @@ function directorDetails({
   ];
 }
 
-/** Validate structured input and assemble the versioned statutory template. */
+// Procedural closing under § 13 Abs. 1 BeurkG, outside the statutory model text.
+function signatures(founder: Founder): SignaturesBlock {
+  return {
+    kind: "signatures",
+    closing: runs(["Vorgelesen, genehmigt und eigenhändig unterschrieben:"]),
+    signatories: [
+      {
+        label:
+          founder.kind === "natural_person"
+            ? `${founder.firstName} ${founder.lastName}`
+            : founder.name,
+      },
+      { label: "Notar/in" },
+    ],
+  };
+}
+
+/** Validate structured input and assemble the versioned deed template. */
 export function buildMusterprotokoll(
   input: MusterprotokollInput,
 ): DocumentModel {
@@ -232,6 +250,8 @@ export function buildMusterprotokoll(
         "Der Erschienene wurde vom Notar/von der Notarin insbesondere auf Folgendes hingewiesen: ",
         field("notaryNotes", notaryNotes),
       ),
+      // Video notarisation uses qualified electronic signatures outside this export (§ 16b Abs. 3 BeurkG).
+      ...(notarisation.mode === "in_person" ? [signatures(founder)] : []),
     ],
   };
 }

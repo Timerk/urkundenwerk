@@ -9,9 +9,9 @@ the validated case data. The PDF renderer must run in a Node serverless function
 ## Decision
 
 Core validates the case with Zod and produces a renderer-neutral
-`DocumentModel`. It contains headings, paragraphs, numbered clauses, and text
-runs with optional field provenance or an unfilled field path. A template
-registry exposes each template's version, legal source, schema, and builder.
+`DocumentModel`. It contains headings, paragraphs, numbered clauses, signature
+blocks, and text runs with optional field provenance or an unfilled field path.
+A template registry exposes each template's version, legal source, schema, and builder.
 The browser can render the model directly, and core can flatten it to plain
 text for golden tests.
 
@@ -38,3 +38,9 @@ The statutory identity blank is assembled from the structured founder fields,
 plus any supplied identification details. Salutations, payment timing, and
 video wording follow the template's alternatives. The version is the DiRUG
 effective date for the source text.
+
+The in-person template appends a procedural signature block after the
+statutory text. DOCX links its paragraphs for pagination, and PDF measures
+the whole block before placing it. Statutory-fidelity tests compare the
+blocks sourced from Anlage 1 a). Video exports end at clause 7 and leave
+qualified electronic signing to the external notarisation workflow.

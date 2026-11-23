@@ -19,6 +19,10 @@ export const layout = {
   paragraphGap: 10,
   headingGap: 19,
   lineGap: 2,
+  signatureWidth: 145,
+  signatureSpace: 28,
+  signatureLabelGap: 3,
+  signatureLabelSize: 9,
 } as const;
 
 export const author = "Urkundenwerk";

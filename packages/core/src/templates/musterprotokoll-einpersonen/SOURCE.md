@@ -52,3 +52,17 @@ Hinweise:
 4) Nicht Zutreffendes streichen.
 5) Hinweis auf die Videokommunikation im Falle einer Präsenzbeurkundung zu streichen.
 ```
+
+## Procedural additions
+
+In-person deeds append `Vorgelesen, genehmigt und eigenhändig unterschrieben:`
+after clause 7, followed by signature lines labelled with the founder's name
+and `Notar/in`. This closing and these lines are outside Anlage 1 a) GmbHG
+and record the reading, approval and signing steps under
+[§ 13 Abs. 1 and 3 BeurkG](https://www.gesetze-im-internet.de/beurkg/__13.html).
+The signature label for a legal entity uses its name. Representation details
+supplied as free text stay in the identification paragraph.
+
+Video exports end at clause 7. The app does not apply the qualified electronic
+signatures required by
+[§ 16b Abs. 3 BeurkG](https://www.gesetze-im-internet.de/beurkg/__16b.html).
