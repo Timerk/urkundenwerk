@@ -35,6 +35,7 @@ export {
 } from "./templates/musterprotokoll-einpersonen/schema";
 export {
   buildMusterprotokoll,
+  buildMusterprotokollPreview,
   musterprotokollMetadata,
   musterprotokollTemplate,
 } from "./templates/musterprotokoll-einpersonen/template";

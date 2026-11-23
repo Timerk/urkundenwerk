@@ -32,6 +32,9 @@ Saved form input uses `musterprotokollDraftSchema`, a strict deep-partial of the
 input schema with length limits. It keeps the fields of both founder and
 director alternatives. `parseDraftAsInput(draft)` selects the chosen
 alternatives, drops blank text, and validates the result with the full schema.
+`buildMusterprotokollPreview(draft)` assembles the same wording from an
+incomplete draft without validating it, with blank runs for missing values. It
+is meant for the live preview; exports always use the validating builder.
 
 The browser can consume `DocumentModel` directly. A filled run identifies its
 source with a dot-separated field path, which may recur in several clauses.
