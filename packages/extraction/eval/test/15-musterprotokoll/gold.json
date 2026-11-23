@@ -1,0 +1,76 @@
+{
+  "fields": {
+    "notarisation.mode": {
+      "value": "in_person",
+      "quote": "Vorgelesen, genehmigt und eigenhändig unterschrieben:"
+    },
+    "notarisation.deedNumber": null,
+    "notarisation.date": null,
+    "notarisation.notaryName": null,
+    "notarisation.notarySeat": null,
+    "founder.kind": {
+      "value": "natural_person",
+      "quote": "Tara Musterhain, geboren am 2. November 1984, wohnhaft in Musterbogen 35"
+    },
+    "founder.salutation": null,
+    "founder.firstName": {
+      "value": "Tara",
+      "quote": "Tara Musterhain, geboren am 2. November 1984, wohnhaft in Musterbogen 35, 00105 Dornsilz."
+    },
+    "founder.lastName": {
+      "value": "Musterhain",
+      "quote": "Musterhain, geboren am 2. November"
+    },
+    "founder.birthDate": {
+      "value": "1984-11-02",
+      "quote": "2. November 1984"
+    },
+    "founder.address.street": {
+      "value": "Musterbogen 35",
+      "quote": "Musterbogen 35"
+    },
+    "founder.address.postalCode": {
+      "value": "00105",
+      "quote": "00105"
+    },
+    "founder.address.city": {
+      "value": "Dornsilz",
+      "quote": "in Musterbogen 35, 00105 Dornsilz"
+    },
+    "founder.name": null,
+    "founder.registerCourt": null,
+    "founder.registerNumber": null,
+    "founder.seat": null,
+    "founder.identificationDetails": null,
+    "company.name": {
+      "value": "Schattenlot Lagertechnik UG (haftungsbeschränkt)",
+      "quote": "Schattenlot Lagertechnik UG (haftungsbeschränkt)"
+    },
+    "company.seat": {
+      "value": "Tauwinkel",
+      "quote": "Tauwinkel"
+    },
+    "company.purpose": {
+      "value": "die Konstruktion kleiner Regalsysteme",
+      "quote": "die Konstruktion kleiner Regalsysteme"
+    },
+    "shareCapitalCents": {
+      "value": 129800,
+      "quote": "1.298 €"
+    },
+    "contribution": {
+      "value": "full",
+      "quote": "sofort in voller Höhe"
+    },
+    "managingDirector.kind": {
+      "value": "founder",
+      "quote": "Zum Geschäftsführer der Gesellschaft wird Tara Musterhain"
+    },
+    "managingDirector.salutation": null,
+    "managingDirector.firstName": null,
+    "managingDirector.lastName": null,
+    "managingDirector.birthDate": null,
+    "managingDirector.residence": null,
+    "notaryNotes": null
+  }
+}

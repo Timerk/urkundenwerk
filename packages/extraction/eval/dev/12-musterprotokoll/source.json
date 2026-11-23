@@ -1,0 +1,37 @@
+{
+  "kind": "musterprotokoll",
+  "format": "docx",
+  "input": {
+    "notarisation": {
+      "mode": "in_person",
+      "deedNumber": "321/2025",
+      "date": "2025-02-18",
+      "notaryName": "Dr. Irma Musterstich",
+      "notarySeat": "Bogenrost"
+    },
+    "founder": {
+      "kind": "legal_entity",
+      "name": "Musterquell Beteiligungs GmbH",
+      "registerCourt": "Amtsgericht Sternsiek",
+      "registerNumber": "HRB 67033",
+      "seat": "Sternsiek",
+      "identificationDetails": "vertreten durch Liska Musterklinge"
+    },
+    "company": {
+      "name": "Riedharfe Formteile UG (haftungsbeschränkt)",
+      "seat": "Tüpfelried",
+      "purpose": "der Handel mit faltbaren Sortiereinsätzen"
+    },
+    "shareCapitalCents": 87100,
+    "contribution": "full",
+    "managingDirector": {
+      "kind": "other",
+      "salutation": "Frau",
+      "firstName": "Tara",
+      "lastName": "Musterkamm",
+      "birthDate": "1978-04-15",
+      "residence": "Blausaum"
+    },
+    "notaryNotes": "Die Hinweise zur Anmeldung wurden erläutert."
+  }
+}

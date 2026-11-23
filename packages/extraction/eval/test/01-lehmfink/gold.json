@@ -1,0 +1,61 @@
+{
+  "fields": {
+    "notarisation.mode": null,
+    "notarisation.deedNumber": null,
+    "notarisation.date": null,
+    "notarisation.notaryName": null,
+    "notarisation.notarySeat": null,
+    "founder.kind": {
+      "value": "natural_person",
+      "quote": "von Frau Edda Musterzinn in einem einzigen Geschäftsanteil übernommen"
+    },
+    "founder.salutation": {
+      "value": "Frau",
+      "quote": "Frau Edda Musterzinn"
+    },
+    "founder.firstName": {
+      "value": "Edda",
+      "quote": "Frau Edda Musterzinn"
+    },
+    "founder.lastName": {
+      "value": "Musterzinn",
+      "quote": "Frau Edda Musterzinn"
+    },
+    "founder.birthDate": null,
+    "founder.address.street": null,
+    "founder.address.postalCode": null,
+    "founder.address.city": null,
+    "founder.name": null,
+    "founder.registerCourt": null,
+    "founder.registerNumber": null,
+    "founder.seat": null,
+    "founder.identificationDetails": null,
+    "company.name": {
+      "value": "Lehmfink Werkzeuge GmbH",
+      "quote": "als Lehmfink Werkzeuge GmbH auf"
+    },
+    "company.seat": {
+      "value": "Wolkenweiler",
+      "quote": "Zum Sitz der Gesellschaft wird Wolkenweiler bestimmt"
+    },
+    "company.purpose": {
+      "value": "die Entwicklung von Lehren für den Modellbau",
+      "quote": "die Entwicklung von Lehren für den Modellbau"
+    },
+    "shareCapitalCents": {
+      "value": 2500000,
+      "quote": "Das Stammkapital beträgt 25.000,00 EUR"
+    },
+    "contribution": {
+      "value": "half",
+      "quote": "vor der Registeranmeldung die Hälfte einzuzahlen"
+    },
+    "managingDirector.kind": null,
+    "managingDirector.salutation": null,
+    "managingDirector.firstName": null,
+    "managingDirector.lastName": null,
+    "managingDirector.birthDate": null,
+    "managingDirector.residence": null,
+    "notaryNotes": null
+  }
+}

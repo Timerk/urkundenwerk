@@ -1,0 +1,54 @@
+{
+  "kind": "contract",
+  "format": "docx",
+  "title": "Satzung der Zedernrain Messtechnik GmbH",
+  "paragraphs": [
+    "A. Firma, Sitz, Tätigkeit",
+    "Unter der Firma Zedernrain Messtechnik GmbH wird ein messtechnischer Betrieb errichtet. Als Satzungssitz wird Lehmquell bestimmt. Gegenstand ist die Entwicklung optischer Prüfvorrichtungen für Lehrwerkstätten. Zum Gegenstand zählen ferner die Erprobung von Messaufbauten, die Einweisung von Anwendern und der Vertrieb eigener Vorrichtungen. Die Gesellschaft kann hierzu Schutzrechte erwerben und Lizenzen vergeben, soweit dies dem Unternehmensgegenstand dient.",
+    "B. Kapital und Gesellschafterin",
+    "Alleinige Gründungsgesellschafterin ist die Musterlot Beteiligungs GmbH mit Sitz in Sternbronn, eingetragen beim Amtsgericht Sternbronn unter HRB 70491. Sie zeichnet den Geschäftsanteil im eigenen Namen und für eigene Rechnung.",
+    "Das Stammkapital wird auf fünfundzwanzigtausend Euro festgesetzt; die Gesellschafterin übernimmt den Anteil Nr. 1. Der Anteil entspricht dem gesamten Nennbetrag. Eine Sacheinlage ist nicht vereinbart. Die Geschäftsführung hat geleistete Zahlungen der jeweiligen Einlage zuzuordnen und die Nachweise aufzubewahren.",
+    "C. Geschäftsführung und Vertretungsbefugnis",
+    "Die Gesellschaft hat einen oder mehrere Geschäftsführer. Bei Einzelbesetzung erfolgt die Vertretung allein, sonst durch zwei Geschäftsführer gemeinsam oder durch einen Geschäftsführer mit einem Prokuristen. Das Nähere zur Vertretung regelt ein Beschluss der Gesellschafterin. Dazu zählen die Bestellung und Abberufung, Einzelvertretung und eine etwaige Befreiung von § 181 BGB. Handlungen gegenüber Dritten bleiben von einer nachstehenden internen Zustimmungspflicht unberührt.",
+    "Die Geschäftsführung benötigt die vorherige Zustimmung zur Übernahme von Bürgschaften für Dritte, zur Erteilung von Prokura und zum Erwerb oder zur ausschließlichen Lizenzierung wesentlicher Schutzrechte. Für wiederkehrende Geschäfte kann die Gesellschafterin einen Rahmen festlegen.",
+    "D. Beschlüsse und Unternehmensplanung",
+    "Spätestens vor Beginn des neuen Geschäftsjahres legt die Geschäftsführung eine Planung für Aufträge, Investitionen und Personalbedarf vor. Die Gesellschafterin kann Entscheidungen schriftlich treffen. An einer Versammlung können mit Einverständnis der Beteiligten Vertreter teilnehmen; eine Vollmacht in Textform genügt. Die Niederschrift soll Gegenstand, Ergebnis und etwaige Weisungen enthalten. Änderungen der Satzung werden in der gesetzlich gebotenen Form beschlossen.",
+    "E. Rechnungslegung und Geschäftsjahr",
+    "Das Geschäftsjahr beginnt am 1. Januar und endet am 31. Dezember. Das erste Geschäftsjahr ist ein Rumpfgeschäftsjahr. Die Geschäftsführung legt Abschluss und Vorschlag zur Ergebnisverwendung gemeinsam vor. Ein Bilanzgewinn kann ausgeschüttet oder in Rücklagen eingestellt werden, soweit gesetzliche Ausschüttungssperren gewahrt bleiben.",
+    "F. Bekanntmachungen und Unterlagen",
+    "Bekanntmachungen erfolgen im Bundesanzeiger, soweit eine Veröffentlichung vorgeschrieben ist. Die für das Beteiligungsverhältnis maßgeblichen Mitteilungen werden an die der Gesellschaft bekannt gegebene Geschäftsanschrift der Gesellschafterin gesandt. Die Gesellschafterin kann Einsicht in das Verzeichnis der Beschlüsse und deren Anlagen verlangen.",
+    "G. Aufwand der Errichtung",
+    "Die Gesellschaft trägt Gerichtsgebühren und Kosten für die Beurkundung der Gründung, zusammen begrenzt auf 1.800 €. Kosten eigener Berater und weitergehende Aufwendungen der Gründungsgesellschafterin bleiben bei dieser. Die Geschäftsführung hält die Belege zur Zuordnung bereit.",
+    "H. Fortgeltung",
+    "Entfällt eine Regelung dieses Vertrages oder ist sie nicht durchführbar, berührt das die übrigen Regelungen nicht. Für die erforderliche Anpassung ist der Zweck maßgebend, den die Gesellschafterin mit der betroffenen Bestimmung bei Feststellung der Satzung verfolgt hat."
+  ],
+  "labels": {
+    "company.name": [
+      "Zedernrain Messtechnik GmbH",
+      "Unter der Firma Zedernrain Messtechnik GmbH"
+    ],
+    "company.purpose": [
+      "die Entwicklung optischer Prüfvorrichtungen für Lehrwerkstätten",
+      "die Entwicklung optischer Prüfvorrichtungen für Lehrwerkstätten"
+    ],
+    "company.seat": ["Lehmquell", "Als Satzungssitz wird Lehmquell bestimmt"],
+    "founder.name": [
+      "Musterlot Beteiligungs GmbH",
+      "Musterlot Beteiligungs GmbH"
+    ],
+    "founder.kind": [
+      "legal_entity",
+      "Alleinige Gründungsgesellschafterin ist die Musterlot Beteiligungs GmbH"
+    ],
+    "founder.seat": ["Sternbronn", "mit Sitz in Sternbronn"],
+    "founder.registerCourt": [
+      "Amtsgericht Sternbronn",
+      "beim Amtsgericht Sternbronn"
+    ],
+    "founder.registerNumber": ["HRB 70491", "unter HRB 70491"],
+    "shareCapitalCents": [
+      2500000,
+      "Stammkapital wird auf fünfundzwanzigtausend Euro festgesetzt"
+    ]
+  }
+}

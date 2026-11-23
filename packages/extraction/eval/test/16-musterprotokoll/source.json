@@ -1,0 +1,41 @@
+{
+  "kind": "musterprotokoll",
+  "format": "docx",
+  "input": {
+    "notarisation": {
+      "mode": "video",
+      "deedNumber": "729/2025",
+      "date": "2025-06-22",
+      "notaryName": "Dr. Liska Musterstich",
+      "notarySeat": "Dornsilz"
+    },
+    "founder": {
+      "kind": "natural_person",
+      "salutation": "Herr",
+      "firstName": "Hagen",
+      "lastName": "Musterblatt",
+      "birthDate": "1989-09-04",
+      "address": {
+        "street": "Musterbogen 45",
+        "postalCode": "00106",
+        "city": "Wollquell"
+      }
+    },
+    "company": {
+      "name": "Echowickel Ersatzteile GmbH",
+      "seat": "Sternsiek",
+      "purpose": "der Verkauf von Ersatzteilen für Handpressen"
+    },
+    "shareCapitalCents": 3850000,
+    "contribution": "full",
+    "managingDirector": {
+      "kind": "other",
+      "salutation": "Herr",
+      "firstName": "Torben",
+      "lastName": "Mustersamt",
+      "birthDate": "1976-08-27",
+      "residence": "Ulmenrast"
+    },
+    "notaryNotes": "Die Hinweise zur Anmeldung wurden erläutert."
+  }
+}

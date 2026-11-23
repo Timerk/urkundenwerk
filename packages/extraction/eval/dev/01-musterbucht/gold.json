@@ -1,0 +1,61 @@
+{
+  "fields": {
+    "notarisation.mode": null,
+    "notarisation.deedNumber": null,
+    "notarisation.date": null,
+    "notarisation.notaryName": null,
+    "notarisation.notarySeat": null,
+    "founder.kind": {
+      "value": "natural_person",
+      "quote": "Frau Ida Musterlot übernimmt"
+    },
+    "founder.salutation": {
+      "value": "Frau",
+      "quote": "Frau Ida Musterlot"
+    },
+    "founder.firstName": {
+      "value": "Ida",
+      "quote": "Frau Ida Musterlot"
+    },
+    "founder.lastName": {
+      "value": "Musterlot",
+      "quote": "Frau Ida Musterlot"
+    },
+    "founder.birthDate": null,
+    "founder.address.street": null,
+    "founder.address.postalCode": null,
+    "founder.address.city": null,
+    "founder.name": null,
+    "founder.registerCourt": null,
+    "founder.registerNumber": null,
+    "founder.seat": null,
+    "founder.identificationDetails": null,
+    "company.name": {
+      "value": "Musterbucht Werftservice GmbH",
+      "quote": "Die Firma lautet Musterbucht Werftservice GmbH"
+    },
+    "company.seat": {
+      "value": "Kiefernwiek",
+      "quote": "Der Sitz ist Kiefernwiek"
+    },
+    "company.purpose": {
+      "value": "die Wartung kleiner Werkstattkräne",
+      "quote": "die Wartung kleiner Werkstattkräne"
+    },
+    "shareCapitalCents": {
+      "value": 2500000,
+      "quote": "Das Stammkapital beträgt 25.000,00 EUR"
+    },
+    "contribution": {
+      "value": "half",
+      "quote": "Vor der Anmeldung ist die Hälfte einzuzahlen"
+    },
+    "managingDirector.kind": null,
+    "managingDirector.salutation": null,
+    "managingDirector.firstName": null,
+    "managingDirector.lastName": null,
+    "managingDirector.birthDate": null,
+    "managingDirector.residence": null,
+    "notaryNotes": null
+  }
+}

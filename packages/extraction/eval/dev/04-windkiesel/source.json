@@ -1,0 +1,41 @@
+{
+  "kind": "contract",
+  "format": "pdf",
+  "title": "Satzung der Windkiesel Feldlabor UG",
+  "paragraphs": [
+    "§ 1 Firma, Sitz und Niederlassungen",
+    "Die Gesellschaft heißt Windkiesel Feldlabor UG (haftungsbeschränkt). Ihr Sitz ist Flaumrode. Die Geschäftsführung kann Betriebsstätten für die Ausgabe und Rücknahme von Geräten einrichten. Ein Lager außerhalb Flaumrodes begründet keine Änderung des Satzungssitzes.",
+    "§ 2 Gegenstand",
+    "Zweck der Gesellschaft ist die Vermietung mobiler Bodenmessgeräte. Zu diesem Zweck kann die Gesellschaft Geräte warten, ein Ersatzteillager führen und Mietern eine technische Einweisung anbieten. Über die Aufnahme eines eigenständigen Handels mit Geräten beschließt die Gesellschafterin vorab.",
+    "§ 3 Stammkapital und Einzahlung",
+    "Das Stammkapital lautet auf 1 250 EUR; es entfällt insgesamt auf den übernommenen Anteil Nr. 1. Der Betrag ist unmittelbar nach Übernahme vollständig zu leisten. Die Einzahlung erfolgt als Bareinlage auf das für die Gründung eingerichtete Konto. Ansprüche auf Rückgewähr können nicht mit der Einlageschuld verrechnet werden.",
+    "§ 4 Geschäftsführung und Vertretung",
+    "Ein Geschäftsführer vertritt die Gesellschaft allein, wenn nur ein Geschäftsführer bestellt ist. Anderenfalls vertreten zwei Geschäftsführer gemeinsam oder ein Geschäftsführer und ein Prokurist zusammen. Im Bestellungsbeschluss kann eine abweichende Einzelvertretungsbefugnis vorgesehen werden. Die Geschäftsführung darf die für den Mietbetrieb üblichen Geschäfte im eigenen Ermessen erledigen. Der Erwerb eines gesamten Gerätebestands eines anderen Unternehmens und die Bestellung eines Prokuristen bedürfen eines Gesellschafterbeschlusses.",
+    "§ 5 Beschlussfassung",
+    "Die Geschäftsführung legt eine Angelegenheit zur Beschlussfassung vor, wenn sie gesetzlich oder nach dieser Satzung der Gesellschafterin vorbehalten ist. Für einen Beschluss außerhalb einer Versammlung werden der Beschlussvorschlag und die eingegangene Stimmabgabe zu den Akten genommen. Kommen weitere Gesellschafter hinzu, ist eine Versammlung mit einer Frist von zwei Wochen unter Angabe der Tagesordnung einzuberufen. Das Stimmrecht folgt dem Nennbetrag der Anteile.",
+    "§ 6 Geschäftsjahr und Rücklage",
+    "Das Geschäftsjahr beginnt am 1. April und endet am 31. März. Das erste Geschäftsjahr endet am ersten 31. März nach der Eintragung. Vor einer Ausschüttung ist die gesetzliche Rücklage der Unternehmergesellschaft zu bilden. Die Entscheidung über die Verwendung des verbleibenden Jahresergebnisses trifft die Gesellschafterin nach Feststellung des Jahresabschlusses.",
+    "§ 7 Bekanntmachungen",
+    "Soweit das Gesetz eine Bekanntmachung der Gesellschaft verlangt, erfolgt sie im Bundesanzeiger. Mitteilungen an die Gesellschafterin erfolgen in Textform an die zuletzt mitgeteilte Adresse. Für die Übergabe der Ladung kann ein Empfangsnachweis verlangt werden.",
+    "§ 8 Kosten und Vertragsänderungen",
+    "Die Gesellschaft trägt bis zu insgesamt 480 EUR an Notar- und Gerichtskosten der Errichtung und Anmeldung. Andere Aufwendungen des Gründungsvorgangs bleiben bei der Übernehmerin. Die Kosten eines späteren Sitzwechsels werden nach den für diesen Vorgang gefassten Beschlüssen behandelt.",
+    "§ 9 Schlussvorschrift",
+    "Die Unwirksamkeit einer einzelnen Regelung hat keine Auswirkungen auf die übrige Satzung. Für eine notwendige Neuregelung ist der zulässige Weg zu wählen, der den ursprünglich vorgesehenen Ausgleich der Interessen am besten erreicht."
+  ],
+  "labels": {
+    "company.name": [
+      "Windkiesel Feldlabor UG (haftungsbeschränkt)",
+      "Die Gesellschaft heißt Windkiesel Feldlabor UG (haftungsbeschränkt)"
+    ],
+    "company.seat": ["Flaumrode", "Ihr Sitz ist Flaumrode"],
+    "company.purpose": [
+      "die Vermietung mobiler Bodenmessgeräte",
+      "die Vermietung mobiler Bodenmessgeräte"
+    ],
+    "shareCapitalCents": [125000, "Stammkapital lautet auf 1 250 EUR"],
+    "contribution": [
+      "full",
+      "unmittelbar nach Übernahme vollständig zu leisten"
+    ]
+  }
+}

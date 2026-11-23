@@ -1,0 +1,51 @@
+{
+  "kind": "contract",
+  "format": "docx",
+  "title": "Satzung des Fadenuhr Musterateliers",
+  "paragraphs": [
+    "1. Kennzeichen der Gesellschaft",
+    "Firma — Fadenuhr Musteratelier UG (haftungsbeschränkt)",
+    "Ort des Sitzes — Nebelried",
+    "Die Gesellschaft führt ihre Firma in den Geschäftsbriefen mit dem vollständigen Rechtsformzusatz. Anschrift und Betriebsstätte können innerhalb des Ortes durch die Geschäftsführung geändert werden.",
+    "2. Tätigkeit des Unternehmens",
+    "Zur Tätigkeit der Gesellschaft gehört die Herstellung von Messschablonen für textile Reparaturen. Sie kann Händler mit Kleinserien beliefern und im Zusammenhang mit eigenen Erzeugnissen Gebrauchsanleitungen erstellen. Testfertigungen können Dritten übertragen werden. Eine von der Herstellung losgelöste Beratung ist von der Unternehmensplanung nur erfasst, wenn die Gesellschafterin ihr zustimmt.",
+    "3. Kapital, Anteil und Einlageleistung",
+    "Kapital und Anteil: 640 Euro; ein Anteil mit gleicher Nennsumme. Die Einzahlung des übernommenen Betrags erfolgt bei Errichtung in voller Höhe. Sie ist in Geld zu leisten. Der Anteil erhält die Nummer 1 und wird von der Unterzeichnerin der Satzung übernommen. Über die Einzahlung sind die Bankunterlagen bei der Gesellschaft aufzubewahren. Die gesetzliche Rücklage bleibt von der Zuordnung der Einlage unberührt.",
+    "4. Erstbestellung und Vertretung",
+    "Die Alleingesellschafterin Frau Freya Musterlin nimmt das Amt der Geschäftsführerin mit Unterzeichnung dieser Urkunde an. Solange nur eine Geschäftsführerin bestellt ist, vertritt sie die Gesellschaft allein. Werden später mehrere Personen bestellt, sind jeweils zwei gemeinsam zur Vertretung befugt. Die Gesellschafterversammlung kann für einen Geschäftsführer Einzelvertretung vorsehen oder Befreiung von den Beschränkungen des § 181 BGB erteilen.",
+    "5. Vorbehaltene Entscheidungen",
+    "Über die Aufnahme von Darlehen für einen neuen Produktionsstandort, die Vergabe ausschließlicher Lizenzen und die Erteilung von Prokura entscheidet die Gesellschafterin. Das gilt auch für Verträge über den Erwerb einer anderen Werkstatt. Bis zur Entscheidung kann die Geschäftsführung die erforderlichen Angebote einholen, ohne die Gesellschaft bereits zu binden.",
+    "6. Versammlung, Abstimmung und Niederschrift",
+    "Die Geschäftsführung beruft eine Versammlung ein, wenn eine Entscheidung über den Abschluss oder eine Änderung des Geschäftsbetriebs erforderlich wird. Die Tagesordnung soll mit der Einladung in Textform versandt werden. Liegen alle Stimmen in Textform vor und widerspricht niemand dem Verfahren, kann ohne Zusammenkunft beschlossen werden. Bei nur einer Gesellschafterin wird ihre Entscheidung schriftlich festgehalten und unterschrieben.",
+    "7. Geschäftsjahr und Jahresrechnung",
+    "Das Geschäftsjahr ist das Kalenderjahr. Das erste beginnt an dem Tag der Registereintragung und endet am folgenden 31. Dezember. Nach Aufstellung des Jahresabschlusses entscheidet die Gesellschafterin über die Verwendung des Jahresüberschusses nach Bildung der gesetzlichen Rücklage. Auslagen für vorausgegangene Herstellungsversuche werden getrennt von den Errichtungskosten abgerechnet.",
+    "8. Mitteilungen und Bekanntmachungen",
+    "Bekanntmachungen erfolgen im Bundesanzeiger. Schriftstücke, die nur die Beteiligten betreffen, werden an die für Zustellungen benannte Anschrift übermittelt. Ein Vertreter teilt der Gesellschaft seine Bevollmächtigung vor der Beschlussfassung mit.",
+    "9. Gründungsaufwand und Fortbestand",
+    "Die Gesellschaft übernimmt Gebühren dieses Vertrages und der Anmeldung bis zu 380 €. Übersteigende Beträge trägt die Gründerin. Im Fall einer unwirksamen Bestimmung bleibt die Satzung im Übrigen verbindlich, sofern der Gesellschaftszweck fortgeführt werden kann. Die Ersatzbestimmung ist durch Gesellschafterbeschluss festzustellen."
+  ],
+  "labels": {
+    "company.name": [
+      "Fadenuhr Musteratelier UG (haftungsbeschränkt)",
+      "Firma — Fadenuhr Musteratelier UG (haftungsbeschränkt)"
+    ],
+    "company.seat": ["Nebelried", "Ort des Sitzes — Nebelried"],
+    "company.purpose": [
+      "die Herstellung von Messschablonen für textile Reparaturen",
+      "die Herstellung von Messschablonen für textile Reparaturen"
+    ],
+    "shareCapitalCents": [64000, "Kapital und Anteil: 640 Euro"],
+    "contribution": ["full", "bei Errichtung in voller Höhe"],
+    "founder.kind": [
+      "natural_person",
+      "Die Alleingesellschafterin Frau Freya Musterlin"
+    ],
+    "founder.salutation": ["Frau", "Frau Freya Musterlin"],
+    "founder.firstName": ["Freya", "Frau Freya Musterlin"],
+    "founder.lastName": ["Musterlin", "Frau Freya Musterlin"],
+    "managingDirector.kind": [
+      "founder",
+      "Die Alleingesellschafterin Frau Freya Musterlin nimmt das Amt der Geschäftsführerin"
+    ]
+  }
+}

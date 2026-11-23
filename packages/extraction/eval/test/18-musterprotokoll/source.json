@@ -1,0 +1,36 @@
+{
+  "kind": "musterprotokoll",
+  "format": "docx",
+  "input": {
+    "notarisation": {
+      "mode": "in_person",
+      "deedNumber": "966/2025",
+      "date": "2025-08-15",
+      "notaryName": "Dr. Elva Musterstich",
+      "notarySeat": "Tüpfelried"
+    },
+    "founder": {
+      "kind": "natural_person",
+      "salutation": "Herr",
+      "firstName": "Yorik",
+      "lastName": "Musterbogen",
+      "birthDate": "1995-11-26",
+      "address": {
+        "street": "Musterbogen 87",
+        "postalCode": "00108",
+        "city": "Blausaum"
+      }
+    },
+    "company": {
+      "name": "Mistelgitter Handel UG (haftungsbeschränkt)",
+      "seat": "Dornsilz",
+      "purpose": "die Herstellung transportabler Ablageflächen"
+    },
+    "shareCapitalCents": 123200,
+    "contribution": "full",
+    "managingDirector": {
+      "kind": "founder"
+    },
+    "notaryNotes": "Die Hinweise zur Anmeldung wurden erläutert."
+  }
+}

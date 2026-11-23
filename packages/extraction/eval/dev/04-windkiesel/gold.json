@@ -1,0 +1,49 @@
+{
+  "fields": {
+    "notarisation.mode": null,
+    "notarisation.deedNumber": null,
+    "notarisation.date": null,
+    "notarisation.notaryName": null,
+    "notarisation.notarySeat": null,
+    "founder.kind": null,
+    "founder.salutation": null,
+    "founder.firstName": null,
+    "founder.lastName": null,
+    "founder.birthDate": null,
+    "founder.address.street": null,
+    "founder.address.postalCode": null,
+    "founder.address.city": null,
+    "founder.name": null,
+    "founder.registerCourt": null,
+    "founder.registerNumber": null,
+    "founder.seat": null,
+    "founder.identificationDetails": null,
+    "company.name": {
+      "value": "Windkiesel Feldlabor UG (haftungsbeschränkt)",
+      "quote": "Die Gesellschaft heißt Windkiesel Feldlabor UG (haftungsbeschränkt)"
+    },
+    "company.seat": {
+      "value": "Flaumrode",
+      "quote": "Ihr Sitz ist Flaumrode"
+    },
+    "company.purpose": {
+      "value": "die Vermietung mobiler Bodenmessgeräte",
+      "quote": "die Vermietung mobiler Bodenmessgeräte"
+    },
+    "shareCapitalCents": {
+      "value": 125000,
+      "quote": "Stammkapital lautet auf 1 250 EUR"
+    },
+    "contribution": {
+      "value": "full",
+      "quote": "unmittelbar nach Übernahme vollständig zu leisten"
+    },
+    "managingDirector.kind": null,
+    "managingDirector.salutation": null,
+    "managingDirector.firstName": null,
+    "managingDirector.lastName": null,
+    "managingDirector.birthDate": null,
+    "managingDirector.residence": null,
+    "notaryNotes": null
+  }
+}

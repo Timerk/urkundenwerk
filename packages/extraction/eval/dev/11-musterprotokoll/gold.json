@@ -1,0 +1,94 @@
+{
+  "fields": {
+    "notarisation.mode": {
+      "value": "in_person",
+      "quote": "Vorgelesen, genehmigt und eigenhändig unterschrieben:"
+    },
+    "notarisation.deedNumber": {
+      "value": "788/2025",
+      "quote": "788/2025"
+    },
+    "notarisation.date": {
+      "value": "2025-01-21",
+      "quote": "21. Januar 2025"
+    },
+    "notarisation.notaryName": {
+      "value": "Dr. Tara Musterstich",
+      "quote": "Dr. Tara Musterstich"
+    },
+    "notarisation.notarySeat": {
+      "value": "Blausaum",
+      "quote": "Blausaum"
+    },
+    "founder.kind": {
+      "value": "natural_person",
+      "quote": "Greta Musterreif, geboren am 8. Januar 1994, wohnhaft in Musterbogen 53"
+    },
+    "founder.salutation": {
+      "value": "Frau",
+      "quote": "Frau Greta Musterreif, geboren am 8. Januar 1994, wohnhaft in Musterbogen 53, 00101 Bogenrost, ausgewiesen durch einen fiktiven Lichtbildausweis."
+    },
+    "founder.firstName": {
+      "value": "Greta",
+      "quote": "Frau Greta Musterreif, geboren am 8. Januar 1994, wohnhaft in Musterbogen 53, 00101 Bogenrost, ausgewiesen durch einen fiktiven Lichtbildausweis."
+    },
+    "founder.lastName": {
+      "value": "Musterreif",
+      "quote": "Musterreif, geboren am 8. Januar"
+    },
+    "founder.birthDate": {
+      "value": "1994-01-08",
+      "quote": "8. Januar 1994"
+    },
+    "founder.address.street": {
+      "value": "Musterbogen 53",
+      "quote": "Musterbogen 53"
+    },
+    "founder.address.postalCode": {
+      "value": "00101",
+      "quote": "00101"
+    },
+    "founder.address.city": {
+      "value": "Bogenrost",
+      "quote": "in Musterbogen 53, 00101 Bogenrost"
+    },
+    "founder.name": null,
+    "founder.registerCourt": null,
+    "founder.registerNumber": null,
+    "founder.seat": null,
+    "founder.identificationDetails": {
+      "value": "ausgewiesen durch einen fiktiven Lichtbildausweis",
+      "quote": "ausgewiesen durch einen fiktiven Lichtbildausweis"
+    },
+    "company.name": {
+      "value": "Schieferwabe Prüfstände GmbH",
+      "quote": "Schieferwabe Prüfstände GmbH"
+    },
+    "company.seat": {
+      "value": "Wollquell",
+      "quote": "Wollquell"
+    },
+    "company.purpose": {
+      "value": "die Entwicklung optischer Vergleichslehren",
+      "quote": "die Entwicklung optischer Vergleichslehren"
+    },
+    "shareCapitalCents": {
+      "value": 3500000,
+      "quote": "35.000 €"
+    },
+    "contribution": {
+      "value": "half",
+      "quote": "zu 50 Prozent sofort, im Übrigen sobald die Gesellschafterversammlung ihre Einforderung beschließt"
+    },
+    "managingDirector.kind": {
+      "value": "founder",
+      "quote": "Zum Geschäftsführer der Gesellschaft wird Frau Greta Musterreif"
+    },
+    "managingDirector.salutation": null,
+    "managingDirector.firstName": null,
+    "managingDirector.lastName": null,
+    "managingDirector.birthDate": null,
+    "managingDirector.residence": null,
+    "notaryNotes": null
+  }
+}

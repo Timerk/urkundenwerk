@@ -1,0 +1,97 @@
+{
+  "fields": {
+    "notarisation.mode": {
+      "value": "in_person",
+      "quote": "persönlich erschienen Frau Lene Mustersegge"
+    },
+    "notarisation.deedNumber": {
+      "value": "147/2025",
+      "quote": "Urkundenverzeichnis 147/2025"
+    },
+    "notarisation.date": {
+      "value": "2025-05-08",
+      "quote": "Den 8. Mai 2025"
+    },
+    "notarisation.notaryName": {
+      "value": "Bero Musterlin",
+      "quote": "dem Notar Bero Musterlin"
+    },
+    "notarisation.notarySeat": {
+      "value": "Krähenquell",
+      "quote": "Der Amtssitz des Notars ist Krähenquell"
+    },
+    "founder.kind": {
+      "value": "natural_person",
+      "quote": "persönlich erschienen Frau Lene Mustersegge"
+    },
+    "founder.salutation": {
+      "value": "Frau",
+      "quote": "erschienen Frau Lene Mustersegge"
+    },
+    "founder.firstName": {
+      "value": "Lene",
+      "quote": "erschienen Frau Lene Mustersegge"
+    },
+    "founder.lastName": {
+      "value": "Mustersegge",
+      "quote": "erschienen Frau Lene Mustersegge"
+    },
+    "founder.birthDate": {
+      "value": "1994-11-22",
+      "quote": "geboren am 22-11-1994"
+    },
+    "founder.address.street": {
+      "value": "Nebelpfad 14",
+      "quote": "wohnhaft Nebelpfad 14"
+    },
+    "founder.address.postalCode": {
+      "value": "00037",
+      "quote": "00037 Feldriek"
+    },
+    "founder.address.city": {
+      "value": "Feldriek",
+      "quote": "00037 Feldriek"
+    },
+    "founder.name": null,
+    "founder.registerCourt": null,
+    "founder.registerNumber": null,
+    "founder.seat": null,
+    "founder.identificationDetails": {
+      "value": "durch Vorzeigen ihres Bundespersonalausweises ausgewiesen",
+      "quote": "durch Vorzeigen ihres Bundespersonalausweises ausgewiesen"
+    },
+    "company.name": {
+      "value": "Riedanker Archivbau GmbH",
+      "quote": "Die Firma lautet Riedanker Archivbau GmbH"
+    },
+    "company.seat": {
+      "value": "Feldriek",
+      "quote": "Ihr rechtlicher Sitz ist Feldriek"
+    },
+    "company.purpose": {
+      "value": "die Fertigung von Regalelementen für kleinere Archive",
+      "quote": "die Fertigung von Regalelementen für kleinere Archive"
+    },
+    "shareCapitalCents": {
+      "value": 2640000,
+      "quote": "auf 26 400 € festgelegte Stammkapital"
+    },
+    "contribution": {
+      "value": "half",
+      "quote": "Vor Anmeldung ist die Hälfte der Bareinlage fällig"
+    },
+    "managingDirector.kind": {
+      "value": "founder",
+      "quote": "bestellt sich Frau Lene Mustersegge selbst zur Geschäftsführerin"
+    },
+    "managingDirector.salutation": null,
+    "managingDirector.firstName": null,
+    "managingDirector.lastName": null,
+    "managingDirector.birthDate": null,
+    "managingDirector.residence": null,
+    "notaryNotes": {
+      "value": "die Haftung für Handlungen vor der Eintragung der Gesellschaft",
+      "quote": "die Haftung für Handlungen vor der Eintragung der Gesellschaft"
+    }
+  }
+}

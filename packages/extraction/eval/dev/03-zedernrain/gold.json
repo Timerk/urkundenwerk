@@ -1,0 +1,61 @@
+{
+  "fields": {
+    "notarisation.mode": null,
+    "notarisation.deedNumber": null,
+    "notarisation.date": null,
+    "notarisation.notaryName": null,
+    "notarisation.notarySeat": null,
+    "founder.kind": {
+      "value": "legal_entity",
+      "quote": "Alleinige Gründungsgesellschafterin ist die Musterlot Beteiligungs GmbH"
+    },
+    "founder.salutation": null,
+    "founder.firstName": null,
+    "founder.lastName": null,
+    "founder.birthDate": null,
+    "founder.address.street": null,
+    "founder.address.postalCode": null,
+    "founder.address.city": null,
+    "founder.name": {
+      "value": "Musterlot Beteiligungs GmbH",
+      "quote": "Musterlot Beteiligungs GmbH"
+    },
+    "founder.registerCourt": {
+      "value": "Amtsgericht Sternbronn",
+      "quote": "beim Amtsgericht Sternbronn"
+    },
+    "founder.registerNumber": {
+      "value": "HRB 70491",
+      "quote": "unter HRB 70491"
+    },
+    "founder.seat": {
+      "value": "Sternbronn",
+      "quote": "mit Sitz in Sternbronn"
+    },
+    "founder.identificationDetails": null,
+    "company.name": {
+      "value": "Zedernrain Messtechnik GmbH",
+      "quote": "Unter der Firma Zedernrain Messtechnik GmbH"
+    },
+    "company.seat": {
+      "value": "Lehmquell",
+      "quote": "Als Satzungssitz wird Lehmquell bestimmt"
+    },
+    "company.purpose": {
+      "value": "die Entwicklung optischer Prüfvorrichtungen für Lehrwerkstätten",
+      "quote": "die Entwicklung optischer Prüfvorrichtungen für Lehrwerkstätten"
+    },
+    "shareCapitalCents": {
+      "value": 2500000,
+      "quote": "Stammkapital wird auf fünfundzwanzigtausend Euro festgesetzt"
+    },
+    "contribution": null,
+    "managingDirector.kind": null,
+    "managingDirector.salutation": null,
+    "managingDirector.firstName": null,
+    "managingDirector.lastName": null,
+    "managingDirector.birthDate": null,
+    "managingDirector.residence": null,
+    "notaryNotes": null
+  }
+}

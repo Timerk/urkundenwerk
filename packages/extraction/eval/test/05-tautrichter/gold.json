@@ -1,0 +1,91 @@
+{
+  "fields": {
+    "notarisation.mode": {
+      "value": "in_person",
+      "quote": "Amtssitz Mohnsiek, erschien persönlich Alrik Musterkranz"
+    },
+    "notarisation.deedNumber": {
+      "value": "314/2025",
+      "quote": "UVZ 314/2025"
+    },
+    "notarisation.date": {
+      "value": "2025-10-20",
+      "quote": "am 20. Oktober 2025 in Mohnsiek aufgenommen"
+    },
+    "notarisation.notaryName": {
+      "value": "Svea Musterborke",
+      "quote": "Vor Notarin Svea Musterborke"
+    },
+    "notarisation.notarySeat": {
+      "value": "Mohnsiek",
+      "quote": "Amtssitz Mohnsiek"
+    },
+    "founder.kind": {
+      "value": "natural_person",
+      "quote": "Alrik Musterkranz richtet als alleiniger Gründer"
+    },
+    "founder.salutation": null,
+    "founder.firstName": {
+      "value": "Alrik",
+      "quote": "erschien persönlich Alrik Musterkranz"
+    },
+    "founder.lastName": {
+      "value": "Musterkranz",
+      "quote": "erschien persönlich Alrik Musterkranz"
+    },
+    "founder.birthDate": {
+      "value": "1987-04-09",
+      "quote": "geboren am 9. April 1987"
+    },
+    "founder.address.street": {
+      "value": "Moorleite 21",
+      "quote": "wohnhaft Moorleite 21"
+    },
+    "founder.address.postalCode": {
+      "value": "00076",
+      "quote": "00076 Dornmulde"
+    },
+    "founder.address.city": {
+      "value": "Dornmulde",
+      "quote": "00076 Dornmulde"
+    },
+    "founder.name": null,
+    "founder.registerCourt": null,
+    "founder.registerNumber": null,
+    "founder.seat": null,
+    "founder.identificationDetails": {
+      "value": "anhand des vorgelegten Personalausweises",
+      "quote": "anhand des vorgelegten Personalausweises"
+    },
+    "company.name": {
+      "value": "Tautrichter UG (haftungsbeschränkt)",
+      "quote": "die Tautrichter UG (haftungsbeschränkt) ein"
+    },
+    "company.seat": {
+      "value": "Dornmulde",
+      "quote": "Dornmulde als Sitz bezeichnet"
+    },
+    "company.purpose": null,
+    "shareCapitalCents": {
+      "value": 40000,
+      "quote": "Nennbetrag von vierhundert Euro ausgegeben. Dies ist das vollständige Stammkapital"
+    },
+    "contribution": {
+      "value": "full",
+      "quote": "ohne Teilzahlung unverzüglich zu entrichten"
+    },
+    "managingDirector.kind": {
+      "value": "founder",
+      "quote": "Der Alleingesellschafter bestellt sich mit Wirkung ab Errichtung zum Geschäftsführer"
+    },
+    "managingDirector.salutation": null,
+    "managingDirector.firstName": null,
+    "managingDirector.lastName": null,
+    "managingDirector.birthDate": null,
+    "managingDirector.residence": null,
+    "notaryNotes": {
+      "value": "die Pflicht zur vollständigen Einzahlung vor der Anmeldung der Unternehmergesellschaft",
+      "quote": "die Pflicht zur vollständigen Einzahlung vor der Anmeldung der Unternehmergesellschaft"
+    }
+  }
+}

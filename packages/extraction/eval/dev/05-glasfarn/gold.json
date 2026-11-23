@@ -1,0 +1,106 @@
+{
+  "fields": {
+    "notarisation.mode": {
+      "value": "in_person",
+      "quote": "erschien persönlich Frau Tilda Musterheck"
+    },
+    "notarisation.deedNumber": {
+      "value": "211/2025",
+      "quote": "UVZ 211/2025"
+    },
+    "notarisation.date": {
+      "value": "2025-09-04",
+      "quote": "Lehmquell, den 04.09.2025"
+    },
+    "notarisation.notaryName": {
+      "value": "Alva Musterbusch",
+      "quote": "Notarin Alva Musterbusch"
+    },
+    "notarisation.notarySeat": {
+      "value": "Lehmquell",
+      "quote": "Amtssitz Lehmquell"
+    },
+    "founder.kind": {
+      "value": "natural_person",
+      "quote": "erschien persönlich Frau Tilda Musterheck"
+    },
+    "founder.salutation": {
+      "value": "Frau",
+      "quote": "Frau Tilda Musterheck"
+    },
+    "founder.firstName": {
+      "value": "Tilda",
+      "quote": "Frau Tilda Musterheck"
+    },
+    "founder.lastName": {
+      "value": "Musterheck",
+      "quote": "Frau Tilda Musterheck"
+    },
+    "founder.birthDate": {
+      "value": "1990-02-12",
+      "quote": "als Geburtsdatum den 12. Februar 1990"
+    },
+    "founder.address.street": {
+      "value": "Fadenstieg 28",
+      "quote": "Fadenstieg 28, 00042 Quellhagen"
+    },
+    "founder.address.postalCode": {
+      "value": "00042",
+      "quote": "00042 Quellhagen"
+    },
+    "founder.address.city": {
+      "value": "Quellhagen",
+      "quote": "00042 Quellhagen"
+    },
+    "founder.name": null,
+    "founder.registerCourt": null,
+    "founder.registerNumber": null,
+    "founder.seat": null,
+    "founder.identificationDetails": {
+      "value": "wies sich mit einem gültigen Reisepass aus",
+      "quote": "wies sich mit einem gültigen Reisepass aus"
+    },
+    "company.name": {
+      "value": "Glasfarn Anlagen GmbH",
+      "quote": "Glasfarn Anlagen GmbH mit Satzungssitz"
+    },
+    "company.seat": {
+      "value": "Quellhagen",
+      "quote": "mit Satzungssitz Quellhagen"
+    },
+    "company.purpose": null,
+    "shareCapitalCents": {
+      "value": 3500000,
+      "quote": "gesamte Stammkapital von EUR 35.000"
+    },
+    "contribution": null,
+    "managingDirector.kind": {
+      "value": "other",
+      "quote": "Herr Rune Musterpfad, geboren am 19.12.1983, wohnhaft in Graunest, wird zum Geschäftsführer bestellt"
+    },
+    "managingDirector.salutation": {
+      "value": "Herr",
+      "quote": "Herr Rune Musterpfad"
+    },
+    "managingDirector.firstName": {
+      "value": "Rune",
+      "quote": "Herr Rune Musterpfad"
+    },
+    "managingDirector.lastName": {
+      "value": "Musterpfad",
+      "quote": "Herr Rune Musterpfad"
+    },
+    "managingDirector.birthDate": {
+      "value": "1983-12-19",
+      "quote": "geboren am 19.12.1983"
+    },
+    "managingDirector.residence": {
+      "value": "Graunest",
+      "quote": "wohnhaft in Graunest"
+    },
+    "notaryNotes": {
+      "value": "die persönliche Haftung der Handelnden vor der Eintragung",
+      "quote": "die persönliche Haftung der Handelnden vor der Eintragung"
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "kind": "minutes",
+  "format": "docx",
+  "title": "Niederschrift einer Videobeurkundung · V 009/2025",
+  "paragraphs": [
+    "Identifizierung und Vertretung",
+    "Am 29.01.2025 erscheint mittels Videokommunikation vor Notarin Nele Musterweide, Amtssitz Flockenau, die Musterweben Holding GmbH. Die GmbH hat ihren Sitz in Rubinhag und ist beim Amtsgericht Rubinhag unter HRB 60973 eingetragen. Für sie handelt die einzelvertretungsberechtigte Geschäftsführerin Siv Musterkarde. Die erschienene Vertreterin weist sich im Videokommunikationssystem aus. Ihre Vertretungsbefugnis wurde anhand der elektronischen Registereinsicht vom Vortag festgestellt. Die Notarin erläutert zu Beginn den Ablauf der elektronischen Unterzeichnung.",
+    "Erklärungen der Gründungsgesellschafterin",
+    "Die Erschienene errichtet die Rebnadel Materialkunde GmbH und legt den Gesellschaftssitz auf Eisengrund fest. Unternehmensgegenstand ist die Prüfung von Schutzbeschichtungen. Der Gesellschaftsvertrag ist als Anlage A beigefügt. Er wird in der Fassung vom 24. Januar 2025 festgestellt. Die Vertreterin bestätigt, dass der übermittelte Text dem ihr bereits vorliegenden Satzungsentwurf entspricht; ihre Genehmigung bezieht sich auf die heute in der Sitzung angezeigte und verlesene Fassung.",
+    "Das Stammkapital beträgt 32.000 Euro. Die Übernehmerin zahlt hiervon sofort die Hälfte. Sie übernimmt als alleinige Gründungsgesellschafterin den Geschäftsanteil Nr. 1. Über die Anforderung des verbleibenden Betrags wird nach Maßgabe des Gesellschaftsvertrags beschlossen. Die Gesellschaft übernimmt die nachgewiesenen Kosten von Beurkundung und Registeranmeldung bis zu 2.500 Euro.",
+    "Bestellung in gesonderter Beschlussfassung",
+    "In einem selbständigen Beschluss bestellt die Gesellschafterin Herrn Hanno Mustersteg, wohnhaft zu Schiltenried, zum Geschäftsführer. Sein Geburtsdatum ist zur Feststellung der Person in der gesonderten Annahmeerklärung anzugeben, die zu den Registerunterlagen genommen wird. Er ist allein vertretungsberechtigt, solange er der einzige bestellte Geschäftsführer ist. Die Vertreterin der Gründungsgesellschafterin wird durch diesen Beschluss nicht zur Geschäftsführerin der errichteten Gesellschaft bestellt.",
+    "Belehrung und Schluss",
+    "Die Notarin weist auf die Prüfung der Registerunterlagen hin. Sie erläutert der Vertreterin das Verfahren zur Einreichung der Gesellschafterliste und den Zeitpunkt, zu dem die Ersteintragung im Register bekannt gemacht wird. Die Gesellschaft soll eine elektronische beglaubigte Abschrift für ihre Unterlagen erhalten.",
+    "Die Notarin hat die Niederschrift und den beigefügten Gesellschaftsvertrag vorgelesen. Die Vertreterin hat den Inhalt im Videokommunikationssystem genehmigt. Beide haben die Niederschrift daraufhin qualifiziert elektronisch signiert.",
+    "Siv Musterkarde für die Musterweben Holding GmbH · Nele Musterweide, Notarin"
+  ],
+  "labels": {
+    "notarisation.mode": ["video", "erscheint mittels Videokommunikation"],
+    "notarisation.deedNumber": ["V 009/2025", "V 009/2025"],
+    "notarisation.date": ["2025-01-29", "Am 29.01.2025 erscheint"],
+    "notarisation.notaryName": ["Nele Musterweide", "Notarin Nele Musterweide"],
+    "notarisation.notarySeat": ["Flockenau", "Amtssitz Flockenau"],
+    "founder.kind": [
+      "legal_entity",
+      "Amtssitz Flockenau, die Musterweben Holding GmbH"
+    ],
+    "founder.name": [
+      "Musterweben Holding GmbH",
+      "Amtssitz Flockenau, die Musterweben Holding GmbH"
+    ],
+    "founder.seat": ["Rubinhag", "Die GmbH hat ihren Sitz in Rubinhag"],
+    "founder.registerCourt": [
+      "Amtsgericht Rubinhag",
+      "beim Amtsgericht Rubinhag"
+    ],
+    "founder.registerNumber": ["HRB 60973", "unter HRB 60973"],
+    "company.name": [
+      "Rebnadel Materialkunde GmbH",
+      "errichtet die Rebnadel Materialkunde GmbH"
+    ],
+    "company.seat": ["Eisengrund", "Gesellschaftssitz auf Eisengrund fest"],
+    "company.purpose": [
+      "die Prüfung von Schutzbeschichtungen",
+      "die Prüfung von Schutzbeschichtungen"
+    ],
+    "shareCapitalCents": [3200000, "Das Stammkapital beträgt 32.000 Euro"],
+    "contribution": ["half", "zahlt hiervon sofort die Hälfte"],
+    "managingDirector.kind": [
+      "other",
+      "bestellt die Gesellschafterin Herrn Hanno Mustersteg, wohnhaft zu Schiltenried, zum Geschäftsführer"
+    ],
+    "managingDirector.salutation": ["Herr", "Herrn Hanno Mustersteg"],
+    "managingDirector.firstName": ["Hanno", "Herrn Hanno Mustersteg"],
+    "managingDirector.lastName": ["Mustersteg", "Herrn Hanno Mustersteg"],
+    "managingDirector.residence": ["Schiltenried", "wohnhaft zu Schiltenried"],
+    "notaryNotes": [
+      "auf die Prüfung der Registerunterlagen",
+      "auf die Prüfung der Registerunterlagen"
+    ],
+    "founder.identificationDetails": [
+      "die einzelvertretungsberechtigte Geschäftsführerin Siv Musterkarde",
+      "die einzelvertretungsberechtigte Geschäftsführerin Siv Musterkarde"
+    ]
+  }
+}

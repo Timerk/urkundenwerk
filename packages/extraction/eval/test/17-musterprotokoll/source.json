@@ -1,0 +1,36 @@
+{
+  "kind": "musterprotokoll",
+  "format": "pdf",
+  "input": {
+    "notarisation": {
+      "mode": "in_person",
+      "deedNumber": "486/2025",
+      "date": "2025-07-23",
+      "notaryName": "Dr. Runa Musterstich",
+      "notarySeat": "Wollquell"
+    },
+    "founder": {
+      "kind": "legal_entity",
+      "name": "Mustergrund Beteiligungs GmbH",
+      "registerCourt": "Amtsgericht Blausaum",
+      "registerNumber": "HRB 73682",
+      "seat": "Blausaum",
+      "identificationDetails": "vertreten durch Kaja Musterklinge"
+    },
+    "company": {
+      "name": "Flachsschere Werkbänke GmbH",
+      "seat": "Ulmenrast",
+      "purpose": "die Vermietung höhenverstellbarer Werkbänke"
+    },
+    "shareCapitalCents": 3150000,
+    "contribution": "half",
+    "managingDirector": {
+      "kind": "other",
+      "salutation": "Frau",
+      "firstName": "Liska",
+      "lastName": "Mustersegel",
+      "birthDate": "1989-09-08",
+      "residence": "Dornsilz"
+    }
+  }
+}

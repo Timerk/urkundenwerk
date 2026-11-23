@@ -1,0 +1,94 @@
+{
+  "fields": {
+    "notarisation.mode": {
+      "value": "in_person",
+      "quote": "Am 21. Februar 2025 erschien in Flockensiek vor Notar Arved Musterwinde"
+    },
+    "notarisation.deedNumber": {
+      "value": "38/2025",
+      "quote": "UR-Nr. 38/2025"
+    },
+    "notarisation.date": {
+      "value": "2025-02-21",
+      "quote": "Am 21. Februar 2025 erschien"
+    },
+    "notarisation.notaryName": {
+      "value": "Arved Musterwinde",
+      "quote": "vor Notar Arved Musterwinde"
+    },
+    "notarisation.notarySeat": {
+      "value": "Flockensiek",
+      "quote": "Amtssitz Flockensiek"
+    },
+    "founder.kind": {
+      "value": "natural_person",
+      "quote": "Herr Nils Musterlauf, geboren am 6. Juni 1989"
+    },
+    "founder.salutation": {
+      "value": "Herr",
+      "quote": "Herr Nils Musterlauf"
+    },
+    "founder.firstName": {
+      "value": "Nils",
+      "quote": "Herr Nils Musterlauf"
+    },
+    "founder.lastName": {
+      "value": "Musterlauf",
+      "quote": "Herr Nils Musterlauf"
+    },
+    "founder.birthDate": {
+      "value": "1989-06-06",
+      "quote": "geboren am 6. Juni 1989"
+    },
+    "founder.address.street": {
+      "value": "Tannentritt 8",
+      "quote": "wohnhaft Tannentritt 8"
+    },
+    "founder.address.postalCode": {
+      "value": "00061",
+      "quote": "00061 Mohnsiek"
+    },
+    "founder.address.city": {
+      "value": "Mohnsiek",
+      "quote": "00061 Mohnsiek"
+    },
+    "founder.name": null,
+    "founder.registerCourt": null,
+    "founder.registerNumber": null,
+    "founder.seat": null,
+    "founder.identificationDetails": {
+      "value": "durch Vorlage eines Personalausweises ausgewiesen",
+      "quote": "durch Vorlage eines Personalausweises ausgewiesen"
+    },
+    "company.name": {
+      "value": "Kupferliest UG (haftungsbeschränkt)",
+      "quote": "Namen Kupferliest UG (haftungsbeschränkt)"
+    },
+    "company.seat": {
+      "value": "Mohnsiek",
+      "quote": "hat seinen Sitz in Mohnsiek"
+    },
+    "company.purpose": null,
+    "shareCapitalCents": {
+      "value": 30000,
+      "quote": "dreihundert Euro Stammkapital"
+    },
+    "contribution": {
+      "value": "full",
+      "quote": "sofort vollständig in bar eingezahlt"
+    },
+    "managingDirector.kind": {
+      "value": "founder",
+      "quote": "Zum Geschäftsführer bestellt der Gründer sich selbst"
+    },
+    "managingDirector.salutation": null,
+    "managingDirector.firstName": null,
+    "managingDirector.lastName": null,
+    "managingDirector.birthDate": null,
+    "managingDirector.residence": null,
+    "notaryNotes": {
+      "value": "dass die Gesellschaft als solche erst mit der Eintragung im Handelsregister entsteht",
+      "quote": "dass die Gesellschaft als solche erst mit der Eintragung im Handelsregister entsteht"
+    }
+  }
+}

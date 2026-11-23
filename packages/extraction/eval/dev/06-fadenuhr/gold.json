@@ -1,0 +1,64 @@
+{
+  "fields": {
+    "notarisation.mode": null,
+    "notarisation.deedNumber": null,
+    "notarisation.date": null,
+    "notarisation.notaryName": null,
+    "notarisation.notarySeat": null,
+    "founder.kind": {
+      "value": "natural_person",
+      "quote": "Die Alleingesellschafterin Frau Freya Musterlin"
+    },
+    "founder.salutation": {
+      "value": "Frau",
+      "quote": "Frau Freya Musterlin"
+    },
+    "founder.firstName": {
+      "value": "Freya",
+      "quote": "Frau Freya Musterlin"
+    },
+    "founder.lastName": {
+      "value": "Musterlin",
+      "quote": "Frau Freya Musterlin"
+    },
+    "founder.birthDate": null,
+    "founder.address.street": null,
+    "founder.address.postalCode": null,
+    "founder.address.city": null,
+    "founder.name": null,
+    "founder.registerCourt": null,
+    "founder.registerNumber": null,
+    "founder.seat": null,
+    "founder.identificationDetails": null,
+    "company.name": {
+      "value": "Fadenuhr Musteratelier UG (haftungsbeschränkt)",
+      "quote": "Firma — Fadenuhr Musteratelier UG (haftungsbeschränkt)"
+    },
+    "company.seat": {
+      "value": "Nebelried",
+      "quote": "Ort des Sitzes — Nebelried"
+    },
+    "company.purpose": {
+      "value": "die Herstellung von Messschablonen für textile Reparaturen",
+      "quote": "die Herstellung von Messschablonen für textile Reparaturen"
+    },
+    "shareCapitalCents": {
+      "value": 64000,
+      "quote": "Kapital und Anteil: 640 Euro"
+    },
+    "contribution": {
+      "value": "full",
+      "quote": "bei Errichtung in voller Höhe"
+    },
+    "managingDirector.kind": {
+      "value": "founder",
+      "quote": "Die Alleingesellschafterin Frau Freya Musterlin nimmt das Amt der Geschäftsführerin"
+    },
+    "managingDirector.salutation": null,
+    "managingDirector.firstName": null,
+    "managingDirector.lastName": null,
+    "managingDirector.birthDate": null,
+    "managingDirector.residence": null,
+    "notaryNotes": null
+  }
+}

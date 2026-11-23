@@ -1,0 +1,51 @@
+{
+  "kind": "contract",
+  "format": "pdf",
+  "title": "Gesellschaftsvertrag · Lehmfink Werkzeuge",
+  "paragraphs": [
+    "§ 1 Firma und Sitz",
+    "Das Unternehmen tritt als Lehmfink Werkzeuge GmbH auf. Zum Sitz der Gesellschaft wird Wolkenweiler bestimmt. Die Errichtung von Vertriebsstellen an anderen Orten ist zulässig. Die schuldrechtlichen Vereinbarungen eines Mietvertrags über eine Werkstatt bestimmen den Sitz der Gesellschaft nicht.",
+    "§ 2 Unternehmen",
+    "Der Betrieb umfasst die Entwicklung von Lehren für den Modellbau. Die Gesellschaft darf ihre Erzeugnisse über Fachhändler vertreiben und für die Benutzung kurze Einführungen anbieten. Die Geschäftsführung kann einen Auftrag zur Herstellung einzelner Bauteile vergeben, wenn dies für den Liefertermin oder die Qualität der Serienfertigung zweckmäßig ist.",
+    "§ 3 Stammkapital und Anteil",
+    "Das Stammkapital beträgt 25.000,00 EUR und wird von Frau Edda Musterzinn in einem einzigen Geschäftsanteil übernommen. Für diesen Anteil wird die Nummer 1 vergeben. Auf den Geschäftsanteil ist vor der Registeranmeldung die Hälfte einzuzahlen. Die Resteinlage wird auf Beschluss fällig. Die bar übernommenen Einlagen sind auf das Gründungskonto zu leisten und in der Buchführung von etwaigen Darlehen der Gesellschafterin getrennt zu erfassen.",
+    "§ 4 Bestellung, Vertretung und Weisungen",
+    "Die Geschäftsführerin wird in einer späteren Versammlung bestellt. Bei nur einer Bestellung besteht Einzelvertretungsmacht. Sind mehrere Geschäftsführer bestellt, vertreten zwei gemeinschaftlich oder ein Geschäftsführer zusammen mit einem Prokuristen. Der Bestellungsbeschluss kann eine Einzelvertretung oder eine Befreiung von den Beschränkungen des § 181 BGB regeln. Im Innenverhältnis sind die Grenzen eines genehmigten Investitionsplans zu beachten. Grundstücksgeschäfte, die Übernahme von Sicherheiten für fremde Schuld und die Aufgabe der Fertigung bedürfen der ausdrücklichen Zustimmung.",
+    "§ 5 Gesellschafterversammlung",
+    "Beschlussvorlagen zu Jahresabschluss und Investitionsplan werden mit der Tagesordnung versandt. Die Einladung erfolgt durch die Geschäftsführung mit einer Frist von mindestens zwei Wochen, soweit die Gesellschafter nicht einvernehmlich auf sie verzichten. In Textform abgegebene Stimmen sind zulässig, wenn alle Beteiligten mit dem Verfahren einverstanden sind. Die Geschäftsführung dokumentiert die Fassung des Beschlusses und das Ergebnis. Einzelentscheidungen der Alleingesellschafterin hält diese unterschrieben fest.",
+    "§ 6 Geschäftsjahr und Ergebnis",
+    "Das Geschäftsjahr entspricht dem Kalenderjahr. Die Geschäftsführung reicht den unterzeichneten Jahresabschluss rechtzeitig zur Feststellung ein. Die Gesellschafterversammlung kann beschließen, für die Anschaffung eines neuen Werkzeugs einen Teil des Gewinns in eine Rücklage einzustellen. Die gesetzlichen Grenzen einer Ausschüttung bleiben maßgebend.",
+    "§ 7 Bekanntmachungen und Empfang",
+    "Die Bekanntmachungen der Gesellschaft erfolgen im Bundesanzeiger. Einladungen und sonstige Mitteilungen an die Gesellschafter sind an die jeweils zuletzt mitgeteilte Anschrift zu senden. Wer eine andere Empfangsadresse bestimmt, zeigt dies der Geschäftsführung in Textform an.",
+    "§ 8 Gründungskosten",
+    "Notar- und Registerkosten werden von der Gesellschaft bis zu einem Gesamtbetrag von 2.500 € übernommen. Die Kosten der Anmietung und Ausstattung der Werkstatt werden als laufende Aufwendungen nach den hierfür geschlossenen Verträgen abgerechnet. Mehrkosten der Gründung trägt die Gesellschafterin.",
+    "§ 9 Schlussbestimmungen",
+    "Ergibt sich bei Durchführung der Satzung eine Lücke, wird sie durch Gesellschafterbeschluss in der gesetzlich erforderlichen Form geschlossen. Wird eine einzelne Bestimmung unwirksam, bleiben die übrigen Vertragsbedingungen wirksam, soweit sie sinnvoll selbständig durchgeführt werden können."
+  ],
+  "labels": {
+    "company.name": [
+      "Lehmfink Werkzeuge GmbH",
+      "als Lehmfink Werkzeuge GmbH auf"
+    ],
+    "company.seat": [
+      "Wolkenweiler",
+      "Zum Sitz der Gesellschaft wird Wolkenweiler bestimmt"
+    ],
+    "company.purpose": [
+      "die Entwicklung von Lehren für den Modellbau",
+      "die Entwicklung von Lehren für den Modellbau"
+    ],
+    "shareCapitalCents": [2500000, "Das Stammkapital beträgt 25.000,00 EUR"],
+    "contribution": [
+      "half",
+      "vor der Registeranmeldung die Hälfte einzuzahlen"
+    ],
+    "founder.kind": [
+      "natural_person",
+      "von Frau Edda Musterzinn in einem einzigen Geschäftsanteil übernommen"
+    ],
+    "founder.salutation": ["Frau", "Frau Edda Musterzinn"],
+    "founder.firstName": ["Edda", "Frau Edda Musterzinn"],
+    "founder.lastName": ["Musterzinn", "Frau Edda Musterzinn"]
+  }
+}

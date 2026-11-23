@@ -1,0 +1,42 @@
+{
+  "kind": "contract",
+  "format": "pdf",
+  "title": "Gesellschaftsvertrag der Musterbucht Werftservice GmbH",
+  "paragraphs": [
+    "§ 1 Firma und Sitz",
+    "Die Firma lautet Musterbucht Werftservice GmbH. Der Sitz ist Kiefernwiek. Die Geschäftsführung kann innerhalb des Sitzortes die Geschäftsanschrift bestimmen und verlegen. Die Verlegung ist der Gesellschafterin in Textform mitzuteilen.",
+    "§ 2 Unternehmensgegenstand",
+    "Gegenstand ist die Wartung kleiner Werkstattkräne. Die Gesellschaft darf zur Erfüllung von Wartungsverträgen Ersatzteile beschaffen und Montagepersonal einsetzen. Sie kann mit Herstellern und Werftbetrieben zusammenarbeiten und Niederlassungen für den Kundendienst unterhalten.",
+    "§ 3 Stammkapital und Geschäftsanteile",
+    "Das Stammkapital beträgt 25.000,00 EUR. Frau Ida Musterlot übernimmt den einzigen Geschäftsanteil gegen Bareinlage. Er erhält die laufende Nummer 1 und lautet auf den Nennbetrag des gesamten Stammkapitals. Vor der Anmeldung ist die Hälfte einzuzahlen. Über die Anforderung des Restes entscheidet die Gesellschafterin durch Beschluss. Die Geschäftsführung teilt die Einforderung mit und gibt das Konto sowie eine angemessene Zahlungsfrist an.",
+    "§ 4 Geschäftsführung und Vertretung",
+    "Die Bestellung der Geschäftsführung bleibt einem gesonderten Beschluss vorbehalten. Ist nur eine Person zur Geschäftsführung bestellt, vertritt sie die Gesellschaft allein. Bei mehreren Geschäftsführern vertreten zwei von ihnen gemeinsam oder einer zusammen mit einem Prokuristen. Durch Beschluss können einzelnen Geschäftsführern Einzelvertretungsbefugnis und Befreiung von den Beschränkungen des § 181 BGB erteilt werden. Im Innenverhältnis bedürfen die Aufnahme von Krediten außerhalb des beschlossenen Wirtschaftsplans und die Veräußerung eines Betriebsteils der vorherigen Zustimmung.",
+    "§ 5 Versammlung und Beschlüsse",
+    "Die Geschäftsführung unterrichtet die Gesellschafterin über Angelegenheiten von erheblicher wirtschaftlicher Bedeutung und legt ihr Beschlussvorlagen in Textform vor. Sind mehrere Gesellschafter vorhanden, werden sie mindestens zwei Wochen vorher unter Angabe der Tagesordnung geladen. Die Beteiligten können einvernehmlich auf Form und Frist der Ladung verzichten. Beschlüsse der Alleingesellschafterin werden unverzüglich schriftlich niedergelegt und unterzeichnet; die Niederschriften verbleiben bei den Gesellschaftsunterlagen.",
+    "§ 6 Geschäftsjahr und Ergebnisverwendung",
+    "Das Geschäftsjahr ist das Kalenderjahr. Das erste Geschäftsjahr beginnt mit der Eintragung und endet am 31. Dezember desselben Jahres. Die Geschäftsführung stellt den Jahresabschluss im Rahmen der gesetzlichen Fristen auf. Die Gesellschafterin entscheidet über die Feststellung, die Ergebnisverwendung und die Entlastung der Geschäftsführung gesondert.",
+    "§ 7 Bekanntmachungen",
+    "Gesetzlich vorgeschriebene Bekanntmachungen erscheinen im Bundesanzeiger. Persönliche Mitteilungen können an die zuletzt schriftlich bezeichnete Anschrift oder elektronische Adresse gerichtet werden. Änderungen der Empfangsdaten sind der Geschäftsführung zeitnah anzuzeigen.",
+    "§ 8 Gründungskosten",
+    "Die Gesellschaft übernimmt die durch Beurkundung und Registeranmeldung entstehenden Kosten bis zu insgesamt 2.500 €. Darüber hinausgehenden Aufwand trägt die Gründerin. Laufende Kosten des Betriebs fallen nicht unter diese Kostengrenze.",
+    "§ 9 Schlussbestimmungen",
+    "Leistungen der Gesellschaft an Gesellschafter bedürfen einer nachvollziehbaren Grundlage und sind in der Buchführung gesondert kenntlich zu machen. Sollte eine Bestimmung unwirksam sein, bleibt der Vertrag im Übrigen bestehen. Die Gesellschafterin soll eine zulässige Regelung beschließen, die dem wirtschaftlichen Zweck der betroffenen Bestimmung möglichst nahekommt."
+  ],
+  "labels": {
+    "company.name": [
+      "Musterbucht Werftservice GmbH",
+      "Die Firma lautet Musterbucht Werftservice GmbH"
+    ],
+    "company.seat": ["Kiefernwiek", "Der Sitz ist Kiefernwiek"],
+    "company.purpose": [
+      "die Wartung kleiner Werkstattkräne",
+      "die Wartung kleiner Werkstattkräne"
+    ],
+    "shareCapitalCents": [2500000, "Das Stammkapital beträgt 25.000,00 EUR"],
+    "founder.kind": ["natural_person", "Frau Ida Musterlot übernimmt"],
+    "founder.salutation": ["Frau", "Frau Ida Musterlot"],
+    "founder.firstName": ["Ida", "Frau Ida Musterlot"],
+    "founder.lastName": ["Musterlot", "Frau Ida Musterlot"],
+    "contribution": ["half", "Vor der Anmeldung ist die Hälfte einzuzahlen"]
+  }
+}

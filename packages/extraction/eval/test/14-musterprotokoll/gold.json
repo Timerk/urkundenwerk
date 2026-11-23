@@ -1,0 +1,94 @@
+{
+  "fields": {
+    "notarisation.mode": {
+      "value": "in_person",
+      "quote": "Vorgelesen, genehmigt und eigenhändig unterschrieben:"
+    },
+    "notarisation.deedNumber": {
+      "value": "730/2025",
+      "quote": "730/2025"
+    },
+    "notarisation.date": {
+      "value": "2025-04-11",
+      "quote": "11. April 2025"
+    },
+    "notarisation.notaryName": {
+      "value": "Dr. Mira Musterstich",
+      "quote": "Dr. Mira Musterstich"
+    },
+    "notarisation.notarySeat": {
+      "value": "Sternsiek",
+      "quote": "Sternsiek"
+    },
+    "founder.kind": {
+      "value": "natural_person",
+      "quote": "Bero Musterlot, geboren am 26. November 1980, wohnhaft in Musterbogen 73"
+    },
+    "founder.salutation": {
+      "value": "Herr",
+      "quote": "Herr Bero Musterlot, geboren am 26. November 1980, wohnhaft in Musterbogen 73, 00104 Ulmenrast."
+    },
+    "founder.firstName": {
+      "value": "Bero",
+      "quote": "Herr Bero Musterlot, geboren am 26. November 1980, wohnhaft in Musterbogen 73, 00104 Ulmenrast."
+    },
+    "founder.lastName": {
+      "value": "Musterlot",
+      "quote": "Herr Bero Musterlot, geboren am 26. November 1980, wohnhaft in Musterbogen 73, 00104 Ulmenrast."
+    },
+    "founder.birthDate": {
+      "value": "1980-11-26",
+      "quote": "26. November 1980, wohnhaft in Musterbogen 73,"
+    },
+    "founder.address.street": {
+      "value": "Musterbogen 73",
+      "quote": "Musterbogen 73"
+    },
+    "founder.address.postalCode": {
+      "value": "00104",
+      "quote": "00104"
+    },
+    "founder.address.city": {
+      "value": "Ulmenrast",
+      "quote": "in Musterbogen 73, 00104 Ulmenrast"
+    },
+    "founder.name": null,
+    "founder.registerCourt": null,
+    "founder.registerNumber": null,
+    "founder.seat": null,
+    "founder.identificationDetails": null,
+    "company.name": {
+      "value": "Nebelklammer Montage GmbH",
+      "quote": "Nebelklammer Montage GmbH"
+    },
+    "company.seat": {
+      "value": "Bogenrost",
+      "quote": "Bogenrost"
+    },
+    "company.purpose": {
+      "value": "die Montage von Glashalterungen",
+      "quote": "die Montage von Glashalterungen"
+    },
+    "shareCapitalCents": {
+      "value": 3400000,
+      "quote": "34.000 €"
+    },
+    "contribution": {
+      "value": "full",
+      "quote": "sofort in voller Höhe"
+    },
+    "managingDirector.kind": {
+      "value": "founder",
+      "quote": "Zum Geschäftsführer der Gesellschaft wird Herr Bero Musterlot"
+    },
+    "managingDirector.salutation": null,
+    "managingDirector.firstName": null,
+    "managingDirector.lastName": null,
+    "managingDirector.birthDate": null,
+    "managingDirector.residence": null,
+    "notaryNotes": {
+      "value": "Die Hinweise zur Anmeldung wurden erläutert.",
+      "quote": "Die Hinweise zur Anmeldung wurden erläutert."
+    }
+  }
+}

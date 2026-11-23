@@ -1,0 +1,36 @@
+{
+  "kind": "musterprotokoll",
+  "format": "docx",
+  "input": {
+    "notarisation": {
+      "mode": "in_person",
+      "deedNumber": "730/2025",
+      "date": "2025-04-11",
+      "notaryName": "Dr. Mira Musterstich",
+      "notarySeat": "Sternsiek"
+    },
+    "founder": {
+      "kind": "natural_person",
+      "salutation": "Herr",
+      "firstName": "Bero",
+      "lastName": "Musterlot",
+      "birthDate": "1980-11-26",
+      "address": {
+        "street": "Musterbogen 73",
+        "postalCode": "00104",
+        "city": "Ulmenrast"
+      }
+    },
+    "company": {
+      "name": "Nebelklammer Montage GmbH",
+      "seat": "Bogenrost",
+      "purpose": "die Montage von Glashalterungen"
+    },
+    "shareCapitalCents": 3400000,
+    "contribution": "full",
+    "managingDirector": {
+      "kind": "founder"
+    },
+    "notaryNotes": "Die Hinweise zur Anmeldung wurden erläutert."
+  }
+}

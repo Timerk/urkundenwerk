@@ -1,0 +1,106 @@
+{
+  "fields": {
+    "notarisation.mode": {
+      "value": "video",
+      "quote": "den 19. März 2025, erschien mittels Videokommunikation"
+    },
+    "notarisation.deedNumber": {
+      "value": "222/2025",
+      "quote": "222/2025"
+    },
+    "notarisation.date": {
+      "value": "2025-03-19",
+      "quote": "19. März 2025"
+    },
+    "notarisation.notaryName": {
+      "value": "Dr. Kaja Musterstich",
+      "quote": "Dr. Kaja Musterstich"
+    },
+    "notarisation.notarySeat": {
+      "value": "Tauwinkel",
+      "quote": "Tauwinkel"
+    },
+    "founder.kind": {
+      "value": "natural_person",
+      "quote": "Runa Musterkran, geboren am 25. Februar 1990, wohnhaft in Musterbogen 56"
+    },
+    "founder.salutation": {
+      "value": "Frau",
+      "quote": "Frau Runa Musterkran, geboren am"
+    },
+    "founder.firstName": {
+      "value": "Runa",
+      "quote": "Runa Musterkran, geboren am 25."
+    },
+    "founder.lastName": {
+      "value": "Musterkran",
+      "quote": "Musterkran, geboren am 25. Februar"
+    },
+    "founder.birthDate": {
+      "value": "1990-02-25",
+      "quote": "25. Februar 1990"
+    },
+    "founder.address.street": {
+      "value": "Musterbogen 56",
+      "quote": "Musterbogen 56"
+    },
+    "founder.address.postalCode": {
+      "value": "00103",
+      "quote": "00103"
+    },
+    "founder.address.city": {
+      "value": "Sternsiek",
+      "quote": "Sternsiek"
+    },
+    "founder.name": null,
+    "founder.registerCourt": null,
+    "founder.registerNumber": null,
+    "founder.seat": null,
+    "founder.identificationDetails": null,
+    "company.name": {
+      "value": "Schneekelle Vermessung GmbH",
+      "quote": "Schneekelle Vermessung GmbH"
+    },
+    "company.seat": {
+      "value": "Blausaum",
+      "quote": "Blausaum"
+    },
+    "company.purpose": {
+      "value": "die Kalibrierung handgeführter Messgeräte",
+      "quote": "die Kalibrierung handgeführter Messgeräte"
+    },
+    "shareCapitalCents": {
+      "value": 2600000,
+      "quote": "26.000 €"
+    },
+    "contribution": {
+      "value": "half",
+      "quote": "zu 50 Prozent sofort, im Übrigen sobald die Gesellschafterversammlung ihre Einforderung beschließt"
+    },
+    "managingDirector.kind": {
+      "value": "other",
+      "quote": "Zum Geschäftsführer der Gesellschaft wird Frau Irma Musterband"
+    },
+    "managingDirector.salutation": {
+      "value": "Frau",
+      "quote": "Geschäftsführer der Gesellschaft wird Frau"
+    },
+    "managingDirector.firstName": {
+      "value": "Irma",
+      "quote": "Irma"
+    },
+    "managingDirector.lastName": {
+      "value": "Musterband",
+      "quote": "Musterband"
+    },
+    "managingDirector.birthDate": {
+      "value": "1988-05-20",
+      "quote": "20. Mai 1988"
+    },
+    "managingDirector.residence": {
+      "value": "Bogenrost",
+      "quote": "Bogenrost"
+    },
+    "notaryNotes": null
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "kind": "minutes",
+  "format": "pdf",
+  "title": "Niederschrift über Gründung und Bestellung · Urkundenverzeichnis 147/2025",
+  "paragraphs": [
+    "Feststellungen im Termin",
+    "Den 8. Mai 2025 ist zu Krähenquell vor dem Notar Bero Musterlin persönlich erschienen Frau Lene Mustersegge, geboren am 22-11-1994, wohnhaft Nebelpfad 14, 00037 Feldriek. Der Amtssitz des Notars ist Krähenquell. Die Erschienene hat sich durch Vorzeigen ihres Bundespersonalausweises ausgewiesen. Sie versicherte auf Befragen, die Gründung weder als Vertreterin einer dritten Person noch im Auftrag eines nicht offen gelegten Auftraggebers vorzunehmen.",
+    "Die Errichtung ist auf Grundlage des am 2. Mai 2025 übersandten Satzungsentwurfs vorbereitet worden. Die Erschienene erbat vor der Verlesung eine Klarstellung über die Tragung der Registerkosten. Die Anlage wurde in der hierauf bestätigten Fassung zur Urkunde genommen.",
+    "I. Erklärungen zur Errichtung",
+    "Firma und Niederlassung. Die Firma lautet Riedanker Archivbau GmbH. Ihr rechtlicher Sitz ist Feldriek. Gegenstand ist die Fertigung von Regalelementen für kleinere Archive. Die Erschienene stellt die als Anlage A verlesene Satzung fest und erklärt ihre Zustimmung zu deren Einbeziehung in die Niederschrift.",
+    "Das auf 26 400 € festgelegte Stammkapital entfällt auf einen bar übernommenen Anteil. Vor Anmeldung ist die Hälfte der Bareinlage fällig. Der Anteil wird unter der laufenden Nummer 1 von der Erschienenen übernommen. Die in der Satzung vorgesehene Erstattung der Errichtungskosten ist auf 1.950 € begrenzt. Reisekosten und Besichtigungen im Vorfeld trägt die Erschienene selbst.",
+    "II. Anlage B · Beschluss über die Geschäftsführung",
+    "Anlage. In Ausübung ihrer Rechte als Alleingesellschafterin bestellt sich Frau Lene Mustersegge selbst zur Geschäftsführerin. Sie nimmt die Bestellung an und ist zur Einzelvertretung berechtigt. Die Erteilung von Prokura an den für die Organisation der Werkstatt vorgesehenen Finn Musterloden bleibt einem späteren Beschluss vorbehalten. Er war weder zur Versammlung geladen noch an der Abstimmung beteiligt.",
+    "Diese Anlage ist als gesonderte Niederschrift über den Beschluss in die Gesellschaftsakten aufzunehmen. Die Geschäftsführerin wird die für die Anmeldung erforderliche Versicherung gesondert abgeben.",
+    "III. Verlesung und Abschluss",
+    "Der Notar belehrte über die Haftung für Handlungen vor der Eintragung der Gesellschaft. Die Gesellschaft soll eine beglaubigte elektronische Abschrift erhalten. Unterlagen zum Erwerb von Werkstatteinrichtungen wurden bei der Beurkundung nicht zur Urkunde genommen.",
+    "Die vorstehende Niederschrift wurde mit den Anlagen vorgelesen, von der Erschienenen genehmigt und von ihr sowie dem Notar eigenhändig unterschrieben.",
+    "Lene Mustersegge · Bero Musterlin, Notar"
+  ],
+  "labels": {
+    "notarisation.mode": [
+      "in_person",
+      "persönlich erschienen Frau Lene Mustersegge"
+    ],
+    "notarisation.date": ["2025-05-08", "Den 8. Mai 2025"],
+    "notarisation.notaryName": ["Bero Musterlin", "dem Notar Bero Musterlin"],
+    "notarisation.notarySeat": [
+      "Krähenquell",
+      "Der Amtssitz des Notars ist Krähenquell"
+    ],
+    "founder.kind": [
+      "natural_person",
+      "persönlich erschienen Frau Lene Mustersegge"
+    ],
+    "founder.salutation": ["Frau", "erschienen Frau Lene Mustersegge"],
+    "founder.firstName": ["Lene", "erschienen Frau Lene Mustersegge"],
+    "founder.lastName": ["Mustersegge", "erschienen Frau Lene Mustersegge"],
+    "founder.birthDate": ["1994-11-22", "geboren am 22-11-1994"],
+    "founder.address.street": ["Nebelpfad 14", "wohnhaft Nebelpfad 14"],
+    "founder.address.postalCode": ["00037", "00037 Feldriek"],
+    "founder.address.city": ["Feldriek", "00037 Feldriek"],
+    "company.name": [
+      "Riedanker Archivbau GmbH",
+      "Die Firma lautet Riedanker Archivbau GmbH"
+    ],
+    "company.seat": ["Feldriek", "Ihr rechtlicher Sitz ist Feldriek"],
+    "shareCapitalCents": [2640000, "auf 26 400 € festgelegte Stammkapital"],
+    "contribution": [
+      "half",
+      "Vor Anmeldung ist die Hälfte der Bareinlage fällig"
+    ],
+    "managingDirector.kind": [
+      "founder",
+      "bestellt sich Frau Lene Mustersegge selbst zur Geschäftsführerin"
+    ],
+    "notarisation.deedNumber": ["147/2025", "Urkundenverzeichnis 147/2025"],
+    "founder.identificationDetails": [
+      "durch Vorzeigen ihres Bundespersonalausweises ausgewiesen",
+      "durch Vorzeigen ihres Bundespersonalausweises ausgewiesen"
+    ],
+    "company.purpose": [
+      "die Fertigung von Regalelementen für kleinere Archive",
+      "die Fertigung von Regalelementen für kleinere Archive"
+    ],
+    "notaryNotes": [
+      "die Haftung für Handlungen vor der Eintragung der Gesellschaft",
+      "die Haftung für Handlungen vor der Eintragung der Gesellschaft"
+    ]
+  }
+}
