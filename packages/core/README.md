@@ -33,6 +33,11 @@ source with a dot-separated field path, which may recur in several clauses.
 Blank runs expose the path for the missing optional value. The plain-text
 renderer is used for comparisons and golden tests.
 
+Consumers handle `kind: "signatures"` as a group containing `closing` runs and
+ordered `signatories` with display labels. The in-person template appends this
+group after clause 7. Video exports end at clause 7, with electronic signing
+handled outside the app. See the procedural additions in the statutory source.
+
 The [statutory source](src/templates/musterprotokoll-einpersonen/SOURCE.md)
 records the wording and footnotes. The template selects the applicable
 salutations, contribution alternative, and video wording. The founder's
@@ -42,6 +47,7 @@ consent, or representation where supplied. The notary can complete the deed
 details and notes.
 
 Use `renderDocx(model)` and `renderPdf(model)` from `@urkundenwerk/render` on the
-Node server to obtain `Uint8Array` output. Run
+Node server to obtain `Uint8Array` output. Both exporters keep the closing and
+signature lines together on one page. Run
 `pnpm --filter @urkundenwerk/render sample` for fictional drafts in
 `packages/render/out/`.
