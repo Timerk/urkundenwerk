@@ -73,6 +73,26 @@ jobs:
           require-lockfile: true
       - run: pnpm build
 
+  db:
+    name: db
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3.2.0
+        with:
+          node-version-file: .nvmrc
+          cache: true
+          require-lockfile: true
+      # Only Postgres is needed for linting, pgTAP, and type generation.
+      - name: Start Postgres with migrations and seed data
+        run: pnpm db:start -x gotrue,realtime,storage-api,imgproxy,kong,mailpit,postgrest,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      - run: pnpm db:lint
+      - run: pnpm db:test
+      - name: Check that the generated database types are up to date
+        run: pnpm db:types --check
+
   e2e:
     name: e2e
     runs-on: ubuntu-latest
@@ -85,6 +105,11 @@ jobs:
           node-version-file: .nvmrc
           cache: true
           require-lockfile: true
+      # Auth, PostgREST, and the API gateway are needed; the rest is skipped.
+      - name: Start Supabase with migrations and seed data
+        run: pnpm db:start -x realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      - name: Export the local Supabase URL and publishable key
+        run: pnpm --silent db:env --stdout >> "$GITHUB_ENV"
       - run: pnpm --filter @urkundenwerk/web exec playwright install --with-deps chromium
       - run: pnpm build
       - run: pnpm test:e2e

@@ -6,4 +6,4 @@ services:
     ports:
       - "127.0.0.1:3000:3000"
 
-# The Supabase CLI will manage the local database and Auth stack in a follow-up PR.
+# The local database and Auth stack run with the Supabase CLI (`pnpm db:start`).
