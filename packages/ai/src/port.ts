@@ -29,12 +29,22 @@ export interface GenerateStructuredRequest<T> {
   maxOutputTokens: number;
   /** How much the model may think; small tasks use "low". */
   effort?: "low" | "medium" | "high";
+  /**
+   * Marks the system prompt as a stable prefix that the provider may cache
+   * across requests. A hint: adapters without prompt caching ignore it.
+   */
+  cacheSystemPrompt?: boolean;
   signal?: AbortSignal;
 }
 
 export interface LlmUsage {
+  /** Input tokens billed at the full rate. */
   inputTokens: number;
   outputTokens: number;
+  /** Input tokens written to the provider's prompt cache. */
+  cacheCreationInputTokens: number;
+  /** Input tokens read from the provider's prompt cache. */
+  cacheReadInputTokens: number;
 }
 
 export interface GenerateStructuredResult<T> {

@@ -64,7 +64,12 @@ export class FakeLlmClient implements LlmClient {
         return {
           data: parsed.data,
           model: FAKE_MODEL,
-          usage: { inputTokens: 0, outputTokens: 0 },
+          usage: {
+            inputTokens: 0,
+            outputTokens: 0,
+            cacheCreationInputTokens: 0,
+            cacheReadInputTokens: 0,
+          },
           stopReason: "end_turn",
         };
       }

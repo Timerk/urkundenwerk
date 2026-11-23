@@ -73,7 +73,17 @@ export class AnthropicLlmClient implements LlmClient {
         {
           model: request.model,
           max_tokens: request.maxOutputTokens,
-          system: request.system,
+          // A cache breakpoint after a stable system prompt lets repeated
+          // requests read it from the prompt cache at a fraction of the price.
+          system: request.cacheSystemPrompt
+            ? [
+                {
+                  type: "text",
+                  text: request.system,
+                  cache_control: { type: "ephemeral" },
+                },
+              ]
+            : request.system,
           messages: [{ role: "user", content: request.user }],
           output_config: {
             format: zodOutputFormat(request.schema),
@@ -119,6 +129,9 @@ export class AnthropicLlmClient implements LlmClient {
       usage: {
         inputTokens: message.usage.input_tokens,
         outputTokens: message.usage.output_tokens,
+        cacheCreationInputTokens:
+          message.usage.cache_creation_input_tokens ?? 0,
+        cacheReadInputTokens: message.usage.cache_read_input_tokens ?? 0,
       },
       stopReason: message.stop_reason ?? "end_turn",
     };
