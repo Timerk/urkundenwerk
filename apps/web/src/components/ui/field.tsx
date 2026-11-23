@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import {
   type InputHTMLAttributes,
   type ReactNode,
@@ -43,6 +44,7 @@ export function Field({
   children: (ids: FieldIds) => ReactNode;
 }) {
   const generated = useId();
+  const t = useTranslations("common");
   const controlId = id ?? `field${generated}`;
   const descriptionId = description ? `${controlId}-description` : undefined;
   const hintId = hint ? `${controlId}-hint` : undefined;
@@ -58,7 +60,9 @@ export function Field({
       >
         <span>{label}</span>
         {optional ? (
-          <span className="text-xs font-normal text-ink-faint">Optional</span>
+          <span className="text-xs font-normal text-ink-faint">
+            {t("optional")}
+          </span>
         ) : null}
       </label>
       {children({ controlId, describedBy, invalid: Boolean(error) })}

@@ -7,6 +7,7 @@ import {
   readFields,
 } from "../../../lib/auth/form-state";
 import { loginSchema } from "../../../lib/auth/schemas";
+import { authErrorTranslator } from "../../../lib/auth/translate";
 import { createClient } from "../../../lib/supabase/server";
 
 export async function signIn(
@@ -16,18 +17,20 @@ export async function signIn(
   const fields = readFields(formData, ["email", "password"]);
   const parsed = loginSchema.safeParse(fields);
   const values = { email: fields.email };
+  const translate = await authErrorTranslator();
   if (!parsed.success) {
-    return invalidFormState(parsed.error, values);
+    return invalidFormState(parsed.error, values, translate);
   }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) {
     return {
-      error:
+      error: translate(
         error.code === "invalid_credentials"
-          ? "The email address or password is incorrect."
-          : "Signing in failed. Please try again.",
+          ? "invalidCredentials"
+          : "signInFailed",
+      ),
       values: { email: parsed.data.email },
     };
   }

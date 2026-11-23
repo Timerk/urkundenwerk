@@ -27,8 +27,8 @@ describe("loginSchema", () => {
 
   it("reports missing fields", () => {
     expect(fieldErrors(loginSchema.safeParse({}))).toEqual({
-      email: ["Enter your email address."],
-      password: ["Enter your password."],
+      email: ["emailRequired"],
+      password: ["passwordRequired"],
     });
   });
 
@@ -36,8 +36,8 @@ describe("loginSchema", () => {
     expect(
       fieldErrors(loginSchema.safeParse({ email: "anna", password: "" })),
     ).toEqual({
-      email: ["Enter a valid email address."],
-      password: ["Enter your password."],
+      email: ["emailInvalid"],
+      password: ["passwordRequired"],
     });
   });
 
@@ -46,7 +46,7 @@ describe("loginSchema", () => {
       email: "a@demo.test",
       password: "x".repeat(73),
     });
-    expect(fieldErrors(result).password).toEqual(["The password is too long."]);
+    expect(fieldErrors(result).password).toEqual(["passwordTooLong"]);
   });
 });
 
@@ -65,14 +65,14 @@ describe("signupSchema", () => {
     expect(
       fieldErrors(signupSchema.safeParse({ ...valid, password: "short" }))
         .password,
-    ).toEqual(["Use at least 8 characters."]);
+    ).toEqual(["passwordShort"]);
   });
 
   it("matches the database length limits for firm names", () => {
     expect(
       fieldErrors(signupSchema.safeParse({ ...valid, firmName: " A " }))
         .firmName,
-    ).toEqual(["The firm name needs at least 2 characters."]);
+    ).toEqual(["firmShort"]);
     expect(
       signupSchema.safeParse({ ...valid, firmName: "x".repeat(120) }).success,
     ).toBe(true);
@@ -80,7 +80,7 @@ describe("signupSchema", () => {
       fieldErrors(
         signupSchema.safeParse({ ...valid, firmName: "x".repeat(121) }),
       ).firmName,
-    ).toEqual(["The firm name can have at most 120 characters."]);
+    ).toEqual(["firmLong"]);
   });
 });
 

@@ -9,6 +9,7 @@ import {
   readFields,
 } from "../../lib/auth/form-state";
 import { createFirmSchema } from "../../lib/auth/schemas";
+import { authErrorTranslator } from "../../lib/auth/translate";
 import { createClient } from "../../lib/supabase/server";
 import { getMemberships } from "../../lib/tenants/memberships";
 import { TENANT_COOKIE } from "../../lib/tenants/selection";
@@ -26,8 +27,9 @@ export async function createFirm(
 ): Promise<FormState> {
   const fields = readFields(formData, ["firmName"]);
   const parsed = createFirmSchema.safeParse(fields);
+  const translate = await authErrorTranslator();
   if (!parsed.success) {
-    return invalidFormState(parsed.error, fields);
+    return invalidFormState(parsed.error, fields, translate);
   }
 
   // create_tenant takes the caller from the JWT, so no user id is passed.
@@ -37,7 +39,7 @@ export async function createFirm(
   });
   if (error) {
     return {
-      error: "The firm could not be created. Please try again.",
+      error: translate("firmFailed"),
       values: { firmName: parsed.data.firmName },
     };
   }

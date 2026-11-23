@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 import { FormError } from "../../../components/form-error";
 import { FormField } from "../../../components/form-field";
@@ -9,20 +10,23 @@ import { createFirm } from "../actions";
 
 export function CreateFirmForm() {
   const [state, formAction] = useActionState(createFirm, initialFormState);
+  const t = useTranslations();
 
   return (
     <form action={formAction} noValidate className="max-w-sm space-y-4">
       <FormError message={state.error} />
       <FormField
         name="firmName"
-        label="Firm name"
+        label={t("auth.firmName")}
         autoComplete="organization"
         defaultValue={state.values?.firmName}
         errors={state.fieldErrors?.firmName}
         minLength={2}
         maxLength={120}
       />
-      <SubmitButton pendingLabel="Creating…">Create firm</SubmitButton>
+      <SubmitButton pendingLabel={t("dashboard.creating")}>
+        {t("dashboard.createFirm")}
+      </SubmitButton>
     </form>
   );
 }
