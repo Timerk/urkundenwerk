@@ -1,0 +1,39 @@
+{
+  "name": "@urkundenwerk/extraction",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "node": "./src/index.ts"
+    },
+    "./eval": {
+      "types": "./src/eval/index.ts",
+      "node": "./src/eval/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "eval:build": "tsx scripts/build-corpus.ts",
+    "eval": "tsx scripts/eval.ts"
+  },
+  "dependencies": {
+    "@urkundenwerk/core": "workspace:*",
+    "saxes": "^6.0.0",
+    "unpdf": "^2.2.1",
+    "yauzl": "^3.4.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "@types/pdfkit": "^0.17.7",
+    "@types/yauzl": "^3.4.0",
+    "@urkundenwerk/render": "workspace:*",
+    "fflate": "^0.8.3",
+    "pdfkit": "^0.21.0",
+    "tsx": "^4.23.15",
+    "vitest": "catalog:"
+  }
+}
