@@ -1,6 +1,7 @@
 import js from "@eslint/js";
 import next from "@next/eslint-plugin-next";
 import { defineConfig, globalIgnores } from "eslint/config";
+import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default defineConfig(
@@ -17,6 +18,10 @@ export default defineConfig(
   {
     files: ["**/*.{ts,tsx,mts}"],
     extends: [tseslint.configs.recommended],
+  },
+  {
+    files: ["scripts/**/*.mjs"],
+    languageOptions: { globals: globals.node },
   },
   {
     files: ["apps/web/**/*.{js,mjs,ts,tsx,mts}"],
