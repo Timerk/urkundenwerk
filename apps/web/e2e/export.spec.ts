@@ -27,6 +27,15 @@ test("a viewer exports a complete draft as PDF and DOCX", async ({ page }) => {
   const docxBody = await docx.body();
   expect(docxBody.subarray(0, 2).toString()).toBe("PK");
   expect(docxBody.length).toBeGreaterThan(5_000);
+
+  const filing = await page.request.get(
+    `/app/documents/${NORD_DRAFT}/export?format=docx&document=anmeldung`,
+  );
+  expect(filing.status()).toBe(200);
+  expect(filing.headers()["content-disposition"]).toBe(
+    'attachment; filename="Handelsregisteranmeldung-Nordmuster-Logistik-GmbH.docx"',
+  );
+  expect((await filing.body()).subarray(0, 2).toString()).toBe("PK");
 });
 
 test("an incomplete draft is rejected with its missing fields", async ({
@@ -52,6 +61,11 @@ test("a document of another firm is not found", async ({ page }) => {
     `/app/documents/${NORD_DRAFT}/export?format=pdf`,
   );
   expect(response.status()).toBe(404);
+
+  const xml = await page.request.get(
+    `/app/documents/${NORD_DRAFT}/export?format=xml`,
+  );
+  expect(xml.status()).toBe(404);
 });
 
 test("unsupported formats are rejected", async ({ page }) => {

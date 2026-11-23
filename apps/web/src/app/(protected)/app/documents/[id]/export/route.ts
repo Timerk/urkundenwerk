@@ -9,7 +9,7 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** `GET /app/documents/:id/export?format=pdf|docx` */
+/** `GET /app/documents/:id/export?format=pdf|docx|xml&document=musterprotokoll|anmeldung` */
 export async function GET(
   request: Request,
   { params }: RouteContext<"/app/documents/[id]/export">,
@@ -17,9 +17,11 @@ export async function GET(
   const { id } = await params;
   const user = await getVerifiedUser();
   const supabase = await createClient();
+  const { searchParams } = new URL(request.url);
   return exportDocument(supabase, user?.id ?? null, {
     id,
-    format: new URL(request.url).searchParams.get("format"),
+    format: searchParams.get("format"),
+    document: searchParams.get("document"),
     referenceDate: todayInGermany(),
   });
 }

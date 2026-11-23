@@ -63,6 +63,7 @@ export const FIELD_LABELS = {
     blank: "residence",
   },
   notaryNotes: { label: "Notary's notes (Hinweise)", blank: "notes" },
+  ...filingMessages.fields,
 } as const satisfies Record<string, { label: string; blank: string }>;
 
 export type FieldPath = keyof typeof FIELD_LABELS;
@@ -83,3 +84,4 @@ export function blankLabel(path: string): string {
 export function controlId(path: string): string {
   return `field-${path.replaceAll(".", "-")}`;
 }
+import { filingMessages } from "./filing-messages";

@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
-import { buildMusterprotokoll } from "@urkundenwerk/core";
+import { buildMusterprotokoll, buildRegisterFiling } from "@urkundenwerk/core";
+import { exampleFiling } from "../../core/src/templates/handelsregisteranmeldung-gmbh/fixtures";
 import {
   exampleCase,
   exampleContext,
@@ -17,8 +18,13 @@ const model = buildMusterprotokoll(
 );
 
 await mkdir(out, { recursive: true });
-const [docx, pdf] = await Promise.all([renderDocx(model), renderPdf(model)]);
+const [docx, pdf, filingPdf] = await Promise.all([
+  renderDocx(model),
+  renderPdf(model),
+  renderPdf(buildRegisterFiling(exampleFiling, exampleContext)),
+]);
 await Promise.all([
   writeFile(new URL("musterprotokoll.docx", out), docx),
   writeFile(new URL("musterprotokoll.pdf", out), pdf),
+  writeFile(new URL("handelsregisteranmeldung.pdf", out), filingPdf),
 ]);

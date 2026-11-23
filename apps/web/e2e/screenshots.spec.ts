@@ -51,6 +51,15 @@ test("dashboard and builder", async ({ page }) => {
       ?.focus({ preventScroll: true }),
   );
   await page.screenshot({ path: target("builder") });
+  await page
+    .getByRole("button", { name: "Handelsregisteranmeldung", exact: true })
+    .click();
+  await expect(
+    page
+      .getByRole("article")
+      .getByRole("heading", { name: "Handelsregisteranmeldung" }),
+  ).toBeVisible();
+  await page.screenshot({ path: target("register-filing") });
 });
 
 test("import review", async ({ page }) => {

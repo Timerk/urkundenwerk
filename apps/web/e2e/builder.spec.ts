@@ -11,7 +11,7 @@ async function waitForBuilder(page: Page) {
   await expect(page.locator("[data-builder-ready]")).toBeAttached();
 }
 
-test("an editor drafts a Musterprotokoll and downloads it", async ({
+test("an editor prepares and downloads the deed and register filing", async ({
   page,
 }) => {
   // A unique Firma keeps repeated local runs apart.
@@ -83,6 +83,83 @@ test("an editor drafts a Musterprotokoll and downloads it", async ({
   const response = await page.request.get(`${documentUrl}/export?format=pdf`);
   expect(response.status()).toBe(200);
   expect(response.headers()["content-type"]).toBe("application/pdf");
+
+  await page
+    .getByRole("button", { name: "Handelsregisteranmeldung", exact: true })
+    .click();
+  const filingForm = page.getByRole("form", {
+    name: "Handelsregisteranmeldung data",
+  });
+  await expect(
+    page.getByRole("button", { name: "Download XML" }),
+  ).toHaveAttribute("aria-disabled", "true");
+  await filingForm
+    .getByRole("textbox", { name: "Register court (Amtsgericht)" })
+    .fill("Musterstadt");
+  await filingForm
+    .getByRole("textbox", { name: "Street and number" })
+    .fill("Musterkai 4");
+  await filingForm
+    .getByRole("textbox", { name: "German postcode" })
+    .fill("12345");
+  await filingForm
+    .getByRole("textbox", { name: "Town or city" })
+    .fill("Musterstadt");
+  await filingForm.getByRole("textbox", { name: "Amount paid" }).fill("30.000");
+  for (const name of [
+    /paid funds/,
+    /No statutory grounds/,
+    /director was instructed/,
+  ]) {
+    await filingForm.getByRole("checkbox", { name }).check();
+  }
+  await expect(
+    preview.getByRole("heading", { name: "Handelsregisteranmeldung" }),
+  ).toBeVisible();
+  await expect(preview).toContainText("Musterkai 4, 12345 Musterstadt.");
+  await expect(preview).toContainText("Erika Mustermann");
+  await expect(page.getByText("Ready to export")).toBeVisible();
+
+  const filingPdfDownload = page.waitForEvent("download");
+  await download.click();
+  const filingPdf = await filingPdfDownload;
+  expect(filingPdf.suggestedFilename()).toBe(
+    `Handelsregisteranmeldung-${filename}.pdf`,
+  );
+  expect(
+    (await readFile(await filingPdf.path())).subarray(0, 5).toString(),
+  ).toBe("%PDF-");
+
+  const xmlDownload = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download XML" }).click();
+  const xml = await xmlDownload;
+  expect(xml.suggestedFilename()).toBe(
+    `Handelsregisteranmeldung-${filename}.xml`,
+  );
+  const xmlText = await readFile(await xml.path(), "utf8");
+  const parsed = await page.evaluate((text) => {
+    const doc = new DOMParser().parseFromString(text, "application/xml");
+    return {
+      errors: doc.getElementsByTagName("parsererror").length,
+      namespace: doc.documentElement.namespaceURI,
+      firma: doc.getElementsByTagName("firma")[0]?.textContent,
+    };
+  }, xmlText);
+  expect(parsed).toEqual({
+    errors: 0,
+    namespace: "urn:urkundenwerk:registeranmeldung:1",
+    firma,
+  });
+
+  await page.reload();
+  await waitForBuilder(page);
+  await page
+    .getByRole("button", { name: "Handelsregisteranmeldung", exact: true })
+    .click();
+  await expect(
+    filingForm.getByRole("textbox", { name: "Amount paid" }),
+  ).toHaveValue("30.000");
+  await expect(page.getByText("Ready to export")).toBeVisible();
 
   await page.getByRole("link", { name: "Documents" }).click();
   await expect(

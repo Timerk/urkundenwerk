@@ -49,7 +49,7 @@ const schemas = {
   "managingDirector.birthDate": director.birthDate.unwrap(),
   "managingDirector.residence": director.residence.unwrap(),
   notaryNotes: draft.notaryNotes.unwrap(),
-} satisfies Record<LeafPaths<MusterprotokollDraft>, z.ZodType>;
+} satisfies Record<LeafPaths<Omit<MusterprotokollDraft, "filing">>, z.ZodType>;
 
 export type ExtractionFieldPath = keyof typeof schemas;
 export const extractionFieldPaths: readonly ExtractionFieldPath[] =

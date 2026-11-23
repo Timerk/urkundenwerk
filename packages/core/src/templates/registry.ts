@@ -1,7 +1,9 @@
+import { registerFilingTemplate } from "./handelsregisteranmeldung-gmbh/template";
 import { musterprotokollTemplate } from "./musterprotokoll-einpersonen/template";
 
 const templates = {
   [musterprotokollTemplate.metadata.id]: musterprotokollTemplate,
+  [registerFilingTemplate.metadata.id]: registerFilingTemplate,
 } as const;
 
 export type TemplateId = keyof typeof templates;

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   analyseDraft,
+  editDraftField,
   formatEuros,
   getAt,
   legalFormOf,
@@ -36,6 +37,44 @@ describe("getAt and setAt", () => {
     expect(setAt({}, "founder.salutation", null)).toEqual({
       founder: { salutation: null },
     });
+  });
+});
+
+describe("filing assurances", () => {
+  const draft = {
+    founder: { kind: "natural_person", firstName: "Erika" },
+    managingDirector: { kind: "founder" },
+    filing: {
+      paidCents: 2_500_000,
+      fundsAtFreeDisposal: true,
+      noDisqualification: true,
+      instructedOnDisclosure: true,
+    },
+  } as const;
+
+  it("clears assurances when the appointed identity changes", () => {
+    expect(editDraftField(draft, "founder.firstName", "Mara").filing).toEqual({
+      paidCents: 2_500_000,
+      fundsAtFreeDisposal: false,
+      noDisqualification: false,
+      instructedOnDisclosure: false,
+    });
+    expect(
+      editDraftField(draft, "managingDirector.firstName", "Mara").filing,
+    ).toEqual(draft.filing);
+  });
+
+  it("clears the disposal confirmation when the recorded amount changes", () => {
+    expect(editDraftField(draft, "filing.paidCents", 1_250_050).filing).toEqual(
+      {
+        ...draft.filing,
+        fundsAtFreeDisposal: false,
+        paidCents: 1_250_050,
+      },
+    );
+    expect(editDraftField(draft, "filing.paidCents", 2_500_000).filing).toEqual(
+      draft.filing,
+    );
   });
 });
 
@@ -85,6 +124,14 @@ describe("parseEuros", () => {
   it("formats cents back with thousands separators", () => {
     expect(formatEuros(2_500_000)).toBe("25.000");
     expect(formatEuros(undefined)).toBe("");
+  });
+
+  it("accepts fractional euros for the paid amount", () => {
+    expect(parseEuros("12.500,5", true)).toEqual({
+      kind: "valid",
+      cents: 1_250_050,
+    });
+    expect(formatEuros(1_250_050, true)).toBe("12.500,50");
   });
 });
 

@@ -40,6 +40,10 @@ const templateId = musterprotokollMetadata.id;
 
 /** § 5 Abs. 1 GmbHG */
 export const MINIMUM_GMBH_CAPITAL_CENTS = 2_500_000;
+/** § 7 Abs. 2 GmbHG for the single cash share of the Musterprotokoll. */
+export function gmbhMinimumPaymentCents(capitalCents: number): number {
+  return Math.max(Math.ceil(capitalCents / 4), MINIMUM_GMBH_CAPITAL_CENTS / 2);
+}
 /** Clause 5 of the Musterprotokoll caps the formation costs the company bears. */
 export const FORMATION_COST_CAP_CENTS = 30_000;
 /** Age of majority under § 2 BGB. */
@@ -266,10 +270,7 @@ const contributionMinimumPayment: MusterprotokollRule = {
     if (legalFormOf(company?.name) === "UG") return [];
     if (contribution !== "half" || cents === undefined) return [];
     const dueNowCents = Math.floor(cents / 2);
-    const requiredCents = Math.max(
-      Math.ceil(cents / 4),
-      MINIMUM_GMBH_CAPITAL_CENTS / 2,
-    );
+    const requiredCents = gmbhMinimumPaymentCents(cents);
     return dueNowCents < requiredCents
       ? [
           {

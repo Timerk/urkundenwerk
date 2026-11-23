@@ -2,8 +2,10 @@
 
 import {
   buildMusterprotokollPreview,
+  buildRegisterFilingPreview,
   musterprotokollMetadata,
   type MusterprotokollDraft,
+  registerFilingMetadata,
 } from "@urkundenwerk/core";
 import Link from "next/link";
 import {
@@ -18,12 +20,17 @@ import { DocumentPreview } from "../../../../../components/document-preview";
 import { Button } from "../../../../../components/ui/button";
 import { Notice } from "../../../../../components/ui/notice";
 import { fieldLabel } from "../../../../../lib/builder/fields";
-import { DEFAULT_DOCUMENT_TITLE } from "../../../../../lib/documents/schemas";
+import { filingMessages } from "../../../../../lib/builder/filing-messages";
+import {
+  DEFAULT_DOCUMENT_TITLE,
+  type ExportDocument,
+  type ExportFormat,
+} from "../../../../../lib/documents/schemas";
 import {
   analyseDraft,
+  editDraftField,
   isFieldRule,
   legalFormOf,
-  setAt,
   withDefaults,
 } from "../../../../../lib/builder/form-model";
 import {
@@ -34,6 +41,7 @@ import { renameDocument, saveDraft } from "../actions";
 import { BuilderForm } from "./builder-form";
 import { ChecksPanel } from "./checks-panel";
 import { DraftProvider } from "./draft-fields";
+import { FilingForm } from "./filing-form";
 
 export type BuilderProps = {
   documentId: string;
@@ -55,6 +63,11 @@ const timeFormat = new Intl.DateTimeFormat("en-GB", {
   hour: "2-digit",
   minute: "2-digit",
 });
+
+const DOCUMENT_LABELS = {
+  musterprotokoll: "Musterprotokoll",
+  anmeldung: filingMessages.title,
+} as const satisfies Record<ExportDocument, string>;
 
 function SaveStatus({
   state,
@@ -160,6 +173,7 @@ export function Builder({
   const [showAll, setShowAll] = useState(false);
   const [activePath, setActivePath] = useState<string>();
   const [pane, setPane] = useState<"form" | "preview">("form");
+  const [target, setTarget] = useState<ExportDocument>("musterprotokoll");
   const [downloadError, setDownloadError] = useState<string>();
   const pendingFocus = useRef<string | null>(null);
   // Marks the builder as interactive once hydrated, for tests and styling.
@@ -192,10 +206,20 @@ export function Builder({
   }, []);
 
   const analysis = useMemo(
-    () => analyseDraft(draft, referenceDate),
-    [draft, referenceDate],
+    () => analyseDraft(draft, referenceDate, target),
+    [draft, referenceDate, target],
   );
-  const model = useMemo(() => buildMusterprotokollPreview(draft), [draft]);
+  const filing = target === "anmeldung";
+  const model = useMemo(
+    () =>
+      filing
+        ? buildRegisterFilingPreview(draft)
+        : buildMusterprotokollPreview(draft),
+    [draft, filing],
+  );
+  const formats: readonly ExportFormat[] = filing
+    ? ["pdf", "docx", "xml"]
+    : ["pdf", "docx"];
   const legalForm = useMemo(
     () => legalFormOf(draft.company?.name),
     [draft.company?.name],
@@ -243,24 +267,28 @@ export function Builder({
     return () => clearTimeout(timeout);
   }, [canEdit, title, companyName, commitTitle]);
 
-  // After switching to the form pane, move focus once it is rendered.
+  // Switch panes or documents before focusing a field in the other form.
   useEffect(() => {
     if (pane === "form" && pendingFocus.current) {
       focusControl(pendingFocus.current);
       pendingFocus.current = null;
     }
-  }, [pane]);
+  }, [pane, target]);
 
   const selectFromPreview = useCallback(
     (path: string) => {
-      if (pane === "preview") {
+      const fieldDocument = path.startsWith("filing.")
+        ? "anmeldung"
+        : "musterprotokoll";
+      if (pane === "preview" || fieldDocument !== target) {
         pendingFocus.current = path;
         setPane("form");
+        setTarget(fieldDocument);
       } else {
         focusControl(path);
       }
     },
-    [pane],
+    [pane, target],
   );
 
   const revealMissing = useCallback(() => {
@@ -270,7 +298,7 @@ export function Builder({
   }, [analysis, selectFromPreview]);
 
   const download = useCallback(
-    async (format: "pdf" | "docx") => {
+    async (format: ExportFormat) => {
       setDownloadError(undefined);
       if (!analysis.complete) {
         revealMissing();
@@ -282,13 +310,13 @@ export function Builder({
         return;
       }
       const link = document.createElement("a");
-      link.href = `/app/documents/${documentId}/export?format=${format}`;
+      link.href = `/app/documents/${documentId}/export?format=${format}&document=${target}`;
       link.download = "";
       document.body.append(link);
       link.click();
       link.remove();
     },
-    [analysis.complete, autosave, canEdit, documentId, revealMissing],
+    [analysis.complete, autosave, canEdit, documentId, revealMissing, target],
   );
 
   const context = useMemo(
@@ -296,7 +324,7 @@ export function Builder({
       draft,
       readOnly: !canEdit,
       update: (path: string, value: unknown) =>
-        setDraft((current) => setAt(current, path, value)),
+        setDraft((current) => editDraftField(current, path, value)),
       visibleIssue: (path: string) => {
         const issue = analysis.issues.get(path);
         if (!issue) return undefined;
@@ -431,7 +459,7 @@ export function Builder({
                 )}
               </p>
               <div className="flex gap-2">
-                {(["pdf", "docx"] as const).map((format) => (
+                {formats.map((format) => (
                   <Button
                     key={format}
                     variant={format === "pdf" ? "primary" : "secondary"}
@@ -459,6 +487,29 @@ export function Builder({
                 ))}
               </div>
             </div>
+          </div>
+          <div
+            role="group"
+            aria-label={filingMessages.documentSelector}
+            className="flex flex-wrap gap-x-5 gap-y-1 px-4 sm:px-6"
+          >
+            {(Object.keys(DOCUMENT_LABELS) as ExportDocument[]).map(
+              (document) => (
+                <button
+                  key={document}
+                  type="button"
+                  aria-pressed={target === document}
+                  onClick={() => {
+                    setTarget(document);
+                    setDownloadError(undefined);
+                    setShowAll(false);
+                  }}
+                  className="min-h-10 border-b-2 border-transparent px-1 text-sm text-ink-soft hover:text-ink aria-pressed:border-stamp aria-pressed:font-semibold aria-pressed:text-stamp"
+                >
+                  {DOCUMENT_LABELS[document]}
+                </button>
+              ),
+            )}
           </div>
         </header>
         <div
@@ -531,13 +582,16 @@ export function Builder({
                 </Notice>
               ) : null}
               <ChecksPanel
+                key={target}
                 documentId={documentId}
+                target={target}
                 issues={analysis.checks}
                 aiEnabled={aiEnabled}
                 onLocate={selectFromPreview}
               />
               <form
                 aria-label="Musterprotokoll data"
+                hidden={filing}
                 onSubmit={(event) => event.preventDefault()}
                 noValidate
               >
@@ -546,6 +600,14 @@ export function Builder({
                   issues={analysis.issues}
                   legalForm={legalForm}
                 />
+              </form>
+              <form
+                aria-label={filingMessages.formLabel}
+                hidden={!filing}
+                onSubmit={(event) => event.preventDefault()}
+                noValidate
+              >
+                <FilingForm issues={analysis.issues} />
               </form>
             </div>
           </div>
@@ -567,9 +629,11 @@ export function Builder({
                 />
               </div>
               <p className="mx-auto mt-4 max-w-[52rem] text-xs text-ink-soft">
-                Wording of {musterprotokollMetadata.legalBasis}, version{" "}
-                {model.templateVersion}. Values in blue come from the form;
-                select one to edit it. Page breaks are set in the PDF.
+                {filing
+                  ? `${filingMessages.previewCredit} ${registerFilingMetadata.legalBasis}`
+                  : `Wording of ${musterprotokollMetadata.legalBasis}`}
+                , version {model.templateVersion}. Values in blue come from the
+                form; select one to edit it. Page breaks are set in the PDF.
               </p>
             </section>
           </div>

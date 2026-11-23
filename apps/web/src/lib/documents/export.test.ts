@@ -124,7 +124,7 @@ describe("exportDocument", () => {
     expect(response.status).toBe(400);
     expect(await response.json()).toEqual({
       error: "unsupported_format",
-      supported: ["pdf", "docx"],
+      supported: ["pdf", "docx", "xml"],
     });
   });
 
@@ -251,6 +251,70 @@ describe("exportDocument", () => {
     });
 
     expect(response.status).toBe(409);
+  });
+
+  it.each(["pdf", "docx", "xml"])(
+    "requires the filing data for %s",
+    async (format) => {
+      const { client } = fakeClient(documentRow());
+      const response = await exportDocument(client, USER_ID, {
+        id: DOCUMENT_ID,
+        format,
+        document: "anmeldung",
+        referenceDate: REFERENCE_DATE,
+      });
+      expect(response.status).toBe(422);
+      expect((await response.json()).issues).toContainEqual(
+        expect.objectContaining({
+          path: "filing.registerCourt",
+          code: "filing_court_required",
+        }),
+      );
+    },
+  );
+
+  it("rejects XML that fails the XSD with a non-personal 500", async () => {
+    const { client } = fakeClient(
+      documentRow({
+        data: {
+          ...completeDraft,
+          filing: {
+            registerCourt: "Musterstadt",
+            businessAddress: {
+              street: "Musterkai 4",
+              postalCode: "12345",
+              city: "Musterstadt",
+            },
+            paidCents: 2_500_000,
+            fundsAtFreeDisposal: true,
+            noDisqualification: true,
+            instructedOnDisclosure: true,
+          },
+        },
+      }),
+    );
+    const validator = await import("@urkundenwerk/core/register-filing-xml");
+    const validate = vi
+      .spyOn(validator, "validateRegisterFilingXml")
+      .mockResolvedValueOnce(false);
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const response = await exportDocument(client, USER_ID, {
+        id: DOCUMENT_ID,
+        format: "xml",
+        referenceDate: REFERENCE_DATE,
+      });
+      expect(response.status).toBe(500);
+      expect(response.headers.get("cache-control")).toBe("no-store");
+      expect(response.headers.has("content-disposition")).toBe(false);
+      expect(await response.json()).toEqual({ error: "xml_export_failed" });
+      expect(log.mock.calls).toEqual([
+        ["[export] Register filing XML generation or validation failed"],
+      ]);
+    } finally {
+      log.mockRestore();
+      validate.mockRestore();
+    }
   });
 });
 

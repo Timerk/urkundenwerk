@@ -3,12 +3,15 @@
 import type { Explanation, ExplanationResult } from "@urkundenwerk/ai";
 import {
   getRule,
-  type MusterprotokollIssue,
+  type Issue,
   musterprotokollMetadata,
+  registerFilingMetadata,
+  type RuleCode,
   type Severity,
 } from "@urkundenwerk/core";
 import { useCallback, useState } from "react";
 import { fieldLabel } from "../../../../../lib/builder/fields";
+import type { ExportDocument } from "../../../../../lib/documents/schemas";
 import { explainDocumentIssues } from "../actions";
 
 type ExplanationState =
@@ -22,10 +25,7 @@ type ExplanationState =
     };
 
 /** Identifies an issue by what the explanation depends on. */
-function keyOf({
-  code,
-  params,
-}: Pick<MusterprotokollIssue, "code" | "params">) {
+function keyOf({ code, params }: Pick<Issue, "code" | "params">) {
   const sorted = Object.keys(params)
     .sort()
     .map((key) => [key, params[key]]);
@@ -109,21 +109,25 @@ function resultStates(result: ExplanationResult): [string, ExplanationState][] {
  */
 export function ChecksPanel({
   documentId,
+  target,
   issues,
   aiEnabled,
   onLocate,
 }: {
   documentId: string;
-  issues: readonly MusterprotokollIssue[];
+  target: ExportDocument;
+  issues: readonly Issue<RuleCode>[];
   aiEnabled: boolean;
   onLocate: (path: string) => void;
 }) {
+  const metadata =
+    target === "anmeldung" ? registerFilingMetadata : musterprotokollMetadata;
   const [explanations, setExplanations] = useState<
     ReadonlyMap<string, ExplanationState>
   >(new Map());
 
   const request = useCallback(
-    async (targets: readonly MusterprotokollIssue[]) => {
+    async (targets: readonly Issue<RuleCode>[]) => {
       const keys = targets.map(keyOf);
       const update = (entries: [string, ExplanationState][]) =>
         setExplanations((current) => new Map([...current, ...entries]));
@@ -132,6 +136,7 @@ export function ChecksPanel({
         const result = await explainDocumentIssues(
           documentId,
           targets.map(({ code, params }) => ({ code, params })),
+          target,
         );
         if (result.ok) {
           update(resultStates(result.result));
@@ -155,7 +160,7 @@ export function ChecksPanel({
         );
       }
     },
-    [documentId],
+    [documentId, target],
   );
 
   const unexplained = issues.filter((issue) => {
@@ -181,7 +186,7 @@ export function ChecksPanel({
             Checks
           </h2>
           <p className="text-xs text-ink-faint">
-            Rules for {musterprotokollMetadata.legalBasis}, run as you type.
+            Rules for {metadata.legalBasis}, run as you type.
           </p>
         </div>
         {aiEnabled && issues.length > 1 ? (
@@ -233,10 +238,7 @@ export function ChecksPanel({
                     const key = keyOf(issue);
                     const state = explanations.get(key);
                     const path = issue.paths[0];
-                    const rule = getRule(
-                      musterprotokollMetadata.id,
-                      issue.code,
-                    );
+                    const rule = getRule(metadata.id, issue.code);
                     return (
                       <li
                         key={`${key}-${path}`}

@@ -2,13 +2,11 @@
 
 # Urkundenwerk
 
-Urkundenwerk is an AI-assisted document builder for German law firms. Its first
-planned workflow covers forming a German GmbH with the statutory
-`Musterprotokoll` (Anlage 1 GmbHG) and preparing the `Handelsregisteranmeldung`.
-A lawyer fills in structured data for a single-founder GmbH or UG and gets a
-signature-ready Musterprotokoll (Anlage 1 a) GmbHG) as PDF or DOCX. The deed
-text is assembled deterministically from a versioned template; the app only
-collects data.
+Urkundenwerk is an AI-assisted document builder for German law firms. It
+prepares the statutory `Musterprotokoll` (Anlage 1 a) GmbHG) and a draft
+`Handelsregisteranmeldung` for a single-founder GmbH or UG. Both documents
+are assembled deterministically from versioned templates and structured case
+data and can be downloaded as PDF or DOCX.
 
 > **Demonstration project. Not legal advice.** Urkundenwerk uses fictional case
 > data and public legal texts only.
@@ -21,6 +19,14 @@ collects data.
   preview built in the browser from the same `DocumentModel` that the exports
   use. Missing values show as labelled dotted lines and filled values in ink.
   Choosing either in the preview focuses its field.
+- **Handelsregisteranmeldung.** Switch to the filing step in the same draft
+  to enter the court, domestic business address, contribution paid and
+  managing director's assurances. The live preview uses the director
+  appointed in the deed and leaves the certification for the notary.
+- **Schema-validated XML.** Download structured filing data after validation
+  against the [versioned project XSD](packages/core/schemas/registeranmeldung-v1.xsd).
+  Electronic court submission would need a separate XJustiz integration.
+  See the [mapping note](docs/xjustiz-mapping.md).
 - **Rule checks while typing.** A deterministic rule engine in core checks
   the data against the GmbHG and the BeurkG: minimum and UG capital, the
   payment due before registration, the legal form in the Firma, who may be
@@ -56,6 +62,8 @@ The design direction is recorded in [`docs/design.md`](docs/design.md).
 
 ![The import review with extracted values and their status on the left and the uploaded document with its quoted passages marked on the right](docs/screenshots/import-review.png)
 
+![The register filing form and live Handelsregisteranmeldung preview](docs/screenshots/register-filing.png)
+
 | Landing page                                  | Documents of a firm                              |
 | --------------------------------------------- | ------------------------------------------------ |
 | ![Landing page](docs/screenshots/landing.png) | ![Document list](docs/screenshots/dashboard.png) |
@@ -68,7 +76,7 @@ The design direction is recorded in [`docs/design.md`](docs/design.md).
 | [M2 · Template engine](https://github.com/Timerk/urkundenwerk/issues/2)        | Deterministic DOCX and PDF rendering                                   | Done    |
 | [M3 · Rule checks](https://github.com/Timerk/urkundenwerk/issues/3)            | Validation of structured formation data                                | Done    |
 | [M4 · AI extraction](https://github.com/Timerk/urkundenwerk/issues/4)          | Extract structured data with source citations and evaluate the results | Done    |
-| [M5 · XML export](https://github.com/Timerk/urkundenwerk/issues/5)             | Export registry XML and validate it against an XSD                     | Planned |
+| [M5 · XML export](https://github.com/Timerk/urkundenwerk/issues/5)             | Handelsregisteranmeldung and XSD-validated XML filing data             | Done    |
 | [M6 · MCP server](https://github.com/Timerk/urkundenwerk/issues/6)             | Expose the shared domain workflows over MCP                            | Planned |
 | [M7 · Audit, roles, and GDPR](https://github.com/Timerk/urkundenwerk/issues/7) | Audit log, role-based access, and data protection workflows            | Planned |
 | [M8 · Deployment](https://github.com/Timerk/urkundenwerk/issues/8)             | Deploy the portfolio demo                                              | Planned |
@@ -118,8 +126,8 @@ Their password is `demo-password-123`. It exists only in the local seed data.
 | `mia.multi@demo.test`     | Demo-Kanzlei Nord | editor |
 | `mia.multi@demo.test`     | Demo-Kanzlei Süd  | viewer |
 
-Each firm has one fictional draft: a complete Musterprotokoll for Nord and an
-unfinished one for Süd.
+Each firm has one fictional draft. Nord has a complete Musterprotokoll and
+register filing. Süd has an unfinished Musterprotokoll.
 
 Local sign-up skips email confirmation (`[auth.email]` in
 [`supabase/config.toml`](supabase/config.toml)), so `/signup` signs the new
