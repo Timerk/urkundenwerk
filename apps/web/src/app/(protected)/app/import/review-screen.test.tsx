@@ -14,6 +14,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import type { ExtractedContract } from "./actions";
 import { ReviewScreen } from "./review-screen";
 import { pieces } from "./source-sheet";
+import { EnglishUi } from "../../../../test/i18n";
 
 const actions = vi.hoisted(() => ({
   createDraftFromImport: vi.fn(async () => ({ ok: true as const })),
@@ -165,6 +166,7 @@ function renderReview() {
       contract={contract}
       onRestart={() => {}}
     />,
+    { wrapper: EnglishUi },
   );
 }
 

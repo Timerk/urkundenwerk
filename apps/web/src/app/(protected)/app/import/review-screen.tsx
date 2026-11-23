@@ -4,7 +4,8 @@ import type {
   ExtractionFieldPath,
   FieldReview,
 } from "@urkundenwerk/extraction/contract";
-import { fieldKind } from "@urkundenwerk/extraction/contract";
+import { type FieldKind, fieldKind } from "@urkundenwerk/extraction/contract";
+import { useLocale, useTranslations } from "next-intl";
 import {
   useCallback,
   useEffect,
@@ -21,7 +22,8 @@ import {
   TextInput,
 } from "../../../../components/ui/field";
 import { Notice } from "../../../../components/ui/notice";
-import { fieldLabel } from "../../../../lib/builder/fields";
+import { useFieldLabels } from "../../../../lib/builder/fields";
+import { dateInputHint } from "../../../../lib/date-input";
 import {
   acceptAllVerified,
   type Decision,
@@ -31,6 +33,7 @@ import {
   fieldOptions,
   formatValue,
   initialDecisions,
+  type OptionLabel,
   parseEdit,
   pendingFields,
   REVIEW_SECTIONS,
@@ -50,7 +53,23 @@ function scrollBehavior(): ScrollBehavior {
     : "smooth";
 }
 
+/** Option labels as the builder shows them. */
+function useOptionLabel(): OptionLabel {
+  const t = useTranslations("options");
+  return (path, value) => {
+    const group = {
+      "notarisation.mode": "mode",
+      "founder.kind": "founderKind",
+      contribution: "contribution",
+      "managingDirector.kind": "directorKind",
+    }[path as string];
+    const key = `${group}.${value}`;
+    return group && t.has(key as never) ? t(key as never) : value;
+  };
+}
+
 function StatusBadge({ field }: { field: FieldReview }) {
+  const t = useTranslations("review");
   if (field.status === "verified") {
     return (
       <span className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-ok">
@@ -64,7 +83,7 @@ function StatusBadge({ field }: { field: FieldReview }) {
             strokeLinejoin="round"
           />
         </svg>
-        Verified in source
+        {t("verified")}
       </span>
     );
   }
@@ -79,16 +98,21 @@ function StatusBadge({ field }: { field: FieldReview }) {
           strokeLinecap="round"
         />
       </svg>
-      Unverified
+      {t("unverified")}
     </span>
   );
 }
 
-const DECISIONS = [
-  { kind: "accepted", label: "Accept" },
-  { kind: "edited", label: "Edit" },
-  { kind: "cleared", label: "Clear" },
-] as const;
+const DECISIONS = ["accepted", "edited", "cleared"] as const;
+
+/** How a value that could not be read is described, by field kind. */
+const UNREADABLE = {
+  text: "text",
+  freeText: "text",
+  date: "date",
+  amount: "amount",
+  enum: "enum",
+} as const satisfies Record<FieldKind["type"], string>;
 
 function DecisionControl({
   field,
@@ -99,18 +123,19 @@ function DecisionControl({
   choice: "accepted" | "edited" | "cleared" | undefined;
   onChoose: (kind: "accepted" | "edited" | "cleared") => void;
 }) {
-  const label = fieldLabel(field.path);
+  const t = useTranslations("review");
+  const label = useFieldLabels().label(field.path);
   return (
     <fieldset className="min-w-0">
-      <legend className="sr-only">Decision for {label}</legend>
+      <legend className="sr-only">{t("decisionFor", { field: label })}</legend>
       <div className="inline-flex rounded-sm border border-rule-strong bg-paper p-0.5 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-stamp">
-        {DECISIONS.map((option) => {
-          const checked = choice === option.kind;
+        {DECISIONS.map((kind) => {
+          const checked = choice === kind;
           // A value that could not be read can only be edited or cleared.
-          const disabled = option.kind === "accepted" && field.value === null;
+          const disabled = kind === "accepted" && field.value === null;
           return (
             <label
-              key={option.kind}
+              key={kind}
               className={`relative flex min-h-8 cursor-pointer items-center justify-center rounded-[3px] px-3.5 text-sm transition-colors has-[:disabled]:cursor-not-allowed has-[:disabled]:text-ink-faint/60 ${
                 checked
                   ? "bg-ink font-medium text-white"
@@ -120,13 +145,13 @@ function DecisionControl({
               <input
                 type="radio"
                 name={`decision-${field.path}`}
-                value={option.kind}
+                value={kind}
                 checked={checked}
                 disabled={disabled}
-                onChange={() => onChoose(option.kind)}
+                onChange={() => onChoose(kind)}
                 className="absolute inset-0 cursor-[inherit] opacity-0"
               />
-              {option.label}
+              {t(`decisions.${kind}`)}
             </label>
           );
         })}
@@ -145,16 +170,38 @@ function EditControl({
   onValue: (value: string | number | undefined) => void;
 }) {
   const [text, setText] = useState(initial);
-  const result = useMemo(() => parseEdit(field.path, text), [field.path, text]);
+  const locale = useLocale();
+  const result = useMemo(
+    () => parseEdit(field.path, text, locale),
+    [field.path, text, locale],
+  );
   const kind = fieldKind(field.path);
-  const label = `New value for ${fieldLabel(field.path)}`;
+  const t = useTranslations("review");
+  const builder = useTranslations("builder");
+  const optionLabel = useOptionLabel();
+  const label = t("newValue", { field: useFieldLabels().label(field.path) });
+  const error = result.ok
+    ? undefined
+    : result.problem === "amountFormat"
+      ? builder("euro.wholeFormat")
+      : result.problem === "amountRange"
+        ? builder("euro.wholeRange")
+        : t(`edit.${result.problem}`);
 
   useEffect(() => {
     onValue(result.ok ? result.value : undefined);
   }, [result, onValue]);
 
   return (
-    <Field label={label} error={result.ok ? undefined : result.message}>
+    <Field
+      label={label}
+      error={error}
+      description={
+        kind.type === "date"
+          ? builder("hints.dateFormat", { pattern: dateInputHint(locale) })
+          : undefined
+      }
+    >
       {(ids) =>
         kind.type === "enum" ? (
           <Select
@@ -162,8 +209,8 @@ function EditControl({
             value={text}
             onChange={(event) => setText(event.target.value)}
           >
-            <option value="">Choose…</option>
-            {fieldOptions(field.path).map((option) => (
+            <option value="">{t("choose")}</option>
+            {fieldOptions(field.path, optionLabel).map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -179,8 +226,14 @@ function EditControl({
         ) : (
           <TextInput
             ids={ids}
-            type={kind.type === "date" ? "date" : "text"}
-            inputMode={kind.type === "amount" ? "numeric" : undefined}
+            inputMode={
+              kind.type === "amount" || kind.type === "date"
+                ? "numeric"
+                : undefined
+            }
+            placeholder={
+              kind.type === "date" ? dateInputHint(locale) : undefined
+            }
             value={text}
             autoComplete="off"
             onChange={(event) => setText(event.target.value)}
@@ -208,6 +261,10 @@ function FieldRow({
     "accepted" | "edited" | "cleared" | undefined
   >(decision?.kind === "pending" ? undefined : decision?.kind);
   const headingId = `${reviewRowId(field.path)}-label`;
+  const t = useTranslations("review");
+  const locale = useLocale();
+  const optionLabel = useOptionLabel();
+  const labels = useFieldLabels();
   const handleEdit = useCallback(
     (value: string | number | undefined) =>
       onDecide(
@@ -240,7 +297,7 @@ function FieldRow({
     >
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h3 id={headingId} className="text-sm font-medium text-ink-soft">
-          {fieldLabel(field.path)}
+          {labels.label(field.path)}
         </h3>
         <StatusBadge field={field} />
       </div>
@@ -253,10 +310,10 @@ function FieldRow({
         }`}
       >
         {field.value !== null ? (
-          formatValue(field.path, field.value)
+          formatValue(field.path, field.value, locale, optionLabel)
         ) : (
           <span className="text-ink-faint">
-            “{field.text}” <span className="text-sm">(could not be read)</span>
+            “{field.text}” <span className="text-sm">{t("unreadable")}</span>
           </span>
         )}
       </p>
@@ -264,7 +321,13 @@ function FieldRow({
       {field.reasons.length > 0 ? (
         <ul className="space-y-1 rounded-sm border-l-2 border-hint-rule bg-hint-wash px-2.5 py-1.5 text-sm text-hint">
           {field.reasons.map((reason) => (
-            <li key={reason.code}>{reason.message}</li>
+            <li key={reason.code}>
+              {reason.code === "value_unreadable"
+                ? t(
+                    `reasons.value_unreadable.${UNREADABLE[fieldKind(field.path).type]}`,
+                  )
+                : t(`reasons.${reason.code}`)}
+            </li>
           ))}
         </ul>
       ) : null}
@@ -277,7 +340,7 @@ function FieldRow({
 
       {field.note ? (
         <p className="text-sm text-ink-faint">
-          <span className="font-medium text-ink-soft">Model note:</span>{" "}
+          <span className="font-medium text-ink-soft">{t("modelNote")}</span>{" "}
           {field.note}
         </p>
       ) : null}
@@ -288,21 +351,19 @@ function FieldRow({
           <button
             type="button"
             onClick={onShowSource}
-            aria-label={`Show the passage for ${fieldLabel(field.path)} in the document`}
+            aria-label={t("showPassage", { field: labels.label(field.path) })}
             className="rounded-sm text-sm font-medium text-stamp underline decoration-stamp/30 underline-offset-4 hover:decoration-stamp"
           >
-            Show in document
+            {t("showInDocument")}
           </button>
         ) : field.quote ? (
-          <span className="text-sm text-ink-faint">
-            Quote not found in the document
-          </span>
+          <span className="text-sm text-ink-faint">{t("quoteMissing")}</span>
         ) : null}
       </div>
       {choice === "edited" ? (
         <EditControl
           field={field}
-          initial={editText(field.path, field.value)}
+          initial={editText(field.path, field.value, locale)}
           onValue={handleEdit}
         />
       ) : null}
@@ -333,6 +394,9 @@ export function ReviewScreen({
   const pendingFocus = useRef<{ target: "row" | "mark"; path: string } | null>(
     null,
   );
+  const t = useTranslations("review");
+  const common = useTranslations("common");
+  const labels = useFieldLabels();
 
   const found = fields.filter(({ status }) => status !== "absent");
   const verified = found.filter(({ status }) => status === "verified");
@@ -435,8 +499,8 @@ export function ReviewScreen({
     if (first) {
       setError(
         pending.length === 1
-          ? `${fieldLabel(first.path)} still needs a decision.`
-          : `${pending.length} values still need a decision. Accept, edit, or clear each one.`,
+          ? t("oneUndecided", { field: labels.label(first.path) })
+          : t("manyUndecided", { count: pending.length }),
       );
       if (!wide()) {
         pendingFocus.current = { target: "row", path: first.path };
@@ -476,10 +540,10 @@ export function ReviewScreen({
               tabIndex={-1}
               className="truncate font-serif text-xl text-ink outline-none"
             >
-              Review extracted values
+              {t("title")}
             </h1>
             <p className="truncate text-xs text-ink-faint">
-              From {contract.fileName}
+              {t("from", { file: contract.fileName })}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
@@ -490,13 +554,16 @@ export function ReviewScreen({
               className="text-sm text-ink"
             >
               {found.length === 0 ? (
-                "No values found"
+                t("progress.none")
               ) : pending.length === 0 ? (
                 <span className="font-medium text-ok">
-                  All {found.length} values decided
+                  {t("progress.done", { count: found.length })}
                 </span>
               ) : (
-                `${pending.length} of ${found.length} values to decide`
+                t("progress.pending", {
+                  pending: pending.length,
+                  count: found.length,
+                })
               )}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -512,7 +579,7 @@ export function ReviewScreen({
                   setDecisions((current) => acceptAllVerified(fields, current))
                 }
               >
-                Accept all verified
+                {t("acceptAll")}
               </Button>
               <Button
                 size="sm"
@@ -520,7 +587,7 @@ export function ReviewScreen({
                 aria-describedby={progressId}
                 onClick={confirm}
               >
-                {confirming ? "Creating draft…" : "Create draft"}
+                {confirming ? t("creating") : t("create")}
               </Button>
             </div>
           </div>
@@ -533,7 +600,7 @@ export function ReviewScreen({
       >
         <div
           role="group"
-          aria-label="Show"
+          aria-label={common("show")}
           className="grid grid-cols-2 rounded-sm border border-rule-strong bg-paper p-0.5 text-sm"
         >
           {(["fields", "source"] as const).map((value) => (
@@ -548,7 +615,7 @@ export function ReviewScreen({
                   : "text-ink-soft"
               }`}
             >
-              {value === "fields" ? "Values" : "Document"}
+              {t(`panes.${value}`)}
             </button>
           ))}
         </div>
@@ -561,41 +628,31 @@ export function ReviewScreen({
           }`}
         >
           <div className="mx-auto max-w-xl space-y-6">
-            <Notice
-              tone="hint"
-              title="AI-extracted — review every value; not legal advice"
-            >
-              {contract.model} proposed these values with prompt{" "}
-              {contract.promptVersion}. Urkundenwerk checked each quote against
-              the document. Verified means the passage exists and states the
-              value, not that it is the right value for the deed.
+            <Notice tone="hint" title={t("aiNotice.title")}>
+              {t("aiNotice.body", {
+                model: contract.model,
+                prompt: contract.promptVersion,
+              })}
             </Notice>
             {contract.suspiciousSegments.length > 0 ? (
-              <Notice
-                tone="error"
-                title="The document contains instructions to an AI"
-              >
-                Some passages read like instructions to an AI rather than
-                contract text. Values quoted from them are not verified. Check
-                the document&apos;s origin.
+              <Notice tone="error" title={t("suspicious.title")}>
+                {t("suspicious.body")}
               </Notice>
             ) : null}
             {error ? <Notice tone="error">{error}</Notice> : null}
 
             {found.length === 0 ? (
               <div className="rounded-md border border-dashed border-rule-strong bg-paper px-6 py-10 text-center">
-                <p className="font-serif text-xl">No values found</p>
+                <p className="font-serif text-xl">{t("empty.title")}</p>
                 <p className="mx-auto mt-2 max-w-md text-sm text-ink-soft">
-                  The model found nothing for a Musterprotokoll in this
-                  document. Try the formation deed or the articles of
-                  association.
+                  {t("empty.body")}
                 </p>
                 <Button
                   variant="secondary"
                   className="mt-5"
                   onClick={onRestart}
                 >
-                  Choose another file
+                  {t("empty.another")}
                 </Button>
               </div>
             ) : (
@@ -621,12 +678,12 @@ export function ReviewScreen({
                         id={headingId}
                         className="text-lg font-semibold tracking-tight text-ink"
                       >
-                        {section.title}
+                        {t(`sections.${section.id}`)}
                       </h2>
-                      <span className="text-xs text-ink-faint">
+                      <span className="text-xs whitespace-nowrap text-ink-faint">
                         {present.length === 0
-                          ? "Nothing found"
-                          : `${present.length} found`}
+                          ? t("nothingFound")
+                          : t("found", { count: present.length })}
                       </span>
                     </div>
                     {present.length > 0 ? (
@@ -645,9 +702,11 @@ export function ReviewScreen({
                     ) : null}
                     {absent.length > 0 ? (
                       <p className="mt-3 text-sm text-ink-faint">
-                        Not found in the document:{" "}
-                        {absent.map(({ path }) => fieldLabel(path)).join(", ")}.
-                        You can fill these in the builder.
+                        {t("absent", {
+                          fields: absent
+                            .map(({ path }) => labels.label(path))
+                            .join(", "),
+                        })}
                       </p>
                     ) : null}
                   </section>
@@ -660,15 +719,13 @@ export function ReviewScreen({
                 aria-disabled={pending.length > 0 || confirming || undefined}
                 onClick={confirm}
               >
-                {confirming ? "Creating draft…" : "Create draft"}
+                {confirming ? t("creating") : t("create")}
               </Button>
               <Button variant="quiet" onClick={onRestart}>
-                Import another file
+                {t("importAnother")}
               </Button>
               <p className="w-full text-sm text-ink-faint">
-                The draft gets the {accepted.length} values you accepted or
-                edited. The builder then checks them against the GmbHG like any
-                other draft.
+                {t("summary", { count: accepted.length })}
               </p>
             </div>
           </div>
@@ -680,7 +737,7 @@ export function ReviewScreen({
           }`}
         >
           <section
-            aria-label="Source document"
+            aria-label={t("sourceLabel")}
             className="px-3 py-6 sm:px-8 lg:sticky lg:top-[var(--builder-sticky,4.5rem)] lg:max-h-[calc(100dvh-var(--builder-sticky,4.5rem))] lg:overflow-y-auto lg:py-10"
           >
             <SourceSheet
@@ -691,9 +748,7 @@ export function ReviewScreen({
               onSelect={selectFromSource}
             />
             <p className="mx-auto mt-4 max-w-[52rem] text-xs text-ink-soft">
-              The text as Urkundenwerk read it from {contract.fileName}. Marked
-              passages are the quotes behind the values; select one to go to its
-              value.
+              {t("sourceNote", { file: contract.fileName })}
             </p>
           </section>
         </div>

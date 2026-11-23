@@ -1,45 +1,49 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { buttonClasses } from "../../../../components/ui/button";
 import { Notice } from "../../../../components/ui/notice";
 import { aiState } from "../../../../lib/ai/state";
 import { getCurrentMembership } from "../../../../lib/tenants/memberships";
-import {
-  canEditDocuments,
-  ROLE_LABELS,
-} from "../../../../lib/tenants/selection";
+import { canEditDocuments } from "../../../../lib/tenants/selection";
 import { ImportFlow } from "./import-flow";
 
-export const metadata: Metadata = {
-  title: "Import from contract · Urkundenwerk",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata");
+  return { title: `${t("import")} · Urkundenwerk` };
+}
 
-function Unavailable({
+async function Unavailable({
   title,
   children,
 }: {
   title: string;
   children: React.ReactNode;
 }) {
+  const t = await getTranslations();
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6 px-4 py-12 sm:px-6">
-      <h1 className="font-serif text-3xl text-ink">Import from a contract</h1>
+      <h1 className="font-serif text-3xl text-ink">{t("import.title")}</h1>
       <Notice title={title}>{children}</Notice>
       <Link href="/app" className={buttonClasses({ variant: "secondary" })}>
-        Back to documents
+        {t("common.backToDocuments")}
       </Link>
     </div>
   );
 }
 
 export default async function ImportPage() {
+  const t = await getTranslations();
   const membership = await getCurrentMembership();
   if (!membership || !canEditDocuments(membership.role)) {
     return (
-      <Unavailable title="Importing needs the editor or admin role">
+      <Unavailable title={t("import.unavailable.roleTitle")}>
         {membership
-          ? `Your role in ${membership.name} is ${ROLE_LABELS[membership.role]}. Ask an admin of the firm to change it if you need to import contracts.`
-          : "Create or join a firm first."}
+          ? t("import.unavailable.roleBody", {
+              firm: membership.name,
+              role: t(`roles.${membership.role}`),
+            })
+          : t("import.unavailable.noFirm")}
       </Unavailable>
     );
   }
@@ -47,12 +51,10 @@ export default async function ImportPage() {
   const state = aiState();
   if (!state.ok || !state.extractClient) {
     return (
-      <Unavailable title="AI extraction is not configured on this server">
-        Importing reads a contract with an AI model, and this server has no
-        model set up. You can still start a new Musterprotokoll and fill it in
-        by hand. To try the import locally, set <code>ANTHROPIC_API_KEY</code>,{" "}
-        <code>OPENAI_API_KEY</code>, or <code>AI_PROVIDER=fake</code> in{" "}
-        <code>apps/web/.env.local</code>.
+      <Unavailable title={t("import.unavailable.aiTitle")}>
+        {t.rich("import.unavailable.aiBody", {
+          code: (chunks) => <code>{chunks}</code>,
+        })}
       </Unavailable>
     );
   }

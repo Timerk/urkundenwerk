@@ -73,29 +73,52 @@ describe("review decisions", () => {
   });
 });
 
+// The review screen's option labels come from the catalogues; a stand-in.
+const optionLabel = (_path: string, value: string) => `<${value}>`;
+
 describe("values", () => {
   it.each([
-    ["shareCapitalCents", 3_500_000, "35.000 €"],
-    ["notarisation.date", "2025-01-21", "21. Januar 2025"],
-    ["contribution", "half", "50 % now, the rest when called in"],
-    ["company.name", "Muster GmbH", "Muster GmbH"],
-  ] as const)("shows %s as %j", (path, value, shown) => {
-    expect(formatValue(path, value)).toBe(shown);
+    ["shareCapitalCents", 3_500_000, "de", "35.000 €"],
+    ["shareCapitalCents", 3_500_000, "en", "€35,000"],
+    ["notarisation.date", "2025-01-21", "de", "21.01.2025"],
+    ["notarisation.date", "2025-01-21", "en", "21/01/2025"],
+    ["contribution", "half", "en", "<half>"],
+    ["company.name", "Muster GmbH", "de", "Muster GmbH"],
+  ] as const)("shows %s %j in %s as %j", (path, value, locale, shown) => {
+    expect(formatValue(path, value, locale, optionLabel)).toBe(shown);
   });
 
-  it("reads edits in the builder's formats and checks them", () => {
-    expect(editText("shareCapitalCents", 2_500_000)).toBe("25.000");
-    expect(parseEdit("shareCapitalCents", "30.000")).toEqual({
+  it("reads edits in the UI language's formats and checks them", () => {
+    expect(editText("shareCapitalCents", 2_500_000, "de")).toBe("25.000");
+    expect(editText("shareCapitalCents", 2_500_000, "en")).toBe("25,000");
+    expect(editText("notarisation.date", "2025-01-21", "de")).toBe(
+      "21.01.2025",
+    );
+    expect(parseEdit("shareCapitalCents", "30.000", "de")).toEqual({
       ok: true,
       value: 3_000_000,
     });
-    expect(parseEdit("shareCapitalCents", "abc")).toMatchObject({ ok: false });
-    expect(parseEdit("notarisation.date", "2025-02-30")).toEqual({
-      ok: false,
-      message: "Enter a valid date.",
+    expect(parseEdit("shareCapitalCents", "30,000", "en")).toEqual({
+      ok: true,
+      value: 3_000_000,
     });
-    expect(parseEdit("company.name", "  ")).toMatchObject({ ok: false });
-    expect(parseEdit("contribution", "full")).toEqual({
+    expect(parseEdit("shareCapitalCents", "abc", "de")).toEqual({
+      ok: false,
+      problem: "amountFormat",
+    });
+    expect(parseEdit("notarisation.date", "07.03.1990", "de")).toEqual({
+      ok: true,
+      value: "1990-03-07",
+    });
+    expect(parseEdit("notarisation.date", "30.02.2025", "de")).toEqual({
+      ok: false,
+      problem: "date",
+    });
+    expect(parseEdit("company.name", "  ", "en")).toEqual({
+      ok: false,
+      problem: "valueMissing",
+    });
+    expect(parseEdit("contribution", "full", "en")).toEqual({
       ok: true,
       value: "full",
     });
@@ -106,12 +129,10 @@ describe("checkUpload", () => {
   it.each([
     [{ name: "Vertrag.PDF", size: 1_000 }, undefined],
     [{ name: "satzung.docx", size: MAX_UPLOAD_BYTES }, undefined],
-    [{ name: "notes.txt", size: 10 }, /Only PDF and DOCX/u],
-    [{ name: "scan.pdf", size: 0 }, /empty/u],
-    [{ name: "big.pdf", size: MAX_UPLOAD_BYTES + 1 }, /larger than 4 MB/u],
-  ])("checks %j", (file, message) => {
-    const problem = checkUpload(file);
-    if (message) expect(problem).toMatch(message);
-    else expect(problem).toBeUndefined();
+    [{ name: "notes.txt", size: 10 }, "type"],
+    [{ name: "scan.pdf", size: 0 }, "empty"],
+    [{ name: "big.pdf", size: MAX_UPLOAD_BYTES + 1 }, "size"],
+  ])("checks %j", (file, problem) => {
+    expect(checkUpload(file)).toBe(problem);
   });
 });
