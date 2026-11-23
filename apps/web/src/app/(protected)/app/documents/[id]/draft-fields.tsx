@@ -11,6 +11,7 @@ import {
 import {
   Field,
   type FieldIds,
+  FieldMessages,
   TextArea,
   TextInput,
 } from "../../../../../components/ui/field";
@@ -220,21 +221,23 @@ export function ChoiceField<T extends string>({
   );
 }
 
-/** Stammkapital in whole euros, stored as cents. */
-export function CapitalField({
+/** German euro input stored as cents. */
+export function EuroField({
+  path,
   hint,
   description,
 }: {
+  path: "shareCapitalCents" | "filing.paidCents";
   hint?: ReactNode;
   description?: ReactNode;
 }) {
   const context = useDraft();
-  const path = "shareCapitalCents";
+  const allowCents = path === "filing.paidCents";
   const cents = getAt(context.draft, path);
   const [text, setText] = useState(() =>
-    formatEuros(typeof cents === "number" ? cents : undefined),
+    formatEuros(typeof cents === "number" ? cents : undefined, allowCents),
   );
-  const parsed = parseEuros(text);
+  const parsed = parseEuros(text, allowCents);
   const issue = context.visibleIssue(path);
   const shown =
     parsed.kind === "invalid"
@@ -253,7 +256,7 @@ export function CapitalField({
           <TextInput
             ids={ids}
             name={path}
-            inputMode="numeric"
+            inputMode={allowCents ? "decimal" : "numeric"}
             autoComplete="off"
             value={text}
             readOnly={context.readOnly}
@@ -262,7 +265,7 @@ export function CapitalField({
             onChange={(event) => {
               const next = event.target.value;
               setText(next);
-              const result = parseEuros(next);
+              const result = parseEuros(next, allowCents);
               context.update(
                 path,
                 result.kind === "valid" ? result.cents : undefined,
@@ -272,7 +275,8 @@ export function CapitalField({
             onBlur={() => {
               context.touch(path);
               context.setActivePath(undefined);
-              if (parsed.kind === "valid") setText(formatEuros(parsed.cents));
+              if (parsed.kind === "valid")
+                setText(formatEuros(parsed.cents, allowCents));
             }}
           />
           <span
@@ -284,5 +288,48 @@ export function CapitalField({
         </div>
       )}
     </Field>
+  );
+}
+
+export function CheckboxField({
+  path,
+  description,
+}: {
+  path: FieldPath;
+  description: string;
+}) {
+  const context = useDraft();
+  const id = controlId(path);
+  const issue = context.visibleIssue(path);
+  const descriptionId = `${id}-description`;
+  const errorId = issue ? `${id}-error` : undefined;
+  return (
+    <div className="space-y-1.5">
+      <label className="flex items-start gap-2.5 text-sm font-medium text-ink">
+        <input
+          id={id}
+          type="checkbox"
+          checked={getAt(context.draft, path) === true}
+          disabled={context.readOnly}
+          data-field={path}
+          aria-invalid={Boolean(issue) || undefined}
+          aria-describedby={
+            errorId ? `${errorId} ${descriptionId}` : descriptionId
+          }
+          className="mt-0.5 size-4 shrink-0 accent-stamp"
+          onChange={(event) => context.update(path, event.target.checked)}
+          {...focusHandlers(path, context)}
+        />
+        {fieldLabel(path)}
+      </label>
+      <div className="pl-6">
+        <FieldMessages
+          description={description}
+          descriptionId={descriptionId}
+          error={issue?.message}
+          errorId={errorId}
+        />
+      </div>
+    </div>
   );
 }

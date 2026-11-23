@@ -1,11 +1,14 @@
 import {
   checkMusterprotokoll,
+  checkRegisterFiling,
+  type Issue,
   type MusterprotokollDraft,
-  type MusterprotokollIssue,
-  type MusterprotokollRuleCode,
   passes,
+  type RuleCode,
   type Severity,
 } from "@urkundenwerk/core";
+import type { ExportDocument } from "../documents/schemas";
+import { filingMessages } from "./filing-messages";
 
 export { legalFormOf, type LegalForm } from "@urkundenwerk/core";
 
@@ -51,6 +54,51 @@ export function setAt(
   return next as MusterprotokollDraft;
 }
 
+const DIRECTOR_IDENTITY_PATHS = new Set([
+  "managingDirector.firstName",
+  "managingDirector.lastName",
+  "managingDirector.birthDate",
+  "managingDirector.residence",
+]);
+const FOUNDER_IDENTITY_PATHS = new Set([
+  "founder.kind",
+  "founder.firstName",
+  "founder.lastName",
+  "founder.birthDate",
+  "founder.address.city",
+]);
+
+/** Assurances in the builder apply to the director and paid amount shown. */
+export function editDraftField(
+  draft: MusterprotokollDraft,
+  path: string,
+  value: unknown,
+) {
+  const next = setAt(draft, path, value);
+  if (!draft.filing || getAt(draft, path) === getAt(next, path)) return next;
+
+  const kind = draft.managingDirector?.kind;
+  const directorChanged =
+    path === "managingDirector.kind" ||
+    (kind === "founder" && FOUNDER_IDENTITY_PATHS.has(path)) ||
+    (kind === "other" && DIRECTOR_IDENTITY_PATHS.has(path));
+  if (directorChanged) {
+    return {
+      ...next,
+      filing: {
+        ...next.filing,
+        fundsAtFreeDisposal: false,
+        noDisqualification: false,
+        instructedOnDisclosure: false,
+      },
+    };
+  }
+  if (path === "filing.paidCents") {
+    return { ...next, filing: { ...next.filing, fundsAtFreeDisposal: false } };
+  }
+  return next;
+}
+
 /** Choices that every new Musterprotokoll starts from. */
 export function withDefaults(
   draft: MusterprotokollDraft,
@@ -74,31 +122,47 @@ export type EuroParse =
   | { kind: "valid"; cents: number }
   | { kind: "invalid"; message: string };
 
-/** Parses whole euros as typed in Germany, e.g. `25.000`, `25 000 €`, `25000,00`. */
-export function parseEuros(text: string): EuroParse {
+/** Parses German euro amounts. Stammkapital is limited to whole euros. */
+export function parseEuros(text: string, allowCents = false): EuroParse {
   const value = text.replace(/\s*€\s*$/, "").trim();
   if (value === "") return { kind: "empty" };
-  const match = /^(\d{1,3}(?:[. ]\d{3})+|\d+)(?:,0{1,2})?$/.exec(value);
-  if (!match) {
+  const match = /^(\d{1,3}(?:[. ]\d{3})+|\d+)(?:,(\d{1,2}))?$/.exec(value);
+  const fraction = Number(match?.[2]?.padEnd(2, "0") ?? 0);
+  if (!match || (!allowCents && fraction !== 0)) {
     return {
       kind: "invalid",
-      message: "Enter whole euros, for example 25.000.",
+      message: allowCents
+        ? filingMessages.amountFormat
+        : "Enter whole euros, for example 25.000.",
     };
   }
   const euros = Number(match[1]!.replace(/[. ]/g, ""));
-  if (euros < 1 || euros > MAX_EUROS) {
+  const cents = euros * 100 + fraction;
+  if (cents < (allowCents ? 0 : 100) || cents > MAX_EUROS * 100) {
     return {
       kind: "invalid",
-      message: "Enter an amount between 1 € and 999.999.999 €.",
+      message: allowCents
+        ? filingMessages.amountRange
+        : "Enter an amount between 1 € and 999.999.999 €.",
     };
   }
-  return { kind: "valid", cents: euros * 100 };
+  return { kind: "valid", cents };
 }
 
-/** Formats cents as whole euros with German thousands separators. */
-export function formatEuros(cents: number | undefined): string {
+/** Formats cents with German thousands separators. */
+export function formatEuros(
+  cents: number | undefined,
+  allowCents = false,
+): string {
   if (cents === undefined) return "";
-  return String(Math.floor(cents / 100)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  const euros = String(Math.floor(cents / 100)).replace(
+    /\B(?=(\d{3})+(?!\d))/g,
+    ".",
+  );
+  const fraction = cents % 100;
+  return allowCents && fraction
+    ? `${euros},${String(fraction).padStart(2, "0")}`
+    : euros;
 }
 
 // ---------------------------------------------------------------------------
@@ -106,19 +170,19 @@ export function formatEuros(cents: number | undefined): string {
 // ---------------------------------------------------------------------------
 
 /** Rules that report missing or malformed values rather than the law. */
-const FIELD_RULES: ReadonlySet<MusterprotokollRuleCode> = new Set([
+const FIELD_RULES: ReadonlySet<RuleCode> = new Set([
   "field_required",
   "field_invalid",
 ]);
 
-export function isFieldRule(code: MusterprotokollRuleCode): boolean {
+export function isFieldRule(code: RuleCode): boolean {
   return FIELD_RULES.has(code);
 }
 
 /** The issue shown next to one field. */
 export type FieldIssue = {
   path: string;
-  code: MusterprotokollRuleCode;
+  code: RuleCode;
   severity: Severity;
   message: string;
 };
@@ -131,7 +195,7 @@ export type DraftAnalysis = {
   /** Paths that still have an error. */
   outstanding: number;
   /** Rule findings about the law rather than single fields, by severity. */
-  checks: MusterprotokollIssue[];
+  checks: Issue<RuleCode>[];
 };
 
 /**
@@ -142,8 +206,11 @@ export type DraftAnalysis = {
 export function analyseDraft(
   draft: MusterprotokollDraft,
   referenceDate: string,
+  target: ExportDocument = "musterprotokoll",
 ): DraftAnalysis {
-  const all = checkMusterprotokoll(draft, { referenceDate });
+  const check =
+    target === "anmeldung" ? checkRegisterFiling : checkMusterprotokoll;
+  const all = check(draft, { referenceDate });
   const issues = new Map<string, FieldIssue>();
   // A rule error explains more than "required", so it is placed first.
   const ordered = [
@@ -177,6 +244,7 @@ const SECTION_ORDER = [
   "contribution",
   "managingDirector.",
   "notaryNotes",
+  "filing.",
 ];
 
 function formOrder(path: string): number {

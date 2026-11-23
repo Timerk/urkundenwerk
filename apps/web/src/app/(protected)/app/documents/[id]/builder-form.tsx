@@ -6,12 +6,7 @@ import type {
   FieldIssue,
   LegalForm,
 } from "../../../../../lib/builder/form-model";
-import {
-  CapitalField,
-  ChoiceField,
-  DateField,
-  TextField,
-} from "./draft-fields";
+import { ChoiceField, DateField, EuroField, TextField } from "./draft-fields";
 
 export type FormSectionId =
   "notarisation" | "founder" | "company" | "capital" | "director" | "notes";
@@ -48,14 +43,14 @@ function SectionStatus({ outstanding }: { outstanding: number }) {
   );
 }
 
-function FormSection({
+export function FormSection({
   id,
   title,
   description,
   outstanding,
   children,
 }: {
-  id: FormSectionId;
+  id: string;
   title: string;
   description?: ReactNode;
   outstanding: number;
@@ -251,7 +246,10 @@ export function BuilderForm({
         title="Capital"
         outstanding={outstanding("capital")}
       >
-        <CapitalField description={capitalDescription(legalForm)} />
+        <EuroField
+          path="shareCapitalCents"
+          description={capitalDescription(legalForm)}
+        />
         <ChoiceField
           path="contribution"
           layout="stack"

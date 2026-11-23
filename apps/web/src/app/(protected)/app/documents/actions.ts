@@ -4,7 +4,10 @@ import {
   type ExplanationResult,
   explainableIssueSchema,
 } from "@urkundenwerk/ai";
-import { musterprotokollMetadata } from "@urkundenwerk/core";
+import {
+  musterprotokollMetadata,
+  registerFilingMetadata,
+} from "@urkundenwerk/core";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -26,6 +29,7 @@ import {
   documentIdSchema,
   documentTitleSchema,
   draftDataSchema,
+  exportDocumentSchema,
 } from "../../../../lib/documents/schemas";
 import { createClient, getVerifiedUser } from "../../../../lib/supabase/server";
 
@@ -143,13 +147,17 @@ const explainRequestSchema = z.array(explainableIssueSchema).min(1).max(20);
 export async function explainDocumentIssues(
   id: unknown,
   issues: unknown,
+  target?: unknown,
 ): Promise<ActionResult<{ result: ExplanationResult }>> {
   const documentId = documentIdSchema.safeParse(id);
   if (!documentId.success) {
     return { ok: false, error: "This document was not found." };
   }
   const request = explainRequestSchema.safeParse(issues);
-  if (!request.success) {
+  const requestedDocument = exportDocumentSchema.safeParse(
+    target ?? "musterprotokoll",
+  );
+  if (!request.success || !requestedDocument.success) {
     return { ok: false, error: "These issues cannot be explained." };
   }
 
@@ -166,6 +174,11 @@ export async function explainDocumentIssues(
     };
   }
 
-  const result = await explain(document.template_id, request.data);
+  const templateId =
+    requestedDocument.data === "anmeldung" &&
+    document.template_id === musterprotokollMetadata.id
+      ? registerFilingMetadata.id
+      : document.template_id;
+  const result = await explain(templateId, request.data);
   return { ok: true, result };
 }

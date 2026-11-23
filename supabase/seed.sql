@@ -135,7 +135,16 @@ values
       "shareCapitalCents": 2500000,
       "contribution": "full",
       "managingDirector": { "kind": "founder" },
-      "notaryNotes": "die Haftung bei unrichtigen Angaben zur Einlage sowie die Pflicht zur Anmeldung beim Handelsregister."
+      "notaryNotes": "die Haftung bei unrichtigen Angaben zur Einlage sowie die Pflicht zur Anmeldung beim Handelsregister.",
+      "filing": {
+        "registerCourt": "Musterstadt",
+        "businessAddress": { "street": "Musterkai 4", "postalCode": "12345", "city": "Musterstadt" },
+        "paidCents": 2500000,
+        "fundsAtFreeDisposal": true,
+        "noDisqualification": true,
+        "instructedOnDisclosure": true,
+        "paymentEvidenceAttached": false
+      }
     }$json$,
     '00000000-0000-4000-8000-00000000a002'
   ),

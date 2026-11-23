@@ -295,12 +295,16 @@ describe("Checks panel", () => {
       fireEvent.click(within(panel()).getByRole("button", { name: "Explain" }));
     });
 
-    expect(actions.explainDocumentIssues).toHaveBeenCalledWith(DOCUMENT_ID, [
-      {
-        code: "ug_capital_below_gmbh_minimum",
-        params: { shareCapitalCents: 2_500_000, minimumCents: 2_500_000 },
-      },
-    ]);
+    expect(actions.explainDocumentIssues).toHaveBeenCalledWith(
+      DOCUMENT_ID,
+      [
+        {
+          code: "ug_capital_below_gmbh_minimum",
+          params: { shareCapitalCents: 2_500_000, minimumCents: 2_500_000 },
+        },
+      ],
+      "musterprotokoll",
+    );
     const text = panel().textContent;
     expect(text).toContain("AI-generated explanation — not legal advice");
     expect(text).toContain(

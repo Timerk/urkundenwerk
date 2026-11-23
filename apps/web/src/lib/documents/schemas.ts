@@ -36,6 +36,8 @@ export const draftDataSchema = z
   })
   .pipe(musterprotokollDraftSchema);
 
-export const exportFormatSchema = z.enum(["pdf", "docx"]);
+export const exportFormatSchema = z.enum(["pdf", "docx", "xml"]);
 
 export type ExportFormat = z.infer<typeof exportFormatSchema>;
+export const exportDocumentSchema = z.enum(["musterprotokoll", "anmeldung"]);
+export type ExportDocument = z.infer<typeof exportDocumentSchema>;

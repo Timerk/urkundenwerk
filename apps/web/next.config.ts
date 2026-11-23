@@ -25,7 +25,13 @@ const nextConfig: NextConfig = {
   },
   // PDFKit loads its default standard font from its own package directory, so
   // it must stay an external package that output tracing copies as a whole.
-  serverExternalPackages: ["pdfkit"],
+  serverExternalPackages: ["pdfkit", "xmllint-wasm"],
+  outputFileTracingIncludes: {
+    "/app/documents/*/export": [
+      // xmllint-wasm starts a worker that loads the WASM file alongside it.
+      "../../node_modules/.pnpm/xmllint-wasm@*/node_modules/xmllint-wasm/xmllint*",
+    ],
+  },
 };
 
 export default nextConfig;
