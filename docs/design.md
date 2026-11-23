@@ -32,9 +32,12 @@ response to the user, and it is skipped when reduced motion is preferred.
   a compact grotesque with clear figures for dates, deed numbers, and amounts.
 
 The scale is a 1.2 ratio from a 16 px body. Labels are sentence case and never
-set in all caps. German terms of art stay in German where they are the precise
-term, with a short English gloss: Firma (company name), Stammkapital (share
-capital), Geschäftsführer (managing director).
+set in all caps. The UI is German or English. German uses the terms of a
+notary's office and the formal „Sie“. English keeps German terms of art where
+they are the precise term, with a short gloss: Firma (company name),
+Stammkapital (share capital), Geschäftsführer (managing director). Dates and
+amounts follow the UI language (`07.03.1990`, `25.000 €` or `07/03/1990`,
+`€25,000`); the deed is always German.
 
 ## Colour
 
@@ -91,13 +94,22 @@ v4 `@theme`), so a dark theme can redefine them later.
   reason, its quote in the serif, and Accept, Edit, and Clear. The screen is
   headed "AI-extracted — review every value; not legal advice". On narrow
   screens a Values/Document toggle replaces the second pane.
+- **Language at hand.** A DE | EN control, drawn like the pane toggle with
+  the current language filled in ink, sits at the right of the app header,
+  in the top right corner of the landing page, and above the sign-in card.
+  Switching keeps everything typed. Layouts allow for German, which runs
+  about a third longer: toolbars and button rows wrap rather than overflow.
 - **One radius per role.** Controls use 4 px, panels 6 px, and the sheet has
   square corners because paper does.
 
 ## Accessibility
 
 Native inputs and radio groups, with labels, descriptions, hints, and errors
-linked through `aria-describedby`. Segmented controls are real radio groups.
+linked through `aria-describedby`. Date fields are text inputs whose format,
+`TT.MM.JJJJ` or `DD/MM/YYYY`, is their description, because native date
+pickers follow the browser's locale rather than the UI's. `<html lang>`
+follows the UI language, the deed preview is marked `lang="de"`, and blanks
+in it carry the UI language. Segmented controls are real radio groups.
 Values on the sheet are keyboard-focusable and named, for example "Missing:
 Sitz (registered seat)". Focus is always visible, and scrolling leaves room
 for the sticky toolbar. Viewers get a read-only form with a notice instead of

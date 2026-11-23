@@ -36,7 +36,7 @@ data and can be downloaded as PDF or DOCX.
   field and in a **Checks** panel that links to the field. Errors block the
   download; warnings and notes do not.
 - **AI explanations, optional.** Any finding can be explained in plain
-  English by an LLM. The rules decide; the model only explains, and its
+  German or English, in the UI language, by an LLM. The rules decide; the model only explains, and its
   answers are labelled as AI-generated and not legal advice. See
   [AI and privacy](#ai-and-privacy).
 - **Import from a contract.** Upload an existing deed or articles of
@@ -54,6 +54,8 @@ data and can be downloaded as PDF or DOCX.
 - **PDF and DOCX exports.** A Node route handler validates the stored draft
   with the schema and the rules and returns the rendered file, or `422` with
   the paths and rule codes of the errors.
+- **German and English.** The whole interface is available in German and
+  English. See [Languages](#languages).
 - **Firms and roles.** Each firm sees only its own documents. Editors and
   admins write. Viewers get a read-only builder and can download. Members of
   several firms switch between them.
@@ -71,6 +73,25 @@ The design direction is recorded in [`docs/design.md`](docs/design.md).
 | Landing page                                  | Documents of a firm                              |
 | --------------------------------------------- | ------------------------------------------------ |
 | ![Landing page](docs/screenshots/landing.png) | ![Document list](docs/screenshots/dashboard.png) |
+
+## Languages
+
+The UI speaks German, in the terms a notary's office uses (Gesellschafter,
+Stammkapital, Einlage, UR-Nr., Registergericht), and English, which keeps
+the German terms of art with a short gloss. A DE | EN switch in the header
+changes the language at any time without losing typed input, and the
+choice is kept in a cookie. Without one, the browser's preferred language
+decides, and German is the default. URLs are the same in both languages.
+
+Dates and amounts follow the UI language: `07.03.1990` and `25.000 €` in
+German, `07/03/1990` and `€25,000` in English. Date fields accept the
+format they show and store ISO dates. AI explanations are written in the UI
+language. The generated Musterprotokoll, Handelsregisteranmeldung, and XML
+are always German. Rule checks in core carry stable codes and numeric
+params, and the web app words them in either language
+([ADR-0012](docs/adr/0012-ui-languages.md)).
+
+![The builder in German, with the form and the Prüfungen panel on the left and the deed preview on the right](docs/screenshots/builder-de.png)
 
 ## Roadmap
 
@@ -232,20 +253,20 @@ The model proposes; Urkundenwerk's code decides what is verified
 ### Explanations of rule findings
 
 The rule engine finds the issues. An LLM may then explain one in plain
-English, with a suggested fix. The model never decides whether data is
+German or English, whichever the UI uses, with a suggested fix. The model never decides whether data is
 valid.
 
 - **What is sent.** Only the rule code, its legal reference, the rule's
-  one-sentence summary, and the issue's params, which are numbers and
-  booleans such as amounts and limits. Names, dates of birth, addresses, the
+  one-sentence summary, the issue's params, which are numbers and booleans
+  such as amounts and limits, and the answer language (`de` or `en`). Names, dates of birth, addresses, the
   Firma, and other text from the draft have no field to travel in. A test
   checks the request for them.
 - **What comes back.** At most three sentences and a suggested fix per
   issue, checked against the asked-for codes. Anything else, and any failure,
-  falls back to the rule's own summary. The panel shows the model and the
-  prompt version.
+  falls back to the rule's own summary in the UI language. The panel shows
+  the model and the prompt version.
 - **Limits.** Only members of the document's firm can ask, ten times a
-  minute. Answers are cached by code, params, model, and prompt version.
+  minute. Answers are cached by code, params, language, model, and prompt version.
 
 ### Configuration
 
@@ -364,8 +385,9 @@ Claude models, use `--provider anthropic` (the default),
   They also sign in as members of two tenants and prove that reads, writes,
   role escalation, and anonymous access across tenants fail. Playwright covers
   sign-in, sign-up, the redirect for unauthenticated users, the builder for
-  editors and viewers, documents and exports across firms, and the contract
-  import with its review for editors and its refusal for viewers.
+  editors and viewers, documents and exports across firms, the contract
+  import with its review for editors and its refusal for viewers, and the
+  German UI with the language switch.
 
 ## How this project is built
 
