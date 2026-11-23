@@ -22,7 +22,7 @@ export function CreateFirmForm() {
         minLength={2}
         maxLength={120}
       />
-      <SubmitButton>Create firm</SubmitButton>
+      <SubmitButton pendingLabel="Creating…">Create firm</SubmitButton>
     </form>
   );
 }

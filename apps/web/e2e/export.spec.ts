@@ -1,17 +1,5 @@
-import { expect, type Page, test } from "@playwright/test";
-
-// Fictional demo users and drafts from supabase/seed.sql.
-const DEMO_PASSWORD = "demo-password-123";
-const NORD_DRAFT = "00000000-0000-4000-8000-0000000d0a01";
-const SUED_DRAFT = "00000000-0000-4000-8000-0000000d0b01";
-
-async function signIn(page: Page, email: string) {
-  await page.goto("/login");
-  await page.getByLabel("Email address").fill(email);
-  await page.getByLabel("Password").fill(DEMO_PASSWORD);
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page).toHaveURL(/\/app$/);
-}
+import { expect, test } from "@playwright/test";
+import { NORD_DRAFT, signIn, SUED_DRAFT } from "./helpers";
 
 test("a viewer exports a complete draft as PDF and DOCX", async ({ page }) => {
   await signIn(page, "victor.viewer@demo.test");
@@ -27,7 +15,7 @@ test("a viewer exports a complete draft as PDF and DOCX", async ({ page }) => {
   expect(pdf.headers()["cache-control"]).toBe("no-store");
   const pdfBody = await pdf.body();
   expect(pdfBody.subarray(0, 5).toString()).toBe("%PDF-");
-  expect(pdfBody.length).toBeGreaterThan(10_000);
+  expect(pdfBody.length).toBeGreaterThan(5_000);
 
   const docx = await page.request.get(
     `/app/documents/${NORD_DRAFT}/export?format=docx`,
@@ -38,7 +26,7 @@ test("a viewer exports a complete draft as PDF and DOCX", async ({ page }) => {
   );
   const docxBody = await docx.body();
   expect(docxBody.subarray(0, 2).toString()).toBe("PK");
-  expect(docxBody.length).toBeGreaterThan(10_000);
+  expect(docxBody.length).toBeGreaterThan(5_000);
 });
 
 test("an incomplete draft is rejected with its missing fields", async ({

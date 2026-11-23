@@ -15,7 +15,13 @@ export type DocumentRow = Database["public"]["Tables"]["documents"]["Row"];
 
 export type DocumentSummary = Pick<
   DocumentRow,
-  "id" | "title" | "template_id" | "template_version" | "status" | "updated_at"
+  | "id"
+  | "title"
+  | "template_id"
+  | "template_version"
+  | "status"
+  | "updated_at"
+  | "data"
 >;
 
 const INSUFFICIENT_PRIVILEGE = "42501";
@@ -34,7 +40,9 @@ export async function listDocuments(
 ): Promise<DocumentSummary[]> {
   const { data, error } = await supabase
     .from("documents")
-    .select("id, title, template_id, template_version, status, updated_at")
+    .select(
+      "id, title, template_id, template_version, status, updated_at, data",
+    )
     .eq("tenant_id", tenantId)
     .order("updated_at", { ascending: false })
     .limit(200);
@@ -58,7 +66,7 @@ export async function getDocument(
   return data;
 }
 
-/** Creates an empty draft. Returns `null` if the caller may not write to the tenant. */
+/** Creates a draft. Returns `null` if the caller may not write to the tenant. */
 export async function insertDocument(
   supabase: AppSupabaseClient,
   values: {
@@ -67,6 +75,7 @@ export async function insertDocument(
     templateVersion: string;
     title: string;
     createdBy: string;
+    data?: MusterprotokollDraft;
   },
 ): Promise<Pick<DocumentRow, "id"> | null> {
   const { data, error } = await supabase
@@ -77,6 +86,7 @@ export async function insertDocument(
       template_version: values.templateVersion,
       title: values.title,
       created_by: values.createdBy,
+      data: values.data,
     })
     .select("id")
     .single();
