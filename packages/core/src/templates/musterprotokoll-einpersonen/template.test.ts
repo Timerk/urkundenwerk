@@ -120,8 +120,13 @@ it("preserves all fixed statutory wording for every alternative after normalizin
       .split("\u0000")
       .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
       .join(".+?");
+    const model = buildMusterprotokoll(input);
+    // The procedural closing is outside Anlage 1 and checked separately.
+    const statutoryBlocks = model.blocks.filter(
+      (block) => block.kind !== "signatures",
+    );
     const actual = normalizeWhitespace(
-      toPlainText(buildMusterprotokoll(input)),
+      toPlainText({ ...model, blocks: statutoryBlocks }),
     );
     expect(actual, name).toMatch(new RegExp(`^${expected}$`, "u"));
     expect(actual, name).not.toMatch(
@@ -130,13 +135,39 @@ it("preserves all fixed statutory wording for every alternative after normalizin
   }
 });
 
+it("ends an in-person deed with the closing and founder and notary signature lines", () => {
+  const model = buildMusterprotokoll(exampleCase);
+  expect(model.blocks.at(-2)).toMatchObject({ kind: "clause", number: 7 });
+  expect(model.blocks.at(-1)).toEqual({
+    kind: "signatures",
+    closing: [
+      {
+        kind: "text",
+        text: "Vorgelesen, genehmigt und eigenhändig unterschrieben:",
+      },
+    ],
+    signatories: [{ label: "Erika Mustermann" }, { label: "Notar/in" }],
+  });
+});
+
+it("ends a video deed at clause 7 without a signature block", () => {
+  const model = buildMusterprotokoll({
+    ...exampleCase,
+    notarisation: { ...exampleCase.notarisation, mode: "video" },
+  });
+  expect(model.blocks.at(-1)).toMatchObject({ kind: "clause", number: 7 });
+  expect(model.blocks.some((block) => block.kind === "signatures")).toBe(false);
+});
+
 it("preserves field paths for preview highlighting, including blanks and reused founder data", () => {
   const input = {
     ...exampleCase,
     notarisation: { mode: "in_person" },
   } as const;
   const model = buildMusterprotokoll(input);
-  const runs = model.blocks.flatMap((block) => block.runs);
+  const runs = model.blocks.flatMap((block) =>
+    block.kind === "signatures" ? block.closing : block.runs,
+  );
   expect(model.templateVersion).toBe("2022-08-01");
   expect(runs).toContainEqual({ kind: "blank", path: "notarisation.date" });
   expect(runs).toContainEqual({

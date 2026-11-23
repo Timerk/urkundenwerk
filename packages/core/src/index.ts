@@ -12,6 +12,7 @@ export type {
   DocumentBlock,
   DocumentModel,
   InlineRun,
+  SignaturesBlock,
   TemplateMetadata,
 } from "./documents/model";
 export { inlineRunText, toPlainText } from "./documents/plain-text";

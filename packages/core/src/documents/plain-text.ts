@@ -9,9 +9,21 @@ export function inlineRunText(run: InlineRun): string {
 /** Render with LF line endings and one blank line between blocks. */
 export function toPlainText(model: DocumentModel): string {
   return model.blocks
-    .map((block) => {
-      const prefix = block.kind === "clause" ? `${block.number}. ` : "";
-      return prefix + block.runs.map(inlineRunText).join("");
+    .map((block): string => {
+      switch (block.kind) {
+        case "heading":
+        case "paragraph":
+          return block.runs.map(inlineRunText).join("");
+        case "clause":
+          return `${block.number}. ${block.runs.map(inlineRunText).join("")}`;
+        case "signatures":
+          return [
+            block.closing.map(inlineRunText).join(""),
+            ...block.signatories.map(
+              ({ label }) => `______________________________\n${label}`,
+            ),
+          ].join("\n\n");
+      }
     })
     .join("\n\n");
 }

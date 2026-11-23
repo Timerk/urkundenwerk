@@ -2,12 +2,16 @@ import {
   inlineRunText,
   type DocumentBlock,
   type DocumentModel,
+  type SignaturesBlock,
 } from "@urkundenwerk/core";
 import { buffer } from "node:stream/consumers";
 import PDFDocument from "pdfkit";
 import { author, documentTimestamp, fontData, layout } from "./layout";
 
-function drawBlock(pdf: PDFKit.PDFDocument, block: DocumentBlock) {
+function drawParagraph(
+  pdf: PDFKit.PDFDocument,
+  block: Exclude<DocumentBlock, SignaturesBlock>,
+) {
   const heading = block.kind === "heading";
   const indent = block.kind === "clause" ? layout.clauseIndent : 0;
   const x = layout.left + indent;
@@ -31,6 +35,59 @@ function drawBlock(pdf: PDFKit.PDFDocument, block: DocumentBlock) {
   }
   pdf.text(text, x, pdf.y, options);
   pdf.y += heading ? layout.headingGap : layout.paragraphGap;
+}
+
+function drawSignatures(pdf: PDFKit.PDFDocument, block: SignaturesBlock) {
+  const x = layout.left;
+  const width = pdf.page.width - layout.right - x;
+  const options = { width, lineGap: layout.lineGap };
+  const closing = block.closing.map(inlineRunText).join("");
+  const closingHeight = pdf
+    .fontSize(layout.bodySize)
+    .heightOfString(closing, options);
+  pdf.fontSize(layout.signatureLabelSize);
+  const height = block.signatories.reduce(
+    (total, { label }) =>
+      total +
+      layout.signatureSpace +
+      layout.signatureLabelGap +
+      pdf.heightOfString(label, options),
+    closingHeight,
+  );
+  const bottom = pdf.page.height - layout.bottom;
+  if (layout.top + height > bottom) {
+    throw new Error(
+      "Signature block exceeds the available height of a PDF page",
+    );
+  }
+  if (pdf.y + height > bottom) pdf.addPage();
+
+  pdf.fontSize(layout.bodySize).text(closing, x, pdf.y, options);
+  pdf.fontSize(layout.signatureLabelSize);
+  for (const { label } of block.signatories) {
+    const lineY = pdf.y + layout.signatureSpace;
+    pdf
+      .save()
+      .lineWidth(0.5)
+      .moveTo(x, lineY)
+      .lineTo(x + layout.signatureWidth, lineY)
+      .stroke()
+      .restore();
+    pdf.text(label, x, lineY + layout.signatureLabelGap, options);
+  }
+  pdf.y += layout.paragraphGap;
+}
+
+function drawBlock(pdf: PDFKit.PDFDocument, block: DocumentBlock): void {
+  switch (block.kind) {
+    case "heading":
+    case "paragraph":
+    case "clause":
+      return drawParagraph(pdf, block);
+    case "signatures":
+      return drawSignatures(pdf, block);
+  }
+  return block satisfies never;
 }
 
 export async function renderPdf(model: DocumentModel): Promise<Uint8Array> {

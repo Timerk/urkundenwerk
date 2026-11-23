@@ -2,9 +2,12 @@ import {
   inlineRunText,
   type DocumentBlock,
   type DocumentModel,
+  type InlineRun,
+  type SignaturesBlock,
 } from "@urkundenwerk/core";
 import {
   AlignmentType,
+  BorderStyle,
   Document,
   Footer,
   Packer,
@@ -20,17 +23,21 @@ import { author, fontData, fontName, layout } from "./layout";
 
 const twips = (points: number) => Math.round(points * 20);
 
-function paragraph(block: DocumentBlock): Paragraph {
-  const heading = block.kind === "heading";
-  const indent = twips(layout.clauseIndent);
-  const children = block.runs.flatMap((run) =>
+function textRuns(runs: readonly InlineRun[], size?: number): TextRun[] {
+  return runs.flatMap((run) =>
     inlineRunText(run)
       .split("\n")
       .map(
         (text, index) =>
-          new TextRun({ text, break: index === 0 ? undefined : 1 }),
+          new TextRun({ text, size, break: index === 0 ? undefined : 1 }),
       ),
   );
+}
+
+function paragraph(block: Exclude<DocumentBlock, SignaturesBlock>): Paragraph {
+  const heading = block.kind === "heading";
+  const indent = twips(layout.clauseIndent);
+  const children = textRuns(block.runs);
   if (block.kind === "clause") {
     children.unshift(
       new TextRun({ children: [`${block.number}.`, new Tab()] }),
@@ -53,6 +60,49 @@ function paragraph(block: DocumentBlock): Paragraph {
       after: twips(heading ? layout.headingGap : layout.paragraphGap),
     },
   });
+}
+
+function signatureParagraphs(block: SignaturesBlock): Paragraph[] {
+  return [
+    new Paragraph({
+      children: textRuns(block.closing),
+      keepNext: block.signatories.length > 0,
+      keepLines: true,
+    }),
+    ...block.signatories.flatMap(({ label }, index) => [
+      new Paragraph({
+        border: { bottom: { style: BorderStyle.SINGLE, size: 4 } },
+        indent: {
+          right:
+            convertMillimetersToTwip(210) -
+            twips(layout.left + layout.right + layout.signatureWidth),
+        },
+        spacing: { line: twips(layout.signatureSpace), lineRule: "exact" },
+        keepNext: true,
+        keepLines: true,
+      }),
+      new Paragraph({
+        children: textRuns(
+          [{ kind: "text", text: label }],
+          layout.signatureLabelSize * 2,
+        ),
+        spacing: { before: twips(layout.signatureLabelGap) },
+        keepNext: index < block.signatories.length - 1,
+        keepLines: true,
+      }),
+    ]),
+  ];
+}
+
+function blockParagraphs(block: DocumentBlock): Paragraph[] {
+  switch (block.kind) {
+    case "heading":
+    case "paragraph":
+    case "clause":
+      return [paragraph(block)];
+    case "signatures":
+      return signatureParagraphs(block);
+  }
 }
 
 export async function renderDocx(model: DocumentModel): Promise<Uint8Array> {
@@ -114,7 +164,7 @@ export async function renderDocx(model: DocumentModel): Promise<Uint8Array> {
             ],
           }),
         },
-        children: model.blocks.map(paragraph),
+        children: model.blocks.flatMap(blockParagraphs),
       },
     ],
   });

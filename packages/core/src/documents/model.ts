@@ -3,6 +3,12 @@ export type InlineRun =
   | { readonly kind: "field"; readonly path: string; readonly text: string }
   | { readonly kind: "blank"; readonly path: string };
 
+export interface SignaturesBlock {
+  readonly kind: "signatures";
+  readonly closing: readonly InlineRun[];
+  readonly signatories: readonly { readonly label: string }[];
+}
+
 export type DocumentBlock =
   | {
       readonly kind: "heading" | "paragraph";
@@ -12,7 +18,8 @@ export type DocumentBlock =
       readonly kind: "clause";
       readonly number: number;
       readonly runs: readonly InlineRun[];
-    };
+    }
+  | SignaturesBlock;
 
 export interface DocumentModel {
   readonly templateId: string;
