@@ -48,4 +48,12 @@
     <question>The founders of the two seeded companies are a woman and a man. In which year was the woman born?</question>
     <answer>1990</answer>
   </qa_pair>
+  <qa_pair>
+    <question>What filename does Urkundenwerk suggest when the Nordmuster Logistik GmbH register filing data is exported as XML?</question>
+    <answer>Handelsregisteranmeldung-Nordmuster-Logistik-GmbH.xml</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Validate the Handelsregisteranmeldung for Südmuster Design UG. Which rule code requires a register court?</question>
+    <answer>filing_court_required</answer>
+  </qa_pair>
 </evaluation>

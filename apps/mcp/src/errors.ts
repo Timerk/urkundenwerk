@@ -12,3 +12,10 @@ export class ToolError extends Error {
     this.details = details;
   }
 }
+
+/** Internal failure with a fixed message for stderr. */
+export class RegisterFilingXmlError extends Error {
+  constructor() {
+    super("Register filing XML generation or validation failed");
+  }
+}

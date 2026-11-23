@@ -1,11 +1,18 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import * as filingXml from "@urkundenwerk/core/register-filing-xml";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DRAFT_SCHEMA_URI, RULES_URI } from "./server";
 import { StoreError } from "./store";
 import { connect } from "./test/client";
-import { COMPLETE_DRAFT, FakeStore, NORD, SUED } from "./test/fake-store";
+import {
+  COMPLETE_DRAFT,
+  COMPLETE_FILING,
+  FakeStore,
+  NORD,
+  SUED,
+} from "./test/fake-store";
 
 const TODAY = "2026-11-23";
 
@@ -13,9 +20,12 @@ let store: FakeStore;
 let exportDir: string | undefined;
 let session: Awaited<ReturnType<typeof connect>>;
 
-async function start(options: { exportDir?: string } = {}) {
+async function start(
+  options: { exportDir?: string; log?: (message: string) => void } = {},
+) {
   session = await connect({
     context: { store, today: () => TODAY, exportDir: options.exportDir },
+    log: options.log ?? (() => undefined),
   });
   return session;
 }
@@ -26,6 +36,7 @@ beforeEach(() => {
 });
 
 afterEach(async () => {
+  vi.restoreAllMocks();
   await session?.close();
   if (exportDir) await rm(exportDir, { recursive: true, force: true });
 });
@@ -59,6 +70,11 @@ describe("tool list", () => {
     expect(byName.urkundenwerk_delete_draft?.annotations?.destructiveHint).toBe(
       true,
     );
+    expect(byName.urkundenwerk_export_document?.annotations).toMatchObject({
+      readOnlyHint: false,
+      destructiveHint: true,
+      idempotentHint: false,
+    });
     expect(byName.urkundenwerk_create_draft?.description).toContain(
       "never by you",
     );
@@ -261,6 +277,41 @@ describe("create_draft", () => {
 });
 
 describe("update_draft", () => {
+  it("merges a nested filing patch and returns the saved filing on read", async () => {
+    const { call } = await start();
+    const create = await call("urkundenwerk_create_draft", {
+      data: { ...COMPLETE_DRAFT, filing: COMPLETE_FILING },
+    });
+    expect(create.isError, create.text).toBe(false);
+    expect(create.data.document.data.filing).toEqual(COMPLETE_FILING);
+    const { documentId } = create.data.document;
+
+    const update = await call("urkundenwerk_update_draft", {
+      documentId,
+      patch: { filing: { businessAddress: { street: "Beispielweg 3" } } },
+    });
+    expect(update.isError, update.text).toBe(false);
+
+    const invalid = await call("urkundenwerk_update_draft", {
+      documentId,
+      patch: { filing: { paidCents: 12.5 } },
+    });
+    expect(invalid.isError).toBe(true);
+    expect(invalid.text).toContain("paidCents");
+
+    const read = await call("urkundenwerk_get_document", { documentId });
+    expect(read.data.document.data).toEqual({
+      ...COMPLETE_DRAFT,
+      filing: {
+        ...COMPLETE_FILING,
+        businessAddress: {
+          ...COMPLETE_FILING.businessAddress,
+          street: "Beispielweg 3",
+        },
+      },
+    });
+  });
+
   it("deep-merges the patch and keeps sibling fields", async () => {
     const document = store.add({
       tenantId: NORD.tenantId,
@@ -466,6 +517,155 @@ describe("validate_document", () => {
 });
 
 describe("export_document", () => {
+  it("only applies filing rules when validating or exporting the filing", async () => {
+    const document = store.add({
+      tenantId: NORD.tenantId,
+      data: COMPLETE_DRAFT,
+    });
+    const { call } = await start();
+    const documentId = document.id;
+
+    const deed = await call("urkundenwerk_validate_document", { documentId });
+    expect(deed.data.completeness.ready).toBe(true);
+    const filing = await call("urkundenwerk_validate_document", {
+      documentId,
+      document: "anmeldung",
+    });
+    expect(filing.data.completeness.ready).toBe(false);
+    expect(filing.data.issues).toContainEqual({
+      code: "filing_court_required",
+      severity: "error",
+      paths: ["filing.registerCourt"],
+      message: "Enter the town of the Amtsgericht.",
+      legalReference: "§ 7 Abs. 1 GmbHG",
+    });
+
+    for (const format of ["pdf", "docx", "xml"]) {
+      const blocked = await call("urkundenwerk_export_document", {
+        documentId,
+        document: "anmeldung",
+        format,
+      });
+      expect(blocked.isError, format).toBe(true);
+      expect(blocked.text).toContain("filing_court_required");
+      expect(blocked.result.content).toHaveLength(1);
+    }
+
+    const exported = await call("urkundenwerk_export_document", { documentId });
+    expect(exported.isError, exported.text).toBe(false);
+  });
+
+  it("blocks a filing export when the deed has rule errors", async () => {
+    const document = store.add({
+      tenantId: NORD.tenantId,
+      data: {
+        ...COMPLETE_DRAFT,
+        company: { ...COMPLETE_DRAFT.company, purpose: "" },
+        filing: COMPLETE_FILING,
+      },
+    });
+    const { call } = await start();
+    const blocked = await call("urkundenwerk_export_document", {
+      documentId: document.id,
+      format: "xml",
+    });
+    expect(blocked.isError).toBe(true);
+    expect(blocked.text).toContain("company.purpose");
+    expect(blocked.result.content).toHaveLength(1);
+  });
+
+  it("returns and saves a validated XML resource with a filing filename", async () => {
+    exportDir = await mkdtemp(join(tmpdir(), "urkundenwerk-mcp-"));
+    const document = store.add({
+      tenantId: NORD.tenantId,
+      title: "Nordmuster Logistik GmbH",
+      data: { ...COMPLETE_DRAFT, filing: COMPLETE_FILING },
+    });
+    const { call } = await start({ exportDir });
+    const exported = await call("urkundenwerk_export_document", {
+      documentId: document.id,
+      format: "xml",
+      saveTo: ".",
+    });
+    expect(exported.isError, exported.text).toBe(false);
+    const filename = "Handelsregisteranmeldung-Nordmuster-Logistik-GmbH.xml";
+    expect(exported.data).toMatchObject({
+      filename,
+      mimeType: "application/xml",
+    });
+    const resource = exported.result.content?.[1];
+    expect(resource).toMatchObject({
+      type: "resource",
+      resource: {
+        uri: `urkundenwerk://documents/${document.id}/export/${filename}`,
+        mimeType: "application/xml",
+        blob: expect.any(String),
+      },
+    });
+    expect(await readFile(join(exportDir, filename))).toEqual(
+      Buffer.from(
+        (resource as { resource: { blob: string } }).resource.blob,
+        "base64",
+      ),
+    );
+
+    const incompatible = await call("urkundenwerk_export_document", {
+      documentId: document.id,
+      document: "musterprotokoll",
+      format: "xml",
+    });
+    expect(incompatible.isError).toBe(true);
+  });
+
+  it("keeps rejected XML out of the result and off disk with a fixed diagnostic", async () => {
+    const validate = vi
+      .spyOn(filingXml, "validateRegisterFilingXml")
+      .mockResolvedValue(false);
+    exportDir = await mkdtemp(join(tmpdir(), "urkundenwerk-mcp-"));
+    const document = store.add({
+      tenantId: NORD.tenantId,
+      data: { ...COMPLETE_DRAFT, filing: COMPLETE_FILING },
+    });
+    const log = vi.fn();
+    const { call } = await start({ exportDir, log });
+    const rejected = await call("urkundenwerk_export_document", {
+      documentId: document.id,
+      format: "xml",
+      saveTo: ".",
+    });
+    expect(validate).toHaveBeenCalledOnce();
+    expect(rejected.isError).toBe(true);
+    expect(rejected.text).toContain("internal error");
+    expect(rejected.result.content).toHaveLength(1);
+    expect(log.mock.calls).toEqual([
+      ["Register filing XML generation or validation failed"],
+    ]);
+    expect(await readdir(exportDir)).toEqual([]);
+  });
+
+  it("returns an Anmeldung PDF as an embedded resource", async () => {
+    const document = store.add({
+      tenantId: NORD.tenantId,
+      data: { ...COMPLETE_DRAFT, filing: COMPLETE_FILING },
+    });
+    const { call } = await start();
+    const exported = await call("urkundenwerk_export_document", {
+      documentId: document.id,
+      document: "anmeldung",
+    });
+    expect(exported.isError, exported.text).toBe(false);
+    expect(exported.data.filename).toBe(
+      "Handelsregisteranmeldung-Fictional-draft.pdf",
+    );
+    const { resource } = exported.result.content?.[1] as {
+      resource: { blob: string; mimeType: string };
+    };
+    expect(resource.mimeType).toBe("application/pdf");
+    const pdf = Buffer.from(resource.blob, "base64").toString("latin1");
+    expect(pdf.startsWith("%PDF-")).toBe(true);
+    expect(pdf).toContain("(Handelsregisteranmeldung)");
+  });
+
   it("refuses incomplete documents and lists the errors", async () => {
     const document = store.add({
       tenantId: NORD.tenantId,
@@ -700,6 +900,7 @@ describe("resources and prompts", () => {
     const parsed = JSON.parse((schema.contents[0] as { text: string }).text);
     expect(parsed.properties.shareCapitalCents.type).toBe("integer");
     expect(parsed.additionalProperties).toBe(false);
+    expect(parsed.properties.filing.properties.paidCents.type).toBe("integer");
 
     const rules = JSON.parse(
       (

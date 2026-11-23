@@ -1,11 +1,13 @@
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { create } from "xmlbuilder2";
 import { parseConfig } from "./config";
 import { todayInGermany } from "./domain";
 import { signIn, type UserSession } from "./session";
 import { createSupabaseStore } from "./store";
 import { connect } from "./test/client";
+import { COMPLETE_FILING } from "./test/fake-store";
 
 /*
  * End-to-end through the MCP protocol against the local Supabase stack:
@@ -169,6 +171,76 @@ describe("MCP server against local Supabase", () => {
         completeness: expect.objectContaining({ ready: true }),
       }),
     );
+  });
+
+  it("adds a filing and exports its XML and Anmeldung PDF", async () => {
+    const draft = await editor.call("urkundenwerk_create_draft", {
+      data: { ...COMPANY, ...missingFacts() },
+    });
+    expect(draft.isError, draft.text).toBe(false);
+    const documentId: string = draft.data.document.documentId;
+    created.push(documentId);
+
+    const update = await editor.call("urkundenwerk_update_draft", {
+      documentId,
+      patch: { filing: COMPLETE_FILING },
+    });
+    expect(update.isError, update.text).toBe(false);
+
+    const validation = await editor.call("urkundenwerk_validate_document", {
+      documentId,
+      document: "anmeldung",
+    });
+    expect(validation.isError, validation.text).toBe(false);
+    expect(validation.data.completeness.ready).toBe(true);
+
+    const beforeExport = Date.now();
+    const xmlExport = await editor.call("urkundenwerk_export_document", {
+      documentId,
+      format: "xml",
+    });
+    expect(xmlExport.isError, xmlExport.text).toBe(false);
+    const xml = xmlExport.result.content?.[1];
+    expect(xml).toMatchObject({
+      type: "resource",
+      resource: { mimeType: "application/xml" },
+    });
+    const { blob } = (xml as { resource: { blob: string } }).resource;
+    const root = create(Buffer.from(blob, "base64").toString("utf8")).root()
+      .node.ownerDocument?.documentElement;
+    const namespace = "urn:urkundenwerk:registeranmeldung:1";
+    expect(root?.localName).toBe("registeranmeldung");
+    expect(root?.namespaceURI).toBe(namespace);
+    expect(
+      root?.getElementsByTagNameNS(namespace, "firma").item(0)?.textContent,
+    ).toBe(COMPANY.company.name);
+    const generatedAt = root
+      ?.getElementsByTagNameNS(namespace, "generatedAt")
+      .item(0)?.textContent;
+    const timestamp = Date.parse(generatedAt ?? "");
+    expect(timestamp).toBeGreaterThanOrEqual(beforeExport);
+    expect(timestamp).toBeLessThanOrEqual(Date.now());
+
+    const pdfExport = await editor.call("urkundenwerk_export_document", {
+      documentId,
+      document: "anmeldung",
+      format: "pdf",
+    });
+    expect(pdfExport.isError, pdfExport.text).toBe(false);
+    expect(pdfExport.data.filename).toBe(
+      "Handelsregisteranmeldung-Integrationstest-Werkstatt-GmbH.pdf",
+    );
+    const pdf = pdfExport.result.content?.[1];
+    expect(pdf).toMatchObject({
+      type: "resource",
+      resource: { mimeType: "application/pdf" },
+    });
+    const bytes = Buffer.from(
+      (pdf as { resource: { blob: string } }).resource.blob,
+      "base64",
+    );
+    expect(bytes.subarray(0, 5).toString("latin1")).toBe("%PDF-");
+    expect(bytes.subarray(-6).toString("latin1")).toContain("%%EOF");
   });
 
   it("does not let a viewer create a draft", async () => {

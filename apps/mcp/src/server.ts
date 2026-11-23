@@ -1,12 +1,13 @@
 import {
   musterprotokollDraftSchema,
   musterprotokollMetadata,
+  registerFilingMetadata,
   rulesFor,
 } from "@urkundenwerk/core";
 import { type CallToolResult, McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { documentTitleSchema } from "./domain";
-import { ToolError } from "./errors";
+import { RegisterFilingXmlError, ToolError } from "./errors";
 import { AuthenticationError } from "./session";
 import { StoreError } from "./store";
 import * as tools from "./tools";
@@ -18,7 +19,7 @@ const TEMPLATE = musterprotokollMetadata.id;
 export const DRAFT_SCHEMA_URI = `urkundenwerk://templates/${TEMPLATE}/draft-schema`;
 export const RULES_URI = `urkundenwerk://templates/${TEMPLATE}/rules`;
 
-const INSTRUCTIONS = `Urkundenwerk drafts the statutory Musterprotokoll (Anlage 1 a) GmbHG) for a single-founder GmbH or UG.
+const INSTRUCTIONS = `Urkundenwerk drafts the statutory Musterprotokoll (Anlage 1 a) GmbHG) and the accompanying Handelsregisteranmeldung for a single-founder GmbH or UG.
 You act as the signed-in user; Postgres row-level security decides what you can read and write, exactly as in the web app.
 Workflow: urkundenwerk_list_firms -> urkundenwerk_create_draft (or urkundenwerk_list_documents) -> urkundenwerk_update_draft -> urkundenwerk_validate_document -> urkundenwerk_export_document.
 You only provide structured data. The deed text is assembled deterministically from a versioned statutory template; never write or rephrase legal text yourself.
@@ -46,7 +47,11 @@ const tenant = z
 
 const draftDescription = `Musterprotokoll draft data (camelCase keys, every field optional, unknown keys rejected).
 Sections: notarisation {mode: in_person|video, deedNumber, date, notaryName, notarySeat}; founder {kind: natural_person|legal_entity, salutation: Herr|Frau|null, firstName, lastName, birthDate, address {street, postalCode, city}, name, registerCourt, registerNumber, seat, identificationDetails}; company {name (Firma incl. legal form, e.g. 'Muster GmbH' or 'Muster UG (haftungsbeschränkt)'), seat, purpose}; shareCapitalCents (integer cents); contribution: full|half; managingDirector {kind: founder|other, salutation, firstName, lastName, birthDate, residence}; notaryNotes.
+For the Handelsregisteranmeldung, add filing {registerCourt (town of the Amtsgericht), businessAddress {street, postalCode, city}, paidCents (integer cents), fundsAtFreeDisposal, noDisqualification, instructedOnDisclosure, paymentEvidenceAttached (booleans)}.
 Full JSON Schema: resource ${DRAFT_SCHEMA_URI}.`;
+
+const documentTarget = z.enum(["musterprotokoll", "anmeldung"]);
+const exportFormat = z.enum(["pdf", "docx", "xml"]);
 
 const role = z.enum(["admin", "editor", "viewer"]);
 
@@ -134,6 +139,10 @@ function failure(error: unknown, log: Logger): CallToolResult {
     // Only the code: database messages can quote row values.
     log(`store error ${error.code ?? "unknown"}: ${error.message}`);
     text = `${error.message} The database reported error ${error.code ?? "unknown"}. Check that Supabase is reachable and try again.`;
+  } else if (error instanceof RegisterFilingXmlError) {
+    log(error.message);
+    text =
+      "An internal error prevented the XML export. Check the MCP server's stderr log.";
   } else {
     log(
       `unexpected ${error instanceof Error ? error.name : typeof error} in a tool call`,
@@ -201,7 +210,7 @@ export function createServer(deps: ServerDependencies): McpServer {
     {
       title: "List documents",
       description:
-        "List a firm's documents, most recently changed first, with title, template, status, last change, and completeness (whether the rules still report errors). Paginated: pass nextOffset as offset to continue. Use urkundenwerk_get_document for a document's data.",
+        "List a firm's documents, most recently changed first, with title, template, status, last change, and Musterprotokoll completeness. Paginated: pass nextOffset as offset to continue. Use urkundenwerk_get_document for a document's data.",
       inputSchema: z.strictObject({
         tenant,
         limit: z
@@ -239,7 +248,7 @@ export function createServer(deps: ServerDependencies): McpServer {
     {
       title: "Get document",
       description:
-        "Get one document: its draft data, firm, whether you can edit it, and its completeness. Use urkundenwerk_validate_document for the individual rule findings.",
+        "Get one document: its draft data including the optional filing section, firm, edit rights, and Musterprotokoll completeness. Use urkundenwerk_validate_document for the individual rule findings.",
       inputSchema: z.strictObject({ documentId }),
       outputSchema: documentOutput,
       annotations: readOnly,
@@ -251,7 +260,7 @@ export function createServer(deps: ServerDependencies): McpServer {
     "urkundenwerk_create_draft",
     {
       title: "Create Musterprotokoll draft",
-      description: `Create a new Musterprotokoll draft (single founder) in a firm, optionally with initial data. Requires the editor or admin role. Incomplete data is fine; the draft is validated against the draft schema, not yet against the rules. Defaults: in-person notarisation, a natural person as founder, the founder as managing director.
+      description: `Create a new Musterprotokoll draft (single founder) in a firm, optionally with initial data including its filing section. Requires the editor or admin role. Incomplete data is fine; the draft is validated against the draft schema, not yet against the rules. Defaults: in-person notarisation, a natural person as founder, the founder as managing director.
 You supply structured data only; the deed text is generated deterministically from the statutory template, never by you.
 Example: {"tenant": "demo-kanzlei-nord", "data": {"company": {"name": "Beispiel Bau GmbH", "seat": "Musterstadt"}, "shareCapitalCents": 2500000}}`,
       inputSchema: z.strictObject({
@@ -277,7 +286,7 @@ Example: {"tenant": "demo-kanzlei-nord", "data": {"company": {"name": "Beispiel 
     {
       title: "Update Musterprotokoll draft",
       description: `Change a draft by deep-merging a partial patch into the stored data: nested objects merge key by key, other values replace the old ones, and null is a value (salutation: null means no salutation). Remove fields with \`unset\`. The result is validated with the draft schema before it is saved. Requires the editor or admin role.
-Only structured data changes; legal text is never edited directly.
+Use patch.filing to add or update Handelsregisteranmeldung fields. Only structured data changes; legal text is never edited directly.
 Example: {"documentId": "…", "patch": {"founder": {"birthDate": "1985-04-12"}, "contribution": "full"}, "unset": ["notaryNotes"]}`,
       inputSchema: z.strictObject({
         documentId,
@@ -311,8 +320,11 @@ Example: {"documentId": "…", "patch": {"founder": {"birthDate": "1985-04-12"},
     {
       title: "Validate document",
       description:
-        "Run Urkundenwerk's deterministic rule engine (GmbHG, BeurkG) on a document with today's date in Germany as reference date. Returns every issue with its stable code, severity (error blocks the export; warning and info do not), field paths, message, and legal reference. No AI is involved.",
-      inputSchema: z.strictObject({ documentId }),
+        "Run Urkundenwerk's deterministic rule engine with today's date in Germany as reference date. Validate the Musterprotokoll by default, or pass document: 'anmeldung' to check both the deed and the filing. Returns issues with code, severity, field paths, message, and legal reference. Only errors block export.",
+      inputSchema: z.strictObject({
+        documentId,
+        document: documentTarget.default("musterprotokoll"),
+      }),
       outputSchema: z.object({
         documentId: z.string(),
         referenceDate: z.string(),
@@ -329,11 +341,16 @@ Example: {"documentId": "…", "patch": {"founder": {"birthDate": "1985-04-12"},
     "urkundenwerk_export_document",
     {
       title: "Export document",
-      description: `Export a document as PDF or DOCX. Only works when the rules report no error; otherwise the error lists the issues to fix. The deed is assembled deterministically from the versioned statutory template and the validated data.
-Returns the file as an embedded resource (base64, with its MIME type) and a suggested filename. With saveTo, the server also writes the file below its configured export directory (URKUNDENWERK_EXPORT_DIR).`,
+      description: `Export the Musterprotokoll or Handelsregisteranmeldung as PDF or DOCX, or export the register filing data as XSD-validated XML. Only works when the selected document's rules report no error. Filing exports check both the deed and filing rules.
+Returns the file as an embedded resource (base64, with its MIME type) and a suggested filename. With saveTo, the server also writes the file below its configured export directory (URKUNDENWERK_EXPORT_DIR). Set overwrite only to replace an existing file.`,
       inputSchema: z.strictObject({
         documentId,
-        format: z.enum(["pdf", "docx"]).default("pdf").describe("File format"),
+        format: exportFormat.default("pdf").describe("File format"),
+        document: documentTarget
+          .optional()
+          .describe(
+            "Defaults to musterprotokoll for PDF and DOCX. XML requires anmeldung, which is implicit when omitted.",
+          ),
         saveTo: z
           .string()
           .trim()
@@ -351,7 +368,7 @@ Returns the file as an embedded resource (base64, with its MIME type) and a sugg
       outputSchema: z.object({
         documentId: z.string(),
         title: z.string(),
-        format: z.enum(["pdf", "docx"]),
+        format: exportFormat,
         filename: z.string(),
         mimeType: z.string(),
         sizeBytes: z.number().int(),
@@ -363,8 +380,8 @@ Returns the file as an embedded resource (base64, with its MIME type) and a sugg
       }),
       annotations: {
         readOnlyHint: false,
-        destructiveHint: false,
-        idempotentHint: true,
+        destructiveHint: true,
+        idempotentHint: false,
         openWorldHint: false,
       },
     },
@@ -420,7 +437,7 @@ Returns the file as an embedded resource (base64, with its MIME type) and a sugg
     {
       title: "Musterprotokoll draft schema",
       description:
-        "JSON Schema of the draft data accepted by urkundenwerk_create_draft and urkundenwerk_update_draft",
+        "JSON Schema of the draft data, including the optional filing section, accepted by urkundenwerk_create_draft and urkundenwerk_update_draft",
       mimeType: "application/schema+json",
     },
     (uri) => ({
@@ -442,9 +459,9 @@ Returns the file as an embedded resource (base64, with its MIME type) and a sugg
     "musterprotokoll-rules",
     RULES_URI,
     {
-      title: "Musterprotokoll rules",
+      title: "Musterprotokoll and Handelsregisteranmeldung rules",
       description:
-        "The rules urkundenwerk_validate_document runs: code, severity, legal reference, and summary",
+        "The rules urkundenwerk_validate_document runs for each document target: code, severity, legal reference, and summary",
       mimeType: "application/json",
     },
     (uri) => ({
@@ -457,7 +474,8 @@ Returns the file as an embedded resource (base64, with its MIME type) and a sugg
               templateId: musterprotokollMetadata.id,
               templateVersion: musterprotokollMetadata.version,
               legalBasis: musterprotokollMetadata.legalBasis,
-              rules: rulesFor(TEMPLATE).map((rule) => ({
+              rules: rulesFor(registerFilingMetadata.id).map((rule) => ({
+                templateId: rule.templateId,
                 code: rule.id,
                 severity: rule.severity,
                 legalReference: rule.legalReference,

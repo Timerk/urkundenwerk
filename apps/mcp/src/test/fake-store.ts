@@ -1,4 +1,4 @@
-import { musterprotokollMetadata } from "@urkundenwerk/core";
+import { type FilingDraft, musterprotokollMetadata } from "@urkundenwerk/core";
 import type { DocumentStore, Membership, StoredDocument } from "../store";
 
 export const NORD: Membership = {
@@ -45,6 +45,19 @@ export const COMPLETE_DRAFT = {
   contribution: "full",
   managingDirector: { kind: "founder" },
 } as const;
+
+export const COMPLETE_FILING = {
+  registerCourt: "Musterstadt",
+  businessAddress: {
+    street: "Musterkai 4",
+    postalCode: "12345",
+    city: "Musterstadt",
+  },
+  paidCents: 2_500_000,
+  fundsAtFreeDisposal: true,
+  noDisqualification: true,
+  instructedOnDisclosure: true,
+} satisfies FilingDraft;
 
 /**
  * An in-memory store that applies the same role rules as the RLS policies:
