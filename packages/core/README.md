@@ -28,6 +28,11 @@ notarial fields to produce dotted blanks. Use ISO calendar dates and integer
 cents in case data. Capital is limited to 1 through 999,999,999 whole euros by
 the supported number-to-words range.
 
+Saved form input uses `musterprotokollDraftSchema`, a strict deep-partial of the
+input schema with length limits. It keeps the fields of both founder and
+director alternatives. `parseDraftAsInput(draft)` selects the chosen
+alternatives, drops blank text, and validates the result with the full schema.
+
 The browser can consume `DocumentModel` directly. A filled run identifies its
 source with a dot-separated field path, which may recur in several clauses.
 Blank runs expose the path for the missing optional value. The plain-text
