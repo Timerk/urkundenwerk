@@ -7,7 +7,7 @@ import type { z } from "zod";
  */
 export interface LlmClient {
   /** The adapter's name, for logs and result metadata. */
-  readonly provider: "anthropic" | "fake";
+  readonly provider: "anthropic" | "openai" | "fake";
   /**
    * Asks the model for one JSON value that matches `schema`. Resolves with
    * data that has been validated against the schema, or rejects with an

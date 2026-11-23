@@ -9,6 +9,7 @@ export {
   createLlmClient,
   DEFAULT_MODELS,
   parseAiConfig,
+  PROVIDER_MODELS,
   type AiConfig,
   type AiProvider,
   type AiTask,
@@ -21,6 +22,11 @@ export {
   type FakeResponse,
 } from "./fake";
 export { LruCache } from "./lru";
+export {
+  OpenAiLlmClient,
+  toOpenAiLlmError,
+  type OpenAiResponses,
+} from "./openai";
 export type {
   GenerateStructuredRequest,
   GenerateStructuredResult,

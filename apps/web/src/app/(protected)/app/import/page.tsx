@@ -64,7 +64,7 @@ export default async function ImportPage() {
     <ImportFlow
       tenantId={membership.tenantId}
       firmName={membership.name}
-      provider={provider === "fake" ? "fake" : "anthropic"}
+      provider={provider === "disabled" ? "fake" : provider}
       model={model}
     />
   );

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { createLlmClient, DEFAULT_MODELS, parseAiConfig } from "./config";
+import {
+  createLlmClient,
+  DEFAULT_MODELS,
+  parseAiConfig,
+  PROVIDER_MODELS,
+} from "./config";
 import type { FakeResponder } from "./fake";
 
 const fakeResponder: FakeResponder = () => ({
@@ -35,6 +40,35 @@ describe("parseAiConfig", () => {
     expect(config).toMatchObject({ provider: "anthropic", apiKey: "test-key" });
   });
 
+  it("turns OpenAI on with its key and uses its default models", () => {
+    expect(parseAiConfig({ OPENAI_API_KEY: "test-key" })).toMatchObject({
+      provider: "openai",
+      apiKey: "test-key",
+      models: PROVIDER_MODELS.openai,
+    });
+  });
+
+  it("prefers Anthropic when both keys are set, unless told otherwise", () => {
+    const both = { ANTHROPIC_API_KEY: "a-key", OPENAI_API_KEY: "o-key" };
+    expect(parseAiConfig(both)).toMatchObject({
+      provider: "anthropic",
+      apiKey: "a-key",
+    });
+    expect(parseAiConfig({ ...both, AI_PROVIDER: "openai" })).toMatchObject({
+      provider: "openai",
+      apiKey: "o-key",
+    });
+  });
+
+  it("lets model ids override the provider's defaults", () => {
+    expect(
+      parseAiConfig({
+        OPENAI_API_KEY: "test-key",
+        AI_MODEL_EXTRACT: "gpt-6.1-terra",
+      }).models,
+    ).toEqual({ explain: "gpt-6-luna", extract: "gpt-6.1-terra" });
+  });
+
   it("lets an explicit provider win over the key", () => {
     expect(
       parseAiConfig({ ANTHROPIC_API_KEY: "test-key", AI_PROVIDER: "fake" })
@@ -59,6 +93,7 @@ describe("parseAiConfig", () => {
 
   it.each([
     [{ AI_PROVIDER: "anthropic" }, "ANTHROPIC_API_KEY"],
+    [{ AI_PROVIDER: "openai", ANTHROPIC_API_KEY: "a-key" }, "OPENAI_API_KEY"],
     [{ AI_PROVIDER: "openai" }, "AI_PROVIDER"],
     [{ AI_MODEL_EXPLAIN: "Claude Haiku" }, "AI_MODEL_EXPLAIN"],
     [{ AI_TIMEOUT_MS: "10" }, "AI_TIMEOUT_MS"],
@@ -85,6 +120,7 @@ describe("createLlmClient", () => {
   it.each([
     [{ AI_PROVIDER: "fake" }, "fake"],
     [{ ANTHROPIC_API_KEY: "test-key" }, "anthropic"],
+    [{ OPENAI_API_KEY: "test-key" }, "openai"],
   ])("creates the %j client", (env, provider) => {
     expect(createLlmClient(parseAiConfig(env), options)?.provider).toBe(
       provider,
