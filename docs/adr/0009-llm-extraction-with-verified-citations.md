@@ -75,13 +75,16 @@ just above that. Extraction refuses texts over 60,000 characters and has
 its own deadline, `AI_EXTRACT_TIMEOUT_MS` (two minutes by default).
 
 **Model and evaluation.** Extraction uses the configured provider at medium
-effort. The OpenAI default is `gpt-6.2-sol`. In the 2026-11-23 evaluation
-with prompt `extract-2026-11-23`, Sol led strict F1 (97.2%), grounded recall
-(92.5%), and verified precision (97.2%) at about $0.014 per document. Terra
-led citation accuracy (96.3% versus Sol's 95.1%) and cost about $0.006 per
-document. We prioritized recovering more correctly cited fields and reducing
-errors in verified values. The 16 fictional test documents are a small
-sample. Anthropic uses the planned default `claude-opus-5-5` pending a
+effort. The OpenAI default is `gpt-6.1-terra`. In the 2026-11-23 evaluation
+with prompt `extract-2026-11-23`, Sol led strict F1 (97.2% versus 96.2%),
+grounded recall (92.5% versus 92.1%), and verified precision (97.2% versus
+96.7%) at about $0.014 per document. Terra led citation accuracy (96.3%
+versus 95.1%) at about $0.006 per document. On 16 fictional test documents a
+one-point gap is within noise, while the cost difference is systematic, so
+we chose Terra. Every value is reviewed by a human anyway, which limits the
+impact of the small quality difference. Revisit the choice when the corpus
+grows. Luna was not chosen because it produced the only gross errors
+(share capital amounts off by a factor of 100). Anthropic uses the planned default `claude-opus-5-5` pending a
 provider-specific evaluation. `AI_MODEL_EXTRACT` overrides either default.
 Prompts are developed on the dev split only, and the test split is used
 only for reporting. See the [evaluation results][evaluation].

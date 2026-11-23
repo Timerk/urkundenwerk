@@ -225,7 +225,7 @@ To use your own key, add it to `apps/web/.env.local`, which Git ignores:
 # OPENAI_API_KEY=<your key>        # selects OpenAI
 # AI_PROVIDER=fake                # scripted answers without a key or network
 # AI_MODEL_EXPLAIN=claude-haiku-5-5   # gpt-6-luna with OpenAI
-# AI_MODEL_EXTRACT=claude-opus-5-5    # gpt-6.2-sol with OpenAI
+# AI_MODEL_EXTRACT=claude-opus-5-5    # gpt-6.1-terra with OpenAI
 # AI_EXTRACT_TIMEOUT_MS=120000
 ```
 
@@ -278,11 +278,12 @@ verified model values matched the gold labels. The per-document reports
 show that models often returned full sentences for identification details
 and notary notes where the labels selected shorter phrases, and Luna
 overstated three share capital amounts by a factor of 100. Sol led strict
-F1, grounded recall, and verified precision, so it is the OpenAI extraction
-default at $0.22 for this run, compared with $0.09 for Terra and $0.01 for
-Luna. With 16 fictional test documents, the sample is small and the
-one-percentage-point strict F1 gap between Sol and Terra may vary across
-documents.
+F1, grounded recall, and verified precision by about one percentage point,
+but with 16 fictional test documents that gap is within noise, and Sol cost
+$0.22 for this run against $0.09 for Terra. Terra is therefore the OpenAI
+extraction default: it matches Sol within the margin of this sample, leads
+citation accuracy, and costs less than half as much. Luna, at $0.01, is the
+budget option but made the only gross errors (amounts off by 100×).
 
 To reproduce the comparison, put `OPENAI_API_KEY` in `apps/web/.env.local`
 or export it and run the following command.
