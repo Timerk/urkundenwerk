@@ -116,6 +116,12 @@ jobs:
       - run: pnpm --filter @urkundenwerk/web exec playwright install --with-deps chromium
       - run: pnpm build
       - run: pnpm test:e2e
+      # The MCP server against the same stack: in-memory client tests and one
+      # run over stdio, each signed in as a seeded demo user.
+      - name: Run the MCP integration tests
+        run: pnpm --filter @urkundenwerk/mcp test:integration
+      - name: Run the MCP server over stdio
+        run: pnpm --filter @urkundenwerk/mcp smoke
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
