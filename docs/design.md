@@ -64,10 +64,18 @@ v4 `@theme`), so a dark theme can redefine them later.
 - **Status is information.** Each section reports what is still missing. The
   toolbar shows the save state (`aria-live`) and how many fields remain, and
   the download buttons explain themselves instead of silently doing nothing.
-- **Rules as guidance.** Cross-field rules from the core schema (GmbH minimum
-  capital, UG below 25.000 € and paid in full, only a natural person as
-  Geschäftsführer) appear next to the field as soon as their inputs exist.
-  Descriptions explain the rule before it is broken.
+- **Rules as guidance.** Findings of the core rule engine appear next to the
+  field as soon as their inputs exist: errors in alert red, warnings and notes
+  in place of the hint. Descriptions explain the rule before it is broken.
+- **One list of checks.** The Checks panel above the form groups the same
+  findings into "To correct", "Worth checking", and "Notes", each with a
+  3 px rule in its severity colour like a `Notice`. Legal references are set
+  in the deed's serif, because they belong to the law rather than the tool.
+  "Go to …" focuses the field as the preview does.
+- **AI stays labelled.** An explanation sits in a pale stamp-blue box headed
+  "AI-generated explanation — not legal advice", with the model and prompt
+  version in small print. The rule's own summary, shown when no model
+  answers, uses a neutral box without that label.
 - **One radius per role.** Controls use 4 px, panels 6 px, and the sheet has
   square corners because paper does.
 
@@ -85,4 +93,5 @@ disabled controls they cannot explain.
 `apps/web/src/components/ui` holds the primitives: `Button`, `Field` with
 `TextInput`, `TextArea`, and `Select`, `SegmentedControl`, `Notice`, and
 `Section`. `DocumentPreview` renders any core `DocumentModel` and adds only
-layout and field affordances; it never changes the wording.
+layout and field affordances; it never changes the wording. `ChecksPanel`
+renders rule issues and their explanations; it never changes an issue.

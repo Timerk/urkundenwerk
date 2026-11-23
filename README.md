@@ -21,16 +21,24 @@ collects data.
   preview built in the browser from the same `DocumentModel` that the exports
   use. Missing values show as labelled dotted lines and filled values in ink.
   Choosing either in the preview focuses its field.
-- **Checks while typing.** Missing fields and the template's cross-field rules
-  (GmbH minimum capital, UG below 25.000 € and paid in full, only a natural
-  person as Geschäftsführer) appear next to the field. Messages map the stable
-  codes of the core Zod schema.
+- **Rule checks while typing.** A deterministic rule engine in core checks
+  the data against the GmbHG and the BeurkG: minimum and UG capital, the
+  payment due before registration, the legal form in the Firma, who may be
+  Geschäftsführer and from what age, dates of birth and notarisation, business
+  purposes that are too general, and the formation cost cap. Each rule has a
+  stable code, a severity, and a legal reference. Findings appear next to the
+  field and in a **Checks** panel that links to the field. Errors block the
+  download; warnings and notes do not.
+- **AI explanations, optional.** Any finding can be explained in plain
+  English by an LLM. The rules decide; the model only explains, and its
+  answers are labelled as AI-generated and not legal advice. See
+  [AI explanations](#ai-explanations).
 - **Drafts that survive.** Changes are saved automatically after a short pause,
   with a visible and announced save status. A new document takes its Firma as
   its title.
 - **PDF and DOCX exports.** A Node route handler validates the stored draft
-  with the full schema and returns the rendered file, or `422` with the
-  missing fields.
+  with the schema and the rules and returns the rendered file, or `422` with
+  the paths and rule codes of the errors.
 - **Firms and roles.** Each firm sees only its own documents. Editors and
   admins write. Viewers get a read-only builder and can download. Members of
   several firms switch between them.
@@ -47,7 +55,7 @@ The design direction is recorded in [`docs/design.md`](docs/design.md).
 | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------- | ------- |
 | [M1 · Foundation](https://github.com/Timerk/urkundenwerk/issues/1)             | Monorepo, CI, Supabase Auth, and row-level security (RLS)              | Done    |
 | [M2 · Template engine](https://github.com/Timerk/urkundenwerk/issues/2)        | Deterministic DOCX and PDF rendering                                   | Done    |
-| [M3 · Rule checks](https://github.com/Timerk/urkundenwerk/issues/3)            | Validation of structured formation data                                | Planned |
+| [M3 · Rule checks](https://github.com/Timerk/urkundenwerk/issues/3)            | Validation of structured formation data                                | Done    |
 | [M4 · AI extraction](https://github.com/Timerk/urkundenwerk/issues/4)          | Extract structured data with source citations and evaluate the results | Planned |
 | [M5 · XML export](https://github.com/Timerk/urkundenwerk/issues/5)             | Export registry XML and validate it against an XSD                     | Planned |
 | [M6 · MCP server](https://github.com/Timerk/urkundenwerk/issues/6)             | Expose the shared domain workflows over MCP                            | Planned |
@@ -66,6 +74,7 @@ Vercel is planned.
 | [`apps/web`](apps/web)               | Next.js app, Playwright tests, and Dockerfile                               |
 | [`packages/core`](packages/core)     | Framework-free TypeScript domain package and Zod schemas                    |
 | [`packages/render`](packages/render) | Node DOCX and PDF export for the [template engine](packages/core/README.md) |
+| [`packages/ai`](packages/ai)         | Server-only LLM port, Anthropic and fake adapters, and explanations         |
 | [`supabase`](supabase)               | Migrations, seed data, pgTAP tests, and local config                        |
 | [`docs/adr`](docs/adr)               | Architecture decisions                                                      |
 
@@ -130,6 +139,41 @@ Before running the end-to-end tests locally, install Chromium with
 database with `pnpm db:start`, and run `pnpm build`. To refresh the README
 screenshots, run `pnpm db:reset` and then
 `SCREENSHOTS=1 pnpm test:e2e e2e/screenshots.spec.ts`.
+
+## AI explanations
+
+The rule engine finds the issues. An LLM may then explain one in plain
+English, with a suggested fix. This follows
+[ADR-0002](docs/adr/0002-deterministic-legal-text.md): the model never
+decides whether data is valid and never writes deed text.
+
+- **What is sent.** Only the rule code, its legal reference, the rule's
+  one-sentence summary, and the issue's params, which are numbers and
+  booleans such as amounts and limits. Names, dates of birth, addresses, the
+  Firma, and other text from the draft have no field to travel in. A test
+  checks the request for them.
+- **What comes back.** At most three sentences and a suggested fix per
+  issue, checked against the asked-for codes. Anything else, and any failure,
+  falls back to the rule's own summary. The panel shows the model and the
+  prompt version.
+- **Limits.** Only members of the document's firm can ask, ten times a
+  minute. Answers are cached by code, params, model, and prompt version.
+- **Design.** A provider-agnostic port with an Anthropic adapter, a scripted
+  fake, timeouts, and one retry. See
+  [ADR-0007](docs/adr/0007-llm-port-and-adapters.md). Extraction in M4 builds
+  on the same port.
+
+Explanations are off unless configured. To use your own key, add it to
+`apps/web/.env.local`, which Git ignores:
+
+```sh
+ANTHROPIC_API_KEY=<your key>  # turns AI_PROVIDER=anthropic on
+# AI_PROVIDER=fake            # scripted answers without a key or network
+# AI_MODEL_EXPLAIN=claude-haiku-5-5
+```
+
+The production server reads these at request time. Tests and CI use
+`AI_PROVIDER=fake` and never call a paid API.
 
 ## Security model
 
