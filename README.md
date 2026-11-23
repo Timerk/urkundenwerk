@@ -5,8 +5,9 @@
 Urkundenwerk is an AI-assisted document builder for German law firms. Its first
 planned workflow covers forming a German GmbH with the statutory
 `Musterprotokoll` (Anlage 1 GmbHG) and preparing the `Handelsregisteranmeldung`.
-The app currently provides sign-up, sign-in, and a firm workspace on a
-multi-tenant Supabase backend.
+The app currently provides sign-up, sign-in, a firm workspace on a
+multi-tenant Supabase backend, document drafts per firm, and PDF and DOCX
+exports of complete drafts.
 
 > **Demonstration project. Not legal advice.** Urkundenwerk uses fictional case
 > data and public legal texts only.
@@ -58,11 +59,15 @@ pnpm dev
 Open <http://localhost:3000> and sign in with one of the fictional demo users.
 Their password is `demo-password-123`. It exists only in the local seed data.
 
-| Email                   | Firm              | Role   |
-| ----------------------- | ----------------- | ------ |
-| `anna.admin@demo.test`  | Demo-Kanzlei Nord | admin  |
-| `erik.editor@demo.test` | Demo-Kanzlei Nord | editor |
-| `sara.admin@demo.test`  | Demo-Kanzlei Süd  | admin  |
+| Email                     | Firm              | Role   |
+| ------------------------- | ----------------- | ------ |
+| `anna.admin@demo.test`    | Demo-Kanzlei Nord | admin  |
+| `erik.editor@demo.test`   | Demo-Kanzlei Nord | editor |
+| `victor.viewer@demo.test` | Demo-Kanzlei Nord | viewer |
+| `sara.admin@demo.test`    | Demo-Kanzlei Süd  | admin  |
+
+Each firm has one fictional draft: a complete Musterprotokoll for Nord and an
+unfinished one for Süd.
 
 Local sign-up skips email confirmation (`[auth.email]` in
 [`supabase/config.toml`](supabase/config.toml)), so `/signup` signs the new
@@ -106,6 +111,12 @@ database with `pnpm db:start`, and run `pnpm build`.
   `authenticated` role only. The policies use `SECURITY DEFINER` helpers in a
   `private` schema that the Data API does not expose. Anonymous requests have
   no table privileges. See [ADR-0003](docs/adr/0003-tenancy-with-row-level-security.md).
+- **Documents.** `documents` rows store structured input, never legal text.
+  Members read their firm's documents, editors and admins write them, and
+  column grants keep the tenant, template version, and author fixed. Server
+  actions and the export route use the signed-in user's Supabase client, so
+  RLS authorizes every query. See
+  [ADR-0005](docs/adr/0005-document-drafts.md).
 - **Authentication.** The Next.js proxy refreshes the Supabase session.
   Protected pages verify the user with the Auth server through
   `supabase.auth.getUser()` and do not trust the session cookie alone.
@@ -115,7 +126,8 @@ database with `pnpm db:start`, and run `pnpm build`.
   every table through the catalog, so new tables are covered automatically.
   They also sign in as members of two tenants and prove that reads, writes,
   role escalation, and anonymous access across tenants fail. Playwright covers
-  sign-in, sign-up, and the redirect for unauthenticated users.
+  sign-in, sign-up, the redirect for unauthenticated users, and exports
+  across firms.
 
 ## How this project is built
 

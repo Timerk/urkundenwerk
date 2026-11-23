@@ -227,6 +227,9 @@ importers:
       '@urkundenwerk/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@urkundenwerk/render':
+        specifier: workspace:*
+        version: link:../../packages/render
       next:
         specifier: 16.4.6
         version: 16.4.6(@babel/core@7.29.13(supports-color@7.2.0))(@playwright/test@1.65.1)(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
