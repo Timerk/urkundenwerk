@@ -45,7 +45,7 @@ const result = await explainIssues(issues, {
 | `ANTHROPIC_API_KEY`     | unset                                                  |
 | `OPENAI_API_KEY`        | unset                                                  |
 | `AI_MODEL_EXPLAIN`      | Anthropic `claude-haiku-5-5`, OpenAI `gpt-6-luna`      |
-| `AI_MODEL_EXTRACT`      | Anthropic `claude-opus-5-5`, OpenAI `gpt-6.2-sol`      |
+| `AI_MODEL_EXTRACT`      | Anthropic `claude-opus-5-5`, OpenAI `gpt-6.1-terra`    |
 | `AI_TIMEOUT_MS`         | `20000`                                                |
 | `AI_EXTRACT_TIMEOUT_MS` | `120000`                                               |
 

@@ -14,7 +14,7 @@ import { withResilience } from "./resilience";
  */
 export const PROVIDER_MODELS = {
   anthropic: { explain: "claude-haiku-5-5", extract: "claude-opus-5-5" },
-  openai: { explain: "gpt-6-luna", extract: "gpt-6.2-sol" },
+  openai: { explain: "gpt-6-luna", extract: "gpt-6.1-terra" },
 } as const;
 
 /** The defaults of the Anthropic provider, also used by the fake. */

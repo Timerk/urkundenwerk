@@ -39,7 +39,7 @@ describe("parseAiConfig", () => {
     expect(parseAiConfig({ OPENAI_API_KEY: "test-key" })).toMatchObject({
       provider: "openai",
       apiKey: "test-key",
-      models: { explain: "gpt-6-luna", extract: "gpt-6.2-sol" },
+      models: { explain: "gpt-6-luna", extract: "gpt-6.1-terra" },
     });
   });
 
