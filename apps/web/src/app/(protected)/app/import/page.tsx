@@ -3,7 +3,6 @@ import Link from "next/link";
 import { buttonClasses } from "../../../../components/ui/button";
 import { Notice } from "../../../../components/ui/notice";
 import { aiState } from "../../../../lib/ai/state";
-import { isExtractionEnabled } from "../../../../lib/import/extraction";
 import { getCurrentMembership } from "../../../../lib/tenants/memberships";
 import {
   canEditDocuments,
@@ -45,27 +44,25 @@ export default async function ImportPage() {
     );
   }
 
-  if (!isExtractionEnabled()) {
+  const state = aiState();
+  if (!state.ok || !state.extractClient) {
     return (
       <Unavailable title="AI extraction is not configured on this server">
         Importing reads a contract with an AI model, and this server has no
         model set up. You can still start a new Musterprotokoll and fill it in
-        by hand. To try the import locally, set <code>ANTHROPIC_API_KEY</code>{" "}
-        or <code>AI_PROVIDER=fake</code> in <code>apps/web/.env.local</code>.
+        by hand. To try the import locally, set <code>ANTHROPIC_API_KEY</code>,{" "}
+        <code>OPENAI_API_KEY</code>, or <code>AI_PROVIDER=fake</code> in{" "}
+        <code>apps/web/.env.local</code>.
       </Unavailable>
     );
   }
-
-  const state = aiState();
-  const provider = state.ok ? state.config.provider : "disabled";
-  const model = state.ok ? state.config.models.extract : "";
 
   return (
     <ImportFlow
       tenantId={membership.tenantId}
       firmName={membership.name}
-      provider={provider === "disabled" ? "fake" : provider}
-      model={model}
+      provider={state.extractClient.provider}
+      model={state.config.models.extract}
     />
   );
 }
