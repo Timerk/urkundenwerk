@@ -224,6 +224,9 @@ importers:
       '@supabase/supabase-js':
         specifier: 2.119.1
         version: 2.119.1(@opentelemetry/api@1.10.0)
+      '@urkundenwerk/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@urkundenwerk/core':
         specifier: workspace:*
         version: link:../../packages/core

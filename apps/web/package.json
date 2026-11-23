@@ -12,6 +12,7 @@
   "dependencies": {
     "@supabase/ssr": "0.12.7",
     "@supabase/supabase-js": "2.119.1",
+    "@urkundenwerk/ai": "workspace:*",
     "@urkundenwerk/core": "workspace:*",
     "@urkundenwerk/render": "workspace:*",
     "next": "16.4.6",
