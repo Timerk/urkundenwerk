@@ -15,7 +15,7 @@ The current scaffold serves a placeholder page.
 | Milestone                                                                      | Scope                                                                  | Status      |
 | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------- | ----------- |
 | [M1 · Foundation](https://github.com/Timerk/urkundenwerk/issues/1)             | Monorepo, CI, Supabase Auth, and row-level security (RLS)              | In progress |
-| [M2 · Template engine](https://github.com/Timerk/urkundenwerk/issues/2)        | Deterministic DOCX and PDF rendering                                   | Planned     |
+| [M2 · Template engine](https://github.com/Timerk/urkundenwerk/issues/2)        | Deterministic DOCX and PDF rendering                                   | In progress |
 | [M3 · Rule checks](https://github.com/Timerk/urkundenwerk/issues/3)            | Validation of structured formation data                                | Planned     |
 | [M4 · AI extraction](https://github.com/Timerk/urkundenwerk/issues/4)          | Extract structured data with source citations and evaluate the results | Planned     |
 | [M5 · XML export](https://github.com/Timerk/urkundenwerk/issues/5)             | Export registry XML and validate it against an XSD                     | Planned     |
@@ -30,11 +30,12 @@ Zod. Vitest and Playwright run in GitHub Actions, and Docker Compose runs the
 standalone web build locally. Supabase (Postgres, Auth, and RLS) and Vercel are
 planned.
 
-| Path                             | Purpose                                                  |
-| -------------------------------- | -------------------------------------------------------- |
-| [`apps/web`](apps/web)           | Next.js app, Playwright tests, and Dockerfile            |
-| [`packages/core`](packages/core) | Framework-free TypeScript domain package and Zod schemas |
-| [`docs/adr`](docs/adr)           | Architecture decisions                                   |
+| Path                                 | Purpose                                                                     |
+| ------------------------------------ | --------------------------------------------------------------------------- |
+| [`apps/web`](apps/web)               | Next.js app, Playwright tests, and Dockerfile                               |
+| [`packages/core`](packages/core)     | Framework-free TypeScript domain package and Zod schemas                    |
+| [`packages/render`](packages/render) | Node DOCX and PDF export for the [template engine](packages/core/README.md) |
+| [`docs/adr`](docs/adr)               | Architecture decisions                                                      |
 
 The shared TypeScript config enables `strict` and `noUncheckedIndexedAccess`.
 It leaves `exactOptionalPropertyTypes` off so app and schema types can use the
@@ -57,7 +58,7 @@ Open <http://localhost:3000>. To run the production image locally, use
 | ----------------------------------- | -------------------------------------------------------- |
 | `pnpm lint`                         | Check JavaScript and TypeScript with ESLint              |
 | `pnpm format` / `pnpm format:check` | Write or check formatting with Prettier                  |
-| `pnpm typecheck`                    | Type-check both workspace packages                       |
+| `pnpm typecheck`                    | Type-check all workspace packages                        |
 | `pnpm test`                         | Run the workspace unit tests                             |
 | `pnpm build`                        | Build the standalone production app                      |
 | `pnpm test:e2e`                     | Run the Chromium smoke test against the production build |
