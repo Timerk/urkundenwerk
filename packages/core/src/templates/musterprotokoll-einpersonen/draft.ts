@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { isoDateSchema, MAX_EUROS_IN_WORDS } from "../../formatting";
+import { filingDraftSchema } from "../handelsregisteranmeldung-gmbh/schema";
 import { musterprotokollSchema } from "./schema";
 
 // Enumerations come from the full schema so that drafts cannot drift from it.
@@ -76,6 +77,7 @@ export const musterprotokollDraftSchema = z
       })
       .partial(),
     notaryNotes: longText,
+    filing: filingDraftSchema,
   })
   .partial();
 

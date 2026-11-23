@@ -13,10 +13,14 @@ const ruleSets = {
     rules: musterprotokollRules,
     check: checkMusterprotokoll,
   },
+  [registerFilingMetadata.id]: {
+    rules: [...musterprotokollRules, ...registerFilingRules],
+    check: checkRegisterFiling,
+  },
 } as const;
 
 export type RuleTemplateId = keyof typeof ruleSets;
-export type RuleCode = MusterprotokollRuleCode;
+export type RuleCode = MusterprotokollRuleCode | RegisterFilingRuleCode;
 
 /**
  * Runs the rules of a template on a draft or complete input and returns the
@@ -49,3 +53,9 @@ export function getRule(
 ): Rule<unknown, RuleCode> | undefined {
   return rulesFor(templateId).find((rule) => rule.id === code);
 }
+import { registerFilingMetadata } from "../templates/handelsregisteranmeldung-gmbh/metadata";
+import {
+  registerFilingRules,
+  type RegisterFilingRuleCode,
+} from "../templates/handelsregisteranmeldung-gmbh/rules";
+import { checkRegisterFiling } from "../templates/handelsregisteranmeldung-gmbh/validate";

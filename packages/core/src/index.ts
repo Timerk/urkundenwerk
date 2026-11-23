@@ -73,3 +73,27 @@ export {
   musterprotokollTemplate,
 } from "./templates/musterprotokoll-einpersonen/template";
 export { getTemplate, type TemplateId } from "./templates/registry";
+export {
+  filingDraftSchema,
+  filingSchema,
+  registerFilingSchema,
+  type FilingDraft,
+  type RegisterFilingData,
+} from "./templates/handelsregisteranmeldung-gmbh/schema";
+export {
+  registerFilingRules,
+  type RegisterFilingRuleCode,
+} from "./templates/handelsregisteranmeldung-gmbh/rules";
+export {
+  checkRegisterFiling,
+  RegisterFilingValidationError,
+  validateRegisterFiling,
+  type RegisterFilingIssue,
+  type RegisterFilingValidation,
+} from "./templates/handelsregisteranmeldung-gmbh/validate";
+export {
+  buildRegisterFiling,
+  buildRegisterFilingPreview,
+  registerFilingMetadata,
+  registerFilingTemplate,
+} from "./templates/handelsregisteranmeldung-gmbh/template";
