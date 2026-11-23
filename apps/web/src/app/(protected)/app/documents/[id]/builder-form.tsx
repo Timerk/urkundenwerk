@@ -1,6 +1,7 @@
 "use client";
 
 import type { MusterprotokollDraft } from "@urkundenwerk/core";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import type {
   FieldIssue,
@@ -22,6 +23,7 @@ export const SECTION_PATHS: Record<FormSectionId, (path: string) => boolean> = {
 };
 
 function SectionStatus({ outstanding }: { outstanding: number }) {
+  const t = useTranslations("builder.section");
   return outstanding === 0 ? (
     <span className="inline-flex items-center gap-1 text-xs font-medium text-ok">
       <svg aria-hidden="true" viewBox="0 0 16 16" className="size-3.5">
@@ -34,11 +36,11 @@ function SectionStatus({ outstanding }: { outstanding: number }) {
           strokeLinejoin="round"
         />
       </svg>
-      Complete
+      {t("complete")}
     </span>
   ) : (
-    <span className="text-xs font-medium text-ink-faint">
-      {outstanding} to complete
+    <span className="text-xs font-medium whitespace-nowrap text-ink-faint">
+      {t("outstanding", { count: outstanding })}
     </span>
   );
 }
@@ -85,29 +87,20 @@ function Row({ children }: { children: ReactNode }) {
   return <div className="grid gap-5 sm:grid-cols-2 sm:gap-4">{children}</div>;
 }
 
-const salutationOptions = [
-  { value: "Herr", label: "Herr" },
-  { value: "Frau", label: "Frau" },
-  { value: "none", label: "No salutation" },
-] as const;
+const SALUTATIONS = ["Herr", "Frau", "none"] as const;
 
-const salutationProps = {
-  options: salutationOptions,
-  toValue: (value: string) => (value === "none" ? null : value),
-  fromValue: (value: unknown) =>
-    value === null ? ("none" as const) : (value as "Herr" | "Frau" | undefined),
-  description: "Used in the deed's wording, for example “Herrn” in clause 3.",
-};
-
-function capitalDescription(form: LegalForm | undefined): string {
-  const base = "Whole euros. The deed also writes the amount out in words.";
-  if (form === "GmbH") {
-    return `${base} A GmbH needs at least 25.000 €, of which half may be paid at formation.`;
-  }
-  if (form === "UG") {
-    return `${base} A UG (haftungsbeschränkt) has 1 € to 24.999 €, paid in full.`;
-  }
-  return base;
+function useSalutationProps() {
+  const t = useTranslations("options.salutation");
+  const hints = useTranslations("builder.hints");
+  return {
+    options: SALUTATIONS.map((value) => ({ value, label: t(value) })),
+    toValue: (value: string) => (value === "none" ? null : value),
+    fromValue: (value: unknown) =>
+      value === null
+        ? ("none" as const)
+        : (value as "Herr" | "Frau" | undefined),
+    description: hints("salutation"),
+  };
 }
 
 export function BuilderForm({
@@ -126,32 +119,43 @@ export function BuilderForm({
     .map((part) => part?.trim())
     .filter(Boolean)
     .join(" ");
+  const t = useTranslations("builder");
+  const options = useTranslations("options");
+  const salutationProps = useSalutationProps();
+  const capitalDescription = [
+    t("hints.capital"),
+    legalForm === "GmbH"
+      ? t("hints.capitalGmbh")
+      : legalForm === "UG"
+        ? t("hints.capitalUg")
+        : undefined,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <div>
       <FormSection
         id="notarisation"
-        title="Notarisation"
-        description="Details you leave empty print as dotted lines, to be completed by hand at the appointment."
+        title={t("sections.notarisation.title")}
+        description={t("sections.notarisation.description")}
         outstanding={outstanding("notarisation")}
       >
         <ChoiceField
           path="notarisation.mode"
           options={[
-            { value: "in_person", label: "In person" },
-            { value: "video", label: "By video (§ 16a BeurkG)" },
+            { value: "in_person", label: options("mode.in_person") },
+            { value: "video", label: options("mode.video") },
           ]}
           description={
-            draft.notarisation?.mode === "video"
-              ? "The deed adds “mittels Videokommunikation” and ends after clause 7; signing happens electronically."
-              : undefined
+            draft.notarisation?.mode === "video" ? t("hints.video") : undefined
           }
         />
         <Row>
           <TextField
             path="notarisation.deedNumber"
             optional
-            placeholder="123/2026"
+            placeholder={t("placeholders.deedNumber")}
           />
           <DateField path="notarisation.date" optional />
         </Row>
@@ -163,15 +167,21 @@ export function BuilderForm({
 
       <FormSection
         id="founder"
-        title="Founder (Gesellschafter)"
-        description="The Musterprotokoll allows exactly one founder."
+        title={t("sections.founder.title")}
+        description={t("sections.founder.description")}
         outstanding={outstanding("founder")}
       >
         <ChoiceField
           path="founder.kind"
           options={[
-            { value: "natural_person", label: "Natural person" },
-            { value: "legal_entity", label: "Legal entity" },
+            {
+              value: "natural_person",
+              label: options("founderKind.natural_person"),
+            },
+            {
+              value: "legal_entity",
+              label: options("founderKind.legal_entity"),
+            },
           ]}
         />
         {founderIsEntity ? (
@@ -180,11 +190,11 @@ export function BuilderForm({
             <Row>
               <TextField
                 path="founder.registerCourt"
-                placeholder="Amtsgericht Musterstadt"
+                placeholder={t("placeholders.registerCourt")}
               />
               <TextField
                 path="founder.registerNumber"
-                placeholder="HRB 12345"
+                placeholder={t("placeholders.registerNumber")}
               />
             </Row>
             <TextField path="founder.seat" />
@@ -192,7 +202,7 @@ export function BuilderForm({
               path="founder.identificationDetails"
               optional
               multiline
-              description="Added after the register details, for example “vertreten durch …”."
+              description={t("hints.entityDetails")}
             />
           </>
         ) : (
@@ -202,7 +212,7 @@ export function BuilderForm({
               <TextField path="founder.firstName" />
               <TextField path="founder.lastName" />
             </Row>
-            <DateField path="founder.birthDate" className="sm:max-w-[50%]" />
+            <DateField path="founder.birthDate" autoComplete="bday" />
             <TextField path="founder.address.street" />
             <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-4">
               <TextField path="founder.address.postalCode" />
@@ -212,7 +222,7 @@ export function BuilderForm({
               path="founder.identificationDetails"
               optional
               multiline
-              description="Added after the address, for example how the founder was identified."
+              description={t("hints.personDetails")}
             />
           </>
         )}
@@ -220,51 +230,50 @@ export function BuilderForm({
 
       <FormSection
         id="company"
-        title="Company"
+        title={t("sections.company.title")}
         outstanding={outstanding("company")}
       >
         <TextField
           path="company.name"
-          placeholder="Musterlicht Software GmbH"
+          placeholder={t("placeholders.companyName")}
           description={
             legalForm
-              ? `Legal form: ${legalForm === "UG" ? "UG (haftungsbeschränkt)" : "GmbH"}.`
-              : "End with “GmbH” or “UG (haftungsbeschränkt)”."
+              ? t("hints.legalForm", {
+                  form: legalForm === "UG" ? "UG (haftungsbeschränkt)" : "GmbH",
+                })
+              : t("hints.legalFormMissing")
           }
         />
-        <TextField path="company.seat" placeholder="Musterstadt" />
+        <TextField path="company.seat" placeholder={t("placeholders.seat")} />
         <TextField
           path="company.purpose"
           multiline
-          description="Completes the sentence “Gegenstand des Unternehmens ist …”."
-          placeholder="die Entwicklung und der Vertrieb von Software"
+          description={t("hints.purpose")}
+          placeholder={t("placeholders.purpose")}
         />
       </FormSection>
 
       <FormSection
         id="capital"
-        title="Capital"
+        title={t("sections.capital.title")}
         outstanding={outstanding("capital")}
       >
-        <EuroField
-          path="shareCapitalCents"
-          description={capitalDescription(legalForm)}
-        />
+        <EuroField path="shareCapitalCents" description={capitalDescription} />
         <ChoiceField
           path="contribution"
           layout="stack"
           options={[
             {
               value: "full",
-              label: "In full, immediately",
+              label: options("contribution.full"),
               description: "„sofort in voller Höhe“",
             },
             {
               value: "half",
-              label: "50 % now, the rest when called in",
+              label: options("contribution.half"),
               description:
                 legalForm === "UG"
-                  ? "Not available for a UG (haftungsbeschränkt)."
+                  ? t("hints.halfUg")
                   : "„zu 50 Prozent sofort, im Übrigen sobald die Gesellschafterversammlung ihre Einforderung beschließt“",
             },
           ]}
@@ -273,25 +282,25 @@ export function BuilderForm({
 
       <FormSection
         id="director"
-        title="Geschäftsführer (managing director)"
-        description="Exempt from the restrictions of § 181 BGB, as the Musterprotokoll prescribes."
+        title={t("sections.director.title")}
+        description={t("sections.director.description")}
         outstanding={outstanding("director")}
       >
         <ChoiceField
           path="managingDirector.kind"
-          legend="Who is appointed?"
+          legend={t("hints.directorQuestion")}
           layout="stack"
           options={[
             {
               value: "founder",
-              label: "The founder",
+              label: options("directorKind.founder"),
               description: founderIsEntity
-                ? "Only possible when the founder is a natural person."
+                ? t("hints.directorEntity")
                 : founderName
-                  ? `${founderName} is appointed.`
-                  : "Uses the founder's name, date of birth, and town.",
+                  ? t("hints.directorNamed", { name: founderName })
+                  : t("hints.directorFounder"),
             },
-            { value: "other", label: "Another person" },
+            { value: "other", label: options("directorKind.other") },
           ]}
         />
         {draft.managingDirector?.kind === "other" ? (
@@ -314,14 +323,14 @@ export function BuilderForm({
 
       <FormSection
         id="notes"
-        title="Notary's notes"
+        title={t("sections.notes.title")}
         outstanding={outstanding("notes")}
       >
         <TextField
           path="notaryNotes"
           optional
           multiline
-          description="Completes clause 7: “insbesondere auf Folgendes hingewiesen: …”. Leave empty to add the notes by hand."
+          description={t("hints.notes")}
         />
       </FormSection>
     </div>

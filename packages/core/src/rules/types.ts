@@ -18,7 +18,11 @@ export interface Issue<Code extends string = string> {
   /** Dot-separated field paths, the most relevant first. */
   readonly paths: readonly string[];
   readonly params: IssueParams;
-  /** A deterministic English sentence for the form. */
+  /**
+   * A deterministic English sentence for logs, API diagnostics, and tests.
+   * User interfaces word an issue from `code`, `params`, and `paths` in
+   * their own language instead (ADR-0012), so core stays language-neutral.
+   */
   readonly message: string;
 }
 

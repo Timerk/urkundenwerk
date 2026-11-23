@@ -21,6 +21,10 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+// Actions translate their errors in the request's language; English here.
+vi.mock("next-intl/server", async () =>
+  (await import("../../../../test/i18n")).serverIntl("en"),
+);
 vi.mock("../../../../lib/supabase/server", () => ({
   getVerifiedUser: mocks.getVerifiedUser,
   createClient: mocks.createClient,
@@ -59,9 +63,11 @@ describe("explainDocumentIssues", () => {
       ok: true,
       result: { model: "fake-model" },
     });
+    // The UI language of the request, so the model answers in it.
     expect(mocks.explain).toHaveBeenCalledWith(
       "musterprotokoll-einpersonen",
       issues,
+      "en",
     );
     expect(mocks.takeExplanationQuota).toHaveBeenCalledWith("user-1");
   });

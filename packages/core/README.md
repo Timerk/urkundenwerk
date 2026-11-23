@@ -70,7 +70,10 @@ through 999,999,999 whole euros by the supported number-to-words range.
 severity. Each issue has a stable `code`, a `severity`, the affected
 `paths`, a deterministic English `message`, and `params` that hold only
 numbers and booleans. Rules never read the clock. Each rule in the registry
-also has a `legalReference` and a one-sentence `summary`.
+also has a `legalReference` and a one-sentence `summary`. The English
+`message` and `summary` serve logs, API diagnostics, and the model prompt;
+the web app words each issue from its code, params, and paths in German or
+English ([ADR-0012](../../docs/adr/0012-ui-languages.md)).
 
 | Code                              | Severity | Legal reference                        |
 | --------------------------------- | -------- | -------------------------------------- |

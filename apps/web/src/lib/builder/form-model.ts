@@ -2,13 +2,14 @@ import {
   checkMusterprotokoll,
   checkRegisterFiling,
   type Issue,
+  type IssueParams,
   type MusterprotokollDraft,
   passes,
   type RuleCode,
   type Severity,
 } from "@urkundenwerk/core";
+import type { Locale } from "../../i18n/locale";
 import type { ExportDocument } from "../documents/schemas";
-import { filingMessages } from "./filing-messages";
 
 export { legalFormOf, type LegalForm } from "@urkundenwerk/core";
 
@@ -120,48 +121,59 @@ const MAX_EUROS = 999_999_999;
 export type EuroParse =
   | { kind: "empty" }
   | { kind: "valid"; cents: number }
-  | { kind: "invalid"; message: string };
+  /** `format`: not an amount, or cents where whole euros are needed. */
+  | { kind: "invalid"; reason: "format" | "range" };
 
-/** Parses German euro amounts. Stammkapital is limited to whole euros. */
-export function parseEuros(text: string, allowCents = false): EuroParse {
-  const value = text.replace(/\s*€\s*$/, "").trim();
+// Separators by UI language: German `25.000,50`, English `25,000.50`. A
+// space also groups thousands in both.
+const SEPARATORS: Record<Locale, { group: string; decimal: string }> = {
+  de: { group: ".", decimal: "," },
+  en: { group: ",", decimal: "." },
+};
+const AMOUNT_PATTERNS: Record<Locale, RegExp> = {
+  de: /^(\d{1,3}(?:[. ]\d{3})+|\d+)(?:,(\d{1,2}))?$/,
+  en: /^(\d{1,3}(?:[, ]\d{3})+|\d+)(?:\.(\d{1,2}))?$/,
+};
+
+/**
+ * Parses a euro amount as written in the UI language, ignoring a € sign.
+ * Stammkapital is limited to whole euros.
+ */
+export function parseEuros(
+  text: string,
+  allowCents = false,
+  locale: Locale = "de",
+): EuroParse {
+  const value = text.replace(/^\s*€\s*|\s*€\s*$/g, "").trim();
   if (value === "") return { kind: "empty" };
-  const match = /^(\d{1,3}(?:[. ]\d{3})+|\d+)(?:,(\d{1,2}))?$/.exec(value);
+  const match = AMOUNT_PATTERNS[locale].exec(value);
   const fraction = Number(match?.[2]?.padEnd(2, "0") ?? 0);
   if (!match || (!allowCents && fraction !== 0)) {
-    return {
-      kind: "invalid",
-      message: allowCents
-        ? filingMessages.amountFormat
-        : "Enter whole euros, for example 25.000.",
-    };
+    return { kind: "invalid", reason: "format" };
   }
-  const euros = Number(match[1]!.replace(/[. ]/g, ""));
+  const euros = Number(match[1]!.replace(/[^\d]/g, ""));
   const cents = euros * 100 + fraction;
   if (cents < (allowCents ? 0 : 100) || cents > MAX_EUROS * 100) {
-    return {
-      kind: "invalid",
-      message: allowCents
-        ? filingMessages.amountRange
-        : "Enter an amount between 1 € and 999.999.999 €.",
-    };
+    return { kind: "invalid", reason: "range" };
   }
   return { kind: "valid", cents };
 }
 
-/** Formats cents with German thousands separators. */
+/** Formats cents for an amount input, with the UI language's separators. */
 export function formatEuros(
   cents: number | undefined,
   allowCents = false,
+  locale: Locale = "de",
 ): string {
   if (cents === undefined) return "";
+  const { group, decimal } = SEPARATORS[locale];
   const euros = String(Math.floor(cents / 100)).replace(
     /\B(?=(\d{3})+(?!\d))/g,
-    ".",
+    group,
   );
   const fraction = cents % 100;
   return allowCents && fraction
-    ? `${euros},${String(fraction).padStart(2, "0")}`
+    ? `${euros}${decimal}${String(fraction).padStart(2, "0")}`
     : euros;
 }
 
@@ -179,12 +191,12 @@ export function isFieldRule(code: RuleCode): boolean {
   return FIELD_RULES.has(code);
 }
 
-/** The issue shown next to one field. */
+/** The issue shown next to one field. The UI words it from code and params. */
 export type FieldIssue = {
   path: string;
   code: RuleCode;
   severity: Severity;
-  message: string;
+  params: IssueParams;
 };
 
 export type DraftAnalysis = {
@@ -218,10 +230,10 @@ export function analyseDraft(
     ...all.filter((i) => i.severity === "error" && isFieldRule(i.code)),
     ...all.filter((i) => i.severity !== "error"),
   ];
-  for (const { code, severity, message, paths } of ordered) {
+  for (const { code, severity, params, paths } of ordered) {
     const path = paths[0];
     if (path !== undefined && !issues.has(path)) {
-      issues.set(path, { path, code, severity, message });
+      issues.set(path, { path, code, severity, params });
     }
   }
   return {

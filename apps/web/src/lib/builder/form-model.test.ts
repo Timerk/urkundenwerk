@@ -1,4 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { ruleMessage } from "../../i18n/rule-messages";
+import { rulesTranslator } from "../../test/i18n";
+
+const rules = rulesTranslator("en");
 import {
   analyseDraft,
   editDraftField,
@@ -109,12 +113,23 @@ describe("parseEuros", () => {
   it.each(["25.000,50", "25,5", "2.50", "abc", "-5", "1.0000"])(
     "rejects %j",
     (text) => {
-      expect(parseEuros(text)).toEqual({
-        kind: "invalid",
-        message: "Enter whole euros, for example 25.000.",
-      });
+      expect(parseEuros(text)).toEqual({ kind: "invalid", reason: "format" });
     },
   );
+
+  it("reads amounts in the English UI's format", () => {
+    expect(parseEuros("25,000", false, "en")).toEqual({
+      kind: "valid",
+      cents: 2_500_000,
+    });
+    expect(parseEuros("€12,500.5", true, "en")).toEqual({
+      kind: "valid",
+      cents: 1_250_050,
+    });
+    // German grouping is a decimal point in English.
+    expect(parseEuros("25.000", false, "en").kind).toBe("invalid");
+    expect(formatEuros(1_250_050, true, "en")).toBe("12,500.50");
+  });
 
   it("rejects amounts outside the supported range", () => {
     expect(parseEuros("0").kind).toBe("invalid");
@@ -141,7 +156,11 @@ const TODAY = "2026-11-23";
 function ruleFindings(draft: Parameters<typeof analyseDraft>[0]) {
   return [...analyseDraft(draft, TODAY).issues.values()]
     .filter((issue) => !issue.code.startsWith("field_"))
-    .map(({ path, code, message }) => ({ path, code, message }));
+    .map(({ path, code, params }) => ({
+      path,
+      code,
+      message: ruleMessage(rules, "en", { code, params, paths: [path] }),
+    }));
 }
 
 describe("rule issues in the form", () => {
@@ -157,7 +176,7 @@ describe("rule issues in the form", () => {
         path: "shareCapitalCents",
         code: "ug_capital_below_gmbh_minimum",
         message:
-          "A UG (haftungsbeschränkt) has less than 25.000 € Stammkapital. From 25.000 € on, found a GmbH instead.",
+          "A UG (haftungsbeschränkt) has less than €25,000 Stammkapital. From €25,000 on, found a GmbH instead.",
       },
       {
         path: "contribution",
@@ -253,12 +272,12 @@ describe("analyseDraft", () => {
       "shareCapitalCents",
       "contribution",
     ]);
-    expect(analysis.issues.get("company.name")?.message).toBe(
-      "Required to complete the deed.",
-    );
-    expect(analysis.issues.get("contribution")?.message).toBe(
-      "Choose one of the options.",
-    );
+    const message = (path: string) => {
+      const issue = analysis.issues.get(path)!;
+      return ruleMessage(rules, "en", { ...issue, paths: [path] });
+    };
+    expect(message("company.name")).toBe("Required to complete the deed.");
+    expect(message("contribution")).toBe("Choose one of the options.");
   });
 
   it("is complete for a valid case", () => {

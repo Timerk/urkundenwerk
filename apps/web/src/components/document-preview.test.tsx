@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { buildMusterprotokollPreview } from "@urkundenwerk/core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DocumentPreview } from "./document-preview";
+import { EnglishUi } from "../test/i18n";
 
 afterEach(cleanup);
 
@@ -15,7 +16,7 @@ const model = buildMusterprotokollPreview({
 
 describe("DocumentPreview", () => {
   it("renders the heading and numbered clauses of the model", () => {
-    render(<DocumentPreview model={model} />);
+    render(<DocumentPreview model={model} />, { wrapper: EnglishUi });
 
     expect(
       screen.getByRole("heading", { name: /Musterprotokoll/ }),
@@ -29,7 +30,7 @@ describe("DocumentPreview", () => {
   });
 
   it("marks filled values and labels blanks with what is missing", () => {
-    render(<DocumentPreview model={model} />);
+    render(<DocumentPreview model={model} />, { wrapper: EnglishUi });
 
     const article = screen.getByRole("article");
     const company = article.querySelector('[data-path="company.name"]');
@@ -44,7 +45,9 @@ describe("DocumentPreview", () => {
   it("reports the field path when a value or blank is chosen", async () => {
     const onSelect = vi.fn();
     const user = userEvent.setup();
-    render(<DocumentPreview model={model} onSelect={onSelect} />);
+    render(<DocumentPreview model={model} onSelect={onSelect} />, {
+      wrapper: EnglishUi,
+    });
 
     await user.click(
       screen.getByRole("button", {
@@ -67,6 +70,7 @@ describe("DocumentPreview", () => {
         onSelect={() => {}}
         activePath="founder.firstName"
       />,
+      { wrapper: EnglishUi },
     );
 
     const runs = screen

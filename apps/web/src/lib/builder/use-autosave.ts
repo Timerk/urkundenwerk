@@ -9,7 +9,8 @@ export type SaveState =
   | { status: "saved"; savedAt: string | null }
   | { status: "unsaved" }
   | { status: "saving" }
-  | { status: "error"; message: string };
+  /** `message` is the server's, or `null` when the request itself failed. */
+  | { status: "error"; message: string | null };
 
 /**
  * Saves `value` after it has been stable for `delay` ms. One save runs at a
@@ -56,17 +57,14 @@ export function useAutosave<T>({
     const snapshot = latest.current;
     setState({ status: "saving" });
     const attempt = (async () => {
-      let result: SaveResult;
+      let result: SaveResult | null;
       try {
         result = await saveRef.current(snapshot);
       } catch {
-        result = {
-          ok: false,
-          error: "The connection failed. Check your network and retry.",
-        };
+        result = null;
       }
-      if (!result.ok) {
-        setState({ status: "error", message: result.error });
+      if (!result?.ok) {
+        setState({ status: "error", message: result?.error ?? null });
         return false;
       }
       stored.current = snapshot;
