@@ -7,14 +7,21 @@ export const metadata: Metadata = { title: "Create account · Urkundenwerk" };
 export default function SignupPage() {
   return (
     <section className="space-y-6">
-      <h1 className="text-xl font-semibold">Create an account</h1>
-      <p className="text-sm text-neutral-700">
-        You become the admin of a new firm workspace. Use fictional data only.
-      </p>
+      <div className="space-y-2">
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Create an account
+        </h1>
+        <p className="text-sm text-ink-soft">
+          You become the admin of a new firm workspace. Use fictional data only.
+        </p>
+      </div>
       <SignupForm />
-      <p className="text-sm">
+      <p className="text-sm text-ink-soft">
         Already registered?{" "}
-        <Link href="/login" className="underline">
+        <Link
+          href="/login"
+          className="font-medium text-ink underline underline-offset-2"
+        >
           Sign in
         </Link>
       </p>

@@ -10,6 +10,7 @@ import {
   formatEuroInWords,
   formatGermanDate,
 } from "../../formatting";
+import { draftToInput, type MusterprotokollDraft } from "./draft";
 import {
   musterprotokollSchema,
   type MusterprotokollData,
@@ -49,12 +50,47 @@ function clause(number: number, ...content: RunInput[]): DocumentBlock {
   return { kind: "clause", number, runs: runs(content) };
 }
 
-type Founder = MusterprotokollData["founder"];
-type PersonName = {
-  firstName: string;
-  lastName: string;
-  salutation: "Herr" | "Frau" | null;
+/**
+ * The data the template assembles. Validated input satisfies it. A preview of
+ * an incomplete draft leaves values out, and the template shows them as blanks.
+ */
+type Founder = {
+  kind?: "natural_person" | "legal_entity";
+  salutation?: "Herr" | "Frau" | null;
+  firstName?: string;
+  lastName?: string;
+  birthDate?: string;
+  address?: { street?: string; postalCode?: string; city?: string };
+  name?: string;
+  registerCourt?: string;
+  registerNumber?: string;
+  seat?: string;
+  identificationDetails?: string;
 };
+type PersonName = Pick<Founder, "salutation" | "firstName" | "lastName">;
+type Director = PersonName & {
+  kind?: "founder" | "other";
+  birthDate?: string;
+  residence?: string;
+};
+type DeedData = {
+  notarisation?: {
+    mode?: "in_person" | "video";
+    deedNumber?: string;
+    date?: string;
+    notaryName?: string;
+    notarySeat?: string;
+  };
+  founder?: Founder;
+  company?: { name?: string; seat?: string; purpose?: string };
+  shareCapitalCents?: number;
+  contribution?: "full" | "half";
+  managingDirector?: Director;
+  notaryNotes?: string;
+};
+
+const germanDate = (isoDate: string | undefined) =>
+  isoDate === undefined ? undefined : formatGermanDate(isoDate);
 
 function personName(
   person: PersonName,
@@ -75,17 +111,17 @@ function personName(
 
 function founderIdentity(founder: Founder): RunInput[] {
   const details =
-    founder.kind === "natural_person"
+    founder.kind !== "legal_entity"
       ? [
           ...personName(founder, "founder"),
           ", geboren am ",
-          field("founder.birthDate", formatGermanDate(founder.birthDate)),
+          field("founder.birthDate", germanDate(founder.birthDate)),
           ",\nwohnhaft in ",
-          field("founder.address.street", founder.address.street),
+          field("founder.address.street", founder.address?.street),
           ", ",
-          field("founder.address.postalCode", founder.address.postalCode),
+          field("founder.address.postalCode", founder.address?.postalCode),
           " ",
-          field("founder.address.city", founder.address.city),
+          field("founder.address.city", founder.address?.city),
         ]
       : [
           field("founder.name", founder.name),
@@ -105,78 +141,77 @@ function founderIdentity(founder: Founder): RunInput[] {
     : details;
 }
 
-function directorDetails({
-  founder,
-  managingDirector,
-}: MusterprotokollData): RunInput[] {
-  if (managingDirector.kind === "other") {
+function directorDetails(founder: Founder, director: Director): RunInput[] {
+  if (director.kind === "other") {
     return [
-      ...personName(managingDirector, "managingDirector"),
+      ...personName(director, "managingDirector"),
       ", geboren am ",
-      field(
-        "managingDirector.birthDate",
-        formatGermanDate(managingDirector.birthDate),
-      ),
+      field("managingDirector.birthDate", germanDate(director.birthDate)),
       ", wohnhaft in ",
-      field("managingDirector.residence", managingDirector.residence),
+      field("managingDirector.residence", director.residence),
     ];
   }
-  if (founder.kind !== "natural_person") {
-    throw new Error(
-      "Validated founder acting as managing director must be a natural person",
-    );
+  // Validation rejects a legal entity as director; a preview leaves it blank.
+  if (director.kind === undefined || founder.kind === "legal_entity") {
+    return [field("managingDirector.kind", undefined)];
   }
   return [
     ...personName(founder, "founder"),
     ", geboren am ",
-    field("founder.birthDate", formatGermanDate(founder.birthDate)),
+    field("founder.birthDate", germanDate(founder.birthDate)),
     ", wohnhaft in ",
-    field("founder.address.city", founder.address.city),
+    field("founder.address.city", founder.address?.city),
   ];
 }
 
 // Procedural closing under § 13 Abs. 1 BeurkG, outside the statutory model text.
 function signatures(founder: Founder): SignaturesBlock {
+  const name =
+    founder.kind === "legal_entity"
+      ? founder.name
+      : [founder.firstName, founder.lastName].filter(Boolean).join(" ");
   return {
     kind: "signatures",
     closing: runs(["Vorgelesen, genehmigt und eigenhändig unterschrieben:"]),
     signatories: [
-      {
-        label:
-          founder.kind === "natural_person"
-            ? `${founder.firstName} ${founder.lastName}`
-            : founder.name,
-      },
+      { label: name || "Gesellschafter/in" },
       { label: "Notar/in" },
     ],
   };
 }
 
-/** Validate structured input and assemble the versioned deed template. */
-export function buildMusterprotokoll(
-  input: MusterprotokollInput,
-): DocumentModel {
-  const data = musterprotokollSchema.parse(input);
-  const {
-    notarisation,
-    founder,
-    company,
-    shareCapitalCents,
-    contribution,
-    notaryNotes,
-  } = data;
+function shareCapital(cents: number | undefined) {
+  if (cents === undefined || !Number.isSafeInteger(cents)) return {};
+  const euros = cents / 100;
+  return {
+    amount: formatEuroAmount(cents),
+    words:
+      Number.isInteger(euros) && euros >= 1
+        ? formatEuroInWords(euros)
+        : undefined,
+  };
+}
+
+function assemble(data: DeedData): DocumentModel {
+  const notarisation = data.notarisation ?? {};
+  const founder = data.founder ?? {};
+  const company = data.company ?? {};
+  const { contribution, notaryNotes } = data;
+  const capital = shareCapital(data.shareCapitalCents);
   const video =
     notarisation.mode === "video"
       ? [field("notarisation.mode", " mittels Videokommunikation")]
       : [];
   const subscriber =
-    founder.kind === "natural_person"
+    founder.kind !== "legal_entity"
       ? personName(founder, "founder", "dative")
       : [field("founder.name", founder.name)];
   const payment =
-    contribution === "full"
-      ? "sofort in voller Höhe"
-      : "zu 50 Prozent sofort, im Übrigen sobald die Gesellschafterversammlung ihre Einforderung beschließt";
+    contribution === undefined
+      ? undefined
+      : contribution === "full"
+        ? "sofort in voller Höhe"
+        : "zu 50 Prozent sofort, im Übrigen sobald die Gesellschafterversammlung ihre Einforderung beschließt";
 
   return {
     templateId: musterprotokollMetadata.id,
@@ -190,10 +225,7 @@ export function buildMusterprotokoll(
       ),
       paragraph(
         "Heute, den ",
-        field(
-          "notarisation.date",
-          notarisation.date && formatGermanDate(notarisation.date),
-        ),
+        field("notarisation.date", germanDate(notarisation.date)),
         ",\nerschien",
         ...video,
         " vor mir, ",
@@ -222,9 +254,9 @@ export function buildMusterprotokoll(
       clause(
         3,
         "Das Stammkapital der Gesellschaft beträgt ",
-        field("shareCapitalCents", formatEuroAmount(shareCapitalCents)),
+        field("shareCapitalCents", capital.amount),
         " (i. W. ",
-        field("shareCapitalCents", formatEuroInWords(shareCapitalCents / 100)),
+        field("shareCapitalCents", capital.words),
         " Euro) und wird vollständig von ",
         ...subscriber,
         " (Geschäftsanteil Nr. 1) übernommen. Die Einlage ist in Geld zu erbringen, und zwar ",
@@ -234,7 +266,7 @@ export function buildMusterprotokoll(
       clause(
         4,
         "Zum Geschäftsführer der Gesellschaft wird ",
-        ...directorDetails(data),
+        ...directorDetails(founder, data.managingDirector ?? {}),
         ", bestellt. Der Geschäftsführer ist von den Beschränkungen des § 181 des Bürgerlichen Gesetzbuchs befreit.",
       ),
       clause(
@@ -251,13 +283,46 @@ export function buildMusterprotokoll(
         field("notaryNotes", notaryNotes),
       ),
       // Video notarisation uses qualified electronic signatures outside this export (§ 16b Abs. 3 BeurkG).
-      ...(notarisation.mode === "in_person" ? [signatures(founder)] : []),
+      ...(notarisation.mode === "video" ? [] : [signatures(founder)]),
     ],
   };
+}
+
+/** Validate structured input and assemble the versioned deed template. */
+export function buildMusterprotokoll(
+  input: MusterprotokollInput,
+): DocumentModel {
+  const data: MusterprotokollData = musterprotokollSchema.parse(input);
+  return assemble(data);
+}
+
+/** Applies the schema's text normalisation without validating. */
+function tidy<T>(value: T): T {
+  if (typeof value === "string") {
+    return value.trim().replace(/\r\n?/g, "\n") as T;
+  }
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [key, tidy(entry)]),
+    ) as T;
+  }
+  return value;
+}
+
+/**
+ * Assembles a best-effort preview of a possibly incomplete draft without
+ * validating it. Missing values become blank runs with their field path.
+ * Exports must use `buildMusterprotokoll`, which validates the input.
+ */
+export function buildMusterprotokollPreview(
+  draft: MusterprotokollDraft,
+): DocumentModel {
+  return assemble(tidy(draftToInput(draft)));
 }
 
 export const musterprotokollTemplate = {
   metadata: musterprotokollMetadata,
   schema: musterprotokollSchema,
   build: buildMusterprotokoll,
+  preview: buildMusterprotokollPreview,
 } as const;

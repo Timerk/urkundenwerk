@@ -4,12 +4,14 @@ import { musterprotokollMetadata } from "@urkundenwerk/core";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { withDefaults } from "../../../../lib/builder/form-model";
 import {
   deleteDocument as deleteDocumentRow,
   insertDocument,
   updateDocument,
 } from "../../../../lib/documents/repository";
 import {
+  DEFAULT_DOCUMENT_TITLE,
   documentIdSchema,
   documentTitleSchema,
   draftDataSchema,
@@ -25,8 +27,6 @@ export type ActionResult<T = object> =
 const NOT_ALLOWED =
   "This document was not found, or you do not have permission to change it.";
 
-const DEFAULT_TITLE = "Untitled Musterprotokoll";
-
 async function signedInClient() {
   const user = await getVerifiedUser();
   if (!user) redirect("/login");
@@ -37,7 +37,7 @@ function firstMessage(error: z.ZodError): string {
   return error.issues[0]?.message ?? "The request is invalid.";
 }
 
-/** Creates an empty Musterprotokoll draft in the given firm and opens it. */
+/** Creates a Musterprotokoll draft with the default choices in the given firm and opens it. */
 export async function createDocument(
   _previous: ActionResult,
   formData: FormData,
@@ -50,8 +50,9 @@ export async function createDocument(
     tenantId: tenantId.data,
     templateId: musterprotokollMetadata.id,
     templateVersion: musterprotokollMetadata.version,
-    title: DEFAULT_TITLE,
+    title: DEFAULT_DOCUMENT_TITLE,
     createdBy: user.id,
+    data: withDefaults({}),
   });
   if (!document) {
     return {

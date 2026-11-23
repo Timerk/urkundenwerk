@@ -6,6 +6,9 @@ export const MAX_DRAFT_BYTES = 32 * 1024;
 
 export const documentIdSchema = z.uuid();
 
+/** New documents take the Firma as their title once it is entered. */
+export const DEFAULT_DOCUMENT_TITLE = "Untitled Musterprotokoll";
+
 /** Matches the length check on `public.documents.title`. */
 export const documentTitleSchema = z
   .string({ error: "Enter a title." })

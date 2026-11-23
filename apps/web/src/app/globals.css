@@ -1,1 +1,229 @@
 @import "tailwindcss";
+
+/*
+ * Urkundenwerk design tokens. See docs/design.md for the reasoning.
+ * Text from the deed is set in the serif used by the PDF export; the tool
+ * itself speaks in the sans. Ink and stamp blue come from document-proof ink.
+ */
+@theme {
+  --color-desk: #e6eaf0;
+  --color-surface: #f4f6f9;
+  --color-paper: #ffffff;
+  --color-ink: #18213a;
+  --color-ink-soft: #444e66;
+  --color-ink-faint: #5d667b;
+  --color-rule: #d4dae3;
+  --color-rule-strong: #a3adbd;
+  --color-stamp: #2b46a6;
+  --color-stamp-deep: #1f3485;
+  --color-stamp-wash: #e9eefb;
+  --color-alert: #b3261e;
+  --color-alert-wash: #fcedeb;
+  --color-hint: #74490a;
+  --color-hint-wash: #fdf3dc;
+  --color-hint-rule: #e9cf95;
+  --color-ok: #1d6a46;
+
+  /* A 1.2 modular scale from a 16px body. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.1rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.35rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.55rem;
+  --text-lg: 1.2rem;
+  --text-lg--line-height: 1.65rem;
+  --text-xl: 1.44rem;
+  --text-xl--line-height: 1.9rem;
+  --text-2xl: 1.728rem;
+  --text-2xl--line-height: 2.15rem;
+  --text-3xl: 2.488rem;
+  --text-3xl--line-height: 2.85rem;
+  --text-4xl: 3.583rem;
+  --text-4xl--line-height: 3.8rem;
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  --shadow-paper:
+    0 1px 1px rgb(24 33 58 / 0.06), 0 2px 6px rgb(24 33 58 / 0.06),
+    0 12px 32px -8px rgb(24 33 58 / 0.18);
+  --shadow-pop: 0 8px 24px -6px rgb(24 33 58 / 0.25);
+}
+
+@theme inline {
+  --font-sans:
+    var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    /* The builder sets the height of its sticky bar. */
+    scroll-padding-top: calc(var(--builder-sticky, 0px) + 1rem);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  ::selection {
+    background: var(--color-stamp-wash);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-stamp);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* The paper sheet. Proportions follow the PDF export's A4 margins. */
+  .deed-sheet {
+    container-type: inline-size;
+    background: var(--color-paper);
+    box-shadow: var(--shadow-paper);
+  }
+
+  .deed {
+    --deed-size: max(13.5px, 1.93cqi);
+    font-family: var(--font-serif);
+    font-size: var(--deed-size);
+    line-height: 1.55;
+    color: #1b1f29;
+    padding: max(1.5rem, 10.9cqi) max(1.25rem, 11.8cqi) max(2rem, 10.9cqi)
+      max(1.25rem, 13.4cqi);
+    min-height: calc(100cqi * 1.4142);
+    font-variant-numeric: oldstyle-nums proportional-nums;
+    hyphens: auto;
+  }
+
+  .deed p,
+  .deed li {
+    white-space: pre-line;
+  }
+
+  /* A filled value: the ink a notary's clerk would write into the form. */
+  .deed-field {
+    color: var(--color-stamp-deep);
+    background: linear-gradient(
+        to top,
+        rgb(43 70 166 / 0.09) 0,
+        rgb(43 70 166 / 0.09) 100%
+      )
+      no-repeat;
+    border-radius: var(--radius-xs);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    padding: 0 0.08em;
+    font: inherit;
+    text-align: inherit;
+    cursor: pointer;
+    transition: background-color 120ms ease;
+  }
+
+  .deed-field:hover,
+  .deed-field[data-active="true"] {
+    background: rgb(43 70 166 / 0.18);
+  }
+
+  .deed-field[data-active="true"] {
+    box-shadow: inset 0 -2px 0 var(--color-stamp);
+  }
+
+  .deed-field:focus-visible {
+    outline-offset: 1px;
+  }
+
+  /* A value still missing: a dotted line labelled with what belongs there. */
+  .deed-blank {
+    display: inline;
+    font-family: var(--font-sans);
+    font-size: 0.72em;
+    letter-spacing: 0.01em;
+    color: var(--color-ink-faint);
+    border-bottom: 1.5px dotted var(--color-rule-strong);
+    padding: 0 0.35em 0.05em;
+    margin: 0 0.05em;
+    vertical-align: 0.1em;
+    cursor: pointer;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  .deed-blank:hover,
+  .deed-blank[data-active="true"] {
+    color: var(--color-stamp);
+    border-bottom-color: var(--color-stamp);
+    background: var(--color-stamp-wash);
+  }
+
+  .deed-field:not([role="button"]),
+  .deed-blank:not([role="button"]) {
+    cursor: default;
+  }
+
+  /* Landing: values are written into the sheet once, in order. */
+  .deed-write .deed-field {
+    animation: deed-ink 520ms cubic-bezier(0.3, 0.6, 0.2, 1) both;
+    animation-delay: calc(250ms + var(--write-index, 0) * 65ms);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .deed-write .deed-field {
+      animation: none;
+    }
+  }
+
+  /* A brief pulse on a form control that was chosen from the preview. */
+  .field-located {
+    animation: field-located 1.1s ease-out;
+  }
+}
+
+@keyframes deed-ink {
+  from {
+    color: transparent;
+    background-size: 0 100%;
+  }
+  60% {
+    color: transparent;
+  }
+  to {
+    background-size: 100% 100%;
+  }
+}
+
+@keyframes field-located {
+  from {
+    box-shadow: 0 0 0 6px rgb(43 70 166 / 0.28);
+  }
+  to {
+    box-shadow: 0 0 0 0 rgb(43 70 166 / 0);
+  }
+}

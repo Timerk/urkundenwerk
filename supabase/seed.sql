@@ -5,6 +5,7 @@
 --   erik.editor@demo.test    editor of Demo-Kanzlei Nord
 --   victor.viewer@demo.test  viewer of Demo-Kanzlei Nord
 --   sara.admin@demo.test     admin  of Demo-Kanzlei Süd
+--   mia.multi@demo.test      editor of Demo-Kanzlei Nord, viewer of Demo-Kanzlei Süd
 
 insert into auth.users (
   instance_id,
@@ -44,7 +45,8 @@ from (
     ('00000000-0000-4000-8000-00000000a001'::uuid, 'anna.admin@demo.test'),
     ('00000000-0000-4000-8000-00000000a002'::uuid, 'erik.editor@demo.test'),
     ('00000000-0000-4000-8000-00000000a003'::uuid, 'victor.viewer@demo.test'),
-    ('00000000-0000-4000-8000-00000000b001'::uuid, 'sara.admin@demo.test')
+    ('00000000-0000-4000-8000-00000000b001'::uuid, 'sara.admin@demo.test'),
+    ('00000000-0000-4000-8000-00000000c001'::uuid, 'mia.multi@demo.test')
 ) as demo_user (id, email);
 
 insert into auth.identities (
@@ -79,7 +81,9 @@ values
   ('00000000-0000-4000-8000-0000000000aa', '00000000-0000-4000-8000-00000000a001', 'admin'),
   ('00000000-0000-4000-8000-0000000000aa', '00000000-0000-4000-8000-00000000a002', 'editor'),
   ('00000000-0000-4000-8000-0000000000aa', '00000000-0000-4000-8000-00000000a003', 'viewer'),
-  ('00000000-0000-4000-8000-0000000000bb', '00000000-0000-4000-8000-00000000b001', 'admin');
+  ('00000000-0000-4000-8000-0000000000bb', '00000000-0000-4000-8000-00000000b001', 'admin'),
+  ('00000000-0000-4000-8000-0000000000aa', '00000000-0000-4000-8000-00000000c001', 'editor'),
+  ('00000000-0000-4000-8000-0000000000bb', '00000000-0000-4000-8000-00000000c001', 'viewer');
 
 update public.profiles
 set display_name = case user_id
@@ -87,12 +91,14 @@ set display_name = case user_id
   when '00000000-0000-4000-8000-00000000a002' then 'Erik Editor'
   when '00000000-0000-4000-8000-00000000a003' then 'Victor Viewer'
   when '00000000-0000-4000-8000-00000000b001' then 'Sara Admin'
+  when '00000000-0000-4000-8000-00000000c001' then 'Mia Multi'
 end
 where user_id in (
   '00000000-0000-4000-8000-00000000a001',
   '00000000-0000-4000-8000-00000000a002',
   '00000000-0000-4000-8000-00000000a003',
-  '00000000-0000-4000-8000-00000000b001'
+  '00000000-0000-4000-8000-00000000b001',
+  '00000000-0000-4000-8000-00000000c001'
 );
 
 -- One fictional draft per firm: a complete Musterprotokoll for Nord and an

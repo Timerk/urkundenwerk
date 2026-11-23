@@ -2,18 +2,32 @@
 
 import type { ReactNode } from "react";
 import { useFormStatus } from "react-dom";
+import { Button, type ButtonVariant } from "./ui/button";
 
-export function SubmitButton({ children }: { children: ReactNode }) {
+export function SubmitButton({
+  children,
+  pendingLabel,
+  variant = "primary",
+  className = "",
+  disabled,
+}: {
+  children: ReactNode;
+  pendingLabel?: ReactNode;
+  variant?: ButtonVariant;
+  className?: string;
+  disabled?: boolean;
+}) {
   const { pending } = useFormStatus();
 
   return (
-    <button
+    <Button
       type="submit"
-      disabled={pending}
-      aria-disabled={pending}
-      className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 disabled:opacity-60"
+      variant={variant}
+      disabled={pending || disabled}
+      aria-disabled={pending || disabled || undefined}
+      className={className}
     >
-      {children}
-    </button>
+      {pending && pendingLabel ? pendingLabel : children}
+    </Button>
   );
 }

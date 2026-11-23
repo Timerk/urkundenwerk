@@ -20,13 +20,13 @@ test("a seeded admin signs in, sees their firm, and signs out", async ({
   await page.goto("/login");
   await page.getByLabel("Email address").fill("anna.admin@demo.test");
   await page.getByLabel("Password").fill(DEMO_PASSWORD);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
 
   await expect(page).toHaveURL(/\/app$/);
-  const firm = page.getByRole("listitem").filter({
-    hasText: "Demo-Kanzlei Nord",
-  });
-  await expect(firm).toContainText("Admin");
+  await expect(
+    page.getByRole("heading", { name: "Demo-Kanzlei Nord", level: 1 }),
+  ).toBeVisible();
+  await expect(page.getByText("Your role: Admin.")).toBeVisible();
   await expect(page.getByText("Demo-Kanzlei Süd")).toHaveCount(0);
   await expect(
     page.getByText(
@@ -46,7 +46,7 @@ test("wrong credentials show an error without revealing which field was wrong", 
   await page.goto("/login");
   await page.getByLabel("Email address").fill("anna.admin@demo.test");
   await page.getByLabel("Password").fill("not-the-password");
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
 
   await expect(
     page
@@ -69,6 +69,8 @@ test("signing up creates a firm with the new user as admin", async ({
 
   await expect(page).toHaveURL(/\/app$/);
   await expect(
-    page.getByRole("listitem").filter({ hasText: "Demo-Kanzlei Testlauf" }),
-  ).toContainText("Admin");
+    page.getByRole("heading", { name: "Demo-Kanzlei Testlauf", level: 1 }),
+  ).toBeVisible();
+  await expect(page.getByText("Your role: Admin.")).toBeVisible();
+  await expect(page.getByText("No documents yet")).toBeVisible();
 });
