@@ -10,7 +10,9 @@
   "scripts": {
     "start": "node bin/urkundenwerk-mcp-server.mjs",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "smoke": "tsx scripts/smoke.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "^2.4.0",
