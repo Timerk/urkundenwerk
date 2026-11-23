@@ -4,7 +4,11 @@
   "private": true,
   "description": "MCP server that drafts, validates, and exports Urkundenwerk documents as the signed-in user",
   "type": "module",
+  "bin": {
+    "urkundenwerk-mcp-server": "./bin/urkundenwerk-mcp-server.mjs"
+  },
   "scripts": {
+    "start": "node bin/urkundenwerk-mcp-server.mjs",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run"
   },
