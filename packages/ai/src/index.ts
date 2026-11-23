@@ -20,6 +20,7 @@ export {
   type FakeResponder,
   type FakeResponse,
 } from "./fake";
+export { LruCache } from "./lru";
 export type {
   GenerateStructuredRequest,
   GenerateStructuredResult,
@@ -27,3 +28,24 @@ export type {
   LlmUsage,
 } from "./port";
 export { withResilience, type ResilienceOptions } from "./resilience";
+export {
+  explainableIssueSchema,
+  issueKey,
+  issueParamsSchema,
+  toExplanationItems,
+  type ExplainableIssue,
+  type ExplanationItem,
+} from "./explain/payload";
+export { PROMPT_VERSION, SYSTEM_PROMPT } from "./explain/prompt";
+export {
+  explainIssues,
+  explanationCacheKey,
+  explanationOutputSchema,
+  fakeExplanationResponder,
+  sentenceCount,
+  type CachedExplanation,
+  type ExplainOptions,
+  type Explanation,
+  type ExplanationCache,
+  type ExplanationResult,
+} from "./explain/service";
