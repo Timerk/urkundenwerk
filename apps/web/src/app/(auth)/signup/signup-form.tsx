@@ -40,7 +40,9 @@ export function SignupForm() {
         minLength={8}
         maxLength={72}
       />
-      <SubmitButton>Create account</SubmitButton>
+      <SubmitButton pendingLabel="Creating account…" className="w-full">
+        Create account
+      </SubmitButton>
     </form>
   );
 }
