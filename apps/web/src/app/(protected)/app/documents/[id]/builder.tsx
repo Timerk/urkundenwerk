@@ -32,6 +32,7 @@ import {
 } from "../../../../../lib/builder/use-autosave";
 import { renameDocument, saveDraft } from "../actions";
 import { BuilderForm } from "./builder-form";
+import { ChecksPanel } from "./checks-panel";
 import { DraftProvider } from "./draft-fields";
 
 export type BuilderProps = {
@@ -44,6 +45,8 @@ export type BuilderProps = {
   templateLabel: string;
   /** Today's date in Germany, from the server, for date rules. */
   referenceDate: string;
+  /** Whether the server can explain issues with an LLM. */
+  aiEnabled: boolean;
 };
 
 const timeFormat = new Intl.DateTimeFormat("en-GB", {
@@ -142,6 +145,7 @@ export function Builder({
   firmName,
   templateLabel,
   referenceDate,
+  aiEnabled,
 }: BuilderProps) {
   const [draft, setDraft] = useState(() =>
     canEdit ? withDefaults(initialDraft) : initialDraft,
@@ -514,6 +518,12 @@ export function Builder({
                   </ul>
                 </Notice>
               ) : null}
+              <ChecksPanel
+                documentId={documentId}
+                issues={analysis.checks}
+                aiEnabled={aiEnabled}
+                onLocate={selectFromPreview}
+              />
               <form
                 aria-label="Musterprotokoll data"
                 onSubmit={(event) => event.preventDefault()}
