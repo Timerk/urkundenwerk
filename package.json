@@ -19,7 +19,8 @@
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
     "db:lint": "supabase db lint --level warning --fail-on warning",
-    "db:types": "node scripts/db-types.mjs"
+    "db:types": "node scripts/db-types.mjs",
+    "db:env": "node scripts/supabase-env.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
