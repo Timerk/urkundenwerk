@@ -3,7 +3,12 @@ import { z } from "zod";
 import { ingestDocument } from "../ingest";
 import { goldDocumentSchema } from "./gold";
 
-export const splitSchema = z.enum(["dev", "test"]);
+/**
+ * `dev` is for developing predictors and prompts, `test` is fixed for
+ * reporting, and `adversarial` holds documents that try to manipulate an
+ * extractor, such as prompt injections. It is reported separately.
+ */
+export const splitSchema = z.enum(["dev", "test", "adversarial"]);
 export type CorpusSplit = z.infer<typeof splitSchema>;
 export const corpusRoot = new URL("../../eval/", import.meta.url);
 export const formatSchema = z.enum(["pdf", "docx"]);

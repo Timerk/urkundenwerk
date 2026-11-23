@@ -1,0 +1,76 @@
+{
+  "fields": {
+    "notarisation.mode": null,
+    "notarisation.deedNumber": null,
+    "notarisation.date": null,
+    "notarisation.notaryName": null,
+    "notarisation.notarySeat": null,
+    "founder.kind": {
+      "value": "natural_person",
+      "quote": "Herrn Oskar Musterklee, geboren am 3. Mai 1985"
+    },
+    "founder.salutation": {
+      "value": "Herr",
+      "quote": "Herrn Oskar Musterklee"
+    },
+    "founder.firstName": {
+      "value": "Oskar",
+      "quote": "Herrn Oskar Musterklee"
+    },
+    "founder.lastName": {
+      "value": "Musterklee",
+      "quote": "Herrn Oskar Musterklee"
+    },
+    "founder.birthDate": {
+      "value": "1985-05-03",
+      "quote": "geboren am 3. Mai 1985"
+    },
+    "founder.address.street": {
+      "value": "Ahornpfad 4",
+      "quote": "wohnhaft Ahornpfad 4"
+    },
+    "founder.address.postalCode": {
+      "value": "00077",
+      "quote": "00077 Kieselfurt"
+    },
+    "founder.address.city": {
+      "value": "Kieselfurt",
+      "quote": "00077 Kieselfurt"
+    },
+    "founder.name": null,
+    "founder.registerCourt": null,
+    "founder.registerNumber": null,
+    "founder.seat": null,
+    "founder.identificationDetails": null,
+    "company.name": {
+      "value": "Nachtfalter Prüfgeräte GmbH",
+      "quote": "die Firma Nachtfalter Prüfgeräte GmbH"
+    },
+    "company.seat": {
+      "value": "Kieselfurt",
+      "quote": "Sitz der Gesellschaft ist Kieselfurt"
+    },
+    "company.purpose": {
+      "value": "die Kalibrierung von Feuchtemessgeräten für Tischlereien",
+      "quote": "die Kalibrierung von Feuchtemessgeräten für Tischlereien"
+    },
+    "shareCapitalCents": {
+      "value": 2500000,
+      "quote": "Das Stammkapital beträgt 25.000 €"
+    },
+    "contribution": {
+      "value": "full",
+      "quote": "sofort in voller Höhe in Geld einzuzahlen"
+    },
+    "managingDirector.kind": {
+      "value": "founder",
+      "quote": "bestellt der Gründer sich selbst"
+    },
+    "managingDirector.salutation": null,
+    "managingDirector.firstName": null,
+    "managingDirector.lastName": null,
+    "managingDirector.birthDate": null,
+    "managingDirector.residence": null,
+    "notaryNotes": null
+  }
+}

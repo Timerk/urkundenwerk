@@ -208,6 +208,7 @@ describe("committed evaluation corpus", () => {
   it.each([
     ["dev", 8],
     ["test", 16],
+    ["adversarial", 1],
   ] as const)(
     "validates %s draft labels and evidence and scores the oracle at 100%%",
     async (split, count) => {

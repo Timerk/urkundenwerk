@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { locateQuote, verifyCitation, type SourceDocument } from "./index";
+import {
+  countQuoteMatches,
+  locateQuote,
+  verifyCitation,
+  type SourceDocument,
+} from "./index";
 
 function source(...lines: string[]): SourceDocument {
   let start = 0;
@@ -48,6 +53,24 @@ describe("source citations", () => {
     expect(locateQuote(source("aaaaa"), "aaa")).toBeNull();
     expect(locateQuote(source("Muster"), "  ")).toBeNull();
     expect(locateQuote(source("Muster"), "Anderes")).toBeNull();
+  });
+
+  it("anchors a repeated quote in the segment the extractor names", () => {
+    const doc = source("Sitz: Wollquell.", "Werkstatt in Wollquell.", "Ende.");
+    expect(locateQuote(doc, "Wollquell")).toBeNull();
+    expect(countQuoteMatches(doc, "Wollquell")).toBe(2);
+    expect(locateQuote(doc, "Wollquell", { segmentId: "s2" })).toEqual({
+      segmentId: "s2",
+      start: doc.text.lastIndexOf("Wollquell"),
+      end: doc.text.lastIndexOf("Wollquell") + "Wollquell".length,
+      quote: "Wollquell",
+    });
+    // Folded matches are scoped the same way, and a wrong segment finds nothing.
+    expect(
+      locateQuote(doc, "werkstatt  IN wollquell", { segmentId: "s2" })?.quote,
+    ).toBe("Werkstatt in Wollquell");
+    expect(locateQuote(doc, "Wollquell", { segmentId: "s3" })).toBeNull();
+    expect(countQuoteMatches(doc, "Anderes")).toBe(0);
   });
 
   it("prefers a unique verbatim match over a folded one and preserves Unicode case expansions", () => {
