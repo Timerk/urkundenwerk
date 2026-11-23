@@ -58,6 +58,10 @@ data and can be downloaded as PDF or DOCX.
   admins write. Viewers get a read-only builder and can download. Members of
   several firms switch between them.
 
+- **Agentic workflow via MCP.** An MCP server lets Claude Code, Claude
+  Desktop, or another agent create, fill in, check, and export drafts as
+  the signed-in user. See [Agentic workflow via MCP](#agentic-workflow-via-mcp).
+
 The design direction is recorded in [`docs/design.md`](docs/design.md).
 
 ![The import review with extracted values and their status on the left and the uploaded document with its quoted passages marked on the right](docs/screenshots/import-review.png)
@@ -77,7 +81,7 @@ The design direction is recorded in [`docs/design.md`](docs/design.md).
 | [M3 · Rule checks](https://github.com/Timerk/urkundenwerk/issues/3)            | Validation of structured formation data                                | Done    |
 | [M4 · AI extraction](https://github.com/Timerk/urkundenwerk/issues/4)          | Extract structured data with source citations and evaluate the results | Done    |
 | [M5 · XML export](https://github.com/Timerk/urkundenwerk/issues/5)             | Handelsregisteranmeldung and XSD-validated XML filing data             | Done    |
-| [M6 · MCP server](https://github.com/Timerk/urkundenwerk/issues/6)             | Expose the shared domain workflows over MCP                            | Planned |
+| [M6 · MCP server](https://github.com/Timerk/urkundenwerk/issues/6)             | Expose the shared domain workflows over MCP                            | Done    |
 | [M7 · Audit, roles, and GDPR](https://github.com/Timerk/urkundenwerk/issues/7) | Audit log, role-based access, and data protection workflows            | Planned |
 | [M8 · Deployment](https://github.com/Timerk/urkundenwerk/issues/8)             | Deploy the portfolio demo                                              | Planned |
 
@@ -91,6 +95,7 @@ Vercel is planned.
 | Path                                         | Purpose                                                                                                               |
 | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | [`apps/web`](apps/web)                       | Next.js app, Playwright tests, and Dockerfile                                                                         |
+| [`apps/mcp`](apps/mcp)                       | MCP server that lets an AI agent draft, validate, and export documents as the signed-in user                          |
 | [`packages/core`](packages/core)             | Framework-free TypeScript domain package and Zod schemas                                                              |
 | [`packages/render`](packages/render)         | Node DOCX and PDF export for the [template engine](packages/core/README.md)                                           |
 | [`packages/ai`](packages/ai)                 | Server-only LLM port, Anthropic and fake adapters, and explanations                                                   |
@@ -159,6 +164,26 @@ Before running the end-to-end tests locally, install Chromium with
 database with `pnpm db:start`, and run `pnpm build`. To refresh the README
 screenshots, run `pnpm db:reset` and then
 `SCREENSHOTS=1 pnpm test:e2e e2e/screenshots.spec.ts`.
+
+## Agentic workflow via MCP
+
+[`apps/mcp`](apps/mcp/README.md) is a local stdio MCP server with eight
+tools: list firms and documents, get a document, create and update a
+draft, validate it with the rule engine, export it as PDF or DOCX, and
+delete it. An agent turns a user's facts into structured draft data, reads
+the rule findings with their legal references, asks for what is missing,
+and exports the deed once no error remains.
+
+- **Same rights as the user.** The server signs in to Supabase Auth with a
+  user's credentials and runs every query with that user's JWT, so RLS
+  applies exactly as in the browser. It refuses secret and service-role
+  keys ([ADR-0010](docs/adr/0010-mcp-server-with-user-session.md)).
+- **No generated legal text.** The tools move structured data through the
+  same schema, rules, template, and renderers as the web app. The agent
+  never writes deed text.
+- **Setup.** `claude mcp add` for Claude Code and a JSON snippet for Claude
+  Desktop are in the [MCP server README](apps/mcp/README.md), with the
+  tool reference and an example conversation.
 
 ## AI and privacy
 
@@ -325,8 +350,8 @@ Claude models, use `--provider anthropic` (the default),
 - **Documents.** `documents` rows store structured input, never legal text.
   Members read their firm's documents, editors and admins write them, and
   column grants keep the tenant, template version, and author fixed. Server
-  actions and the export route use the signed-in user's Supabase client, so
-  RLS authorizes every query. See
+  actions, the export route, and the MCP server use the signed-in user's
+  Supabase client, so RLS authorizes every query. See
   [ADR-0005](docs/adr/0005-document-drafts.md).
 - **Authentication.** The Next.js proxy refreshes the Supabase session.
   Protected pages verify the user with the Auth server through
