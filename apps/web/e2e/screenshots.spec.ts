@@ -2,8 +2,9 @@ import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import { NORD_DRAFT, signIn } from "./helpers";
 
-// Refreshes the README screenshots in docs/screenshots. Run it against a
-// freshly seeded database: `pnpm db:reset`, then
+// Refreshes the README screenshots in docs/screenshots, in English (the
+// project's locale, see playwright.config.ts) plus the German builder. Run
+// it against a freshly seeded database: `pnpm db:reset`, then
 // `SCREENSHOTS=1 pnpm test:e2e e2e/screenshots.spec.ts`.
 test.skip(!process.env.SCREENSHOTS, "Set SCREENSHOTS=1 to refresh them.");
 test.use({
@@ -30,7 +31,7 @@ test("dashboard and builder", async ({ page }) => {
     .fill("Hafenmuster Analytics UG (haftungsbeschränkt)");
   await page
     .getByRole("textbox", { name: "Stammkapital (share capital)" })
-    .fill("5.000");
+    .fill("5,000");
   await expect(
     page.getByRole("textbox", { name: "Document title" }),
   ).toHaveValue("Hafenmuster Analytics UG (haftungsbeschränkt)");
@@ -60,6 +61,23 @@ test("dashboard and builder", async ({ page }) => {
       .getByRole("heading", { name: "Handelsregisteranmeldung" }),
   ).toBeVisible();
   await page.screenshot({ path: target("register-filing") });
+});
+
+test.describe("in German", () => {
+  test.use({ locale: "de-DE" });
+
+  test("builder", async ({ page }) => {
+    await signIn(page, "erik.editor@demo.test");
+    await page.goto(`/app/documents/${NORD_DRAFT}`);
+    await expect(page.locator("[data-builder-ready]")).toBeAttached();
+    await expect(page.getByTestId("checks-panel")).toContainText("Prüfungen");
+    await page.evaluate(() =>
+      document
+        .querySelector<HTMLInputElement>("#field-company-name")
+        ?.focus({ preventScroll: true }),
+    );
+    await page.screenshot({ path: target("builder-de") });
+  });
 });
 
 test("import review", async ({ page }) => {

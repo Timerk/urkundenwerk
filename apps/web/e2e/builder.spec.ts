@@ -30,7 +30,7 @@ test("an editor prepares and downloads the deed and register filing", async ({
   await page.getByRole("radio", { name: "Frau" }).check();
   await textbox(page, "First name").fill("Erika");
   await textbox(page, "Last name").fill("Mustermann");
-  await textbox(page, "Date of birth").fill("1990-03-07");
+  await textbox(page, "Date of birth").fill("07/03/1990");
   await textbox(page, "Street and number").fill("Musterweg 12");
   await textbox(page, "Postcode").fill("12345");
   await textbox(page, "Town or city").fill("Musterstadt");
@@ -39,7 +39,7 @@ test("an editor prepares and downloads the deed and register filing", async ({
   await textbox(page, "Unternehmensgegenstand (business purpose)").fill(
     "die Entwicklung von Analysesoftware",
   );
-  await textbox(page, "Stammkapital (share capital)").fill("30.000");
+  await textbox(page, "Stammkapital (share capital)").fill("30,000");
   await page.getByRole("radio", { name: /^In full, immediately/ }).check();
 
   const preview = page.getByRole("article");
@@ -60,7 +60,7 @@ test("an editor prepares and downloads the deed and register filing", async ({
   await waitForBuilder(page);
   await expect(textbox(page, "Firma (company name)")).toHaveValue(firma);
   await expect(textbox(page, "Stammkapital (share capital)")).toHaveValue(
-    "30.000",
+    "30,000",
   );
   await expect(page.getByRole("article")).toContainText("dreißigtausend");
 
@@ -105,7 +105,7 @@ test("an editor prepares and downloads the deed and register filing", async ({
   await filingForm
     .getByRole("textbox", { name: "Town or city" })
     .fill("Musterstadt");
-  await filingForm.getByRole("textbox", { name: "Amount paid" }).fill("30.000");
+  await filingForm.getByRole("textbox", { name: "Amount paid" }).fill("30,000");
   for (const name of [
     /paid funds/,
     /No statutory grounds/,
@@ -158,7 +158,7 @@ test("an editor prepares and downloads the deed and register filing", async ({
     .click();
   await expect(
     filingForm.getByRole("textbox", { name: "Amount paid" }),
-  ).toHaveValue("30.000");
+  ).toHaveValue("30,000");
   await expect(page.getByText("Ready to export")).toBeVisible();
 
   await page.getByRole("link", { name: "Documents" }).click();
@@ -215,7 +215,7 @@ test("the Checks panel explains a rule and leads to its field", async ({
   await textbox(page, "Firma (company name)").fill(
     "Hafenmuster UG (haftungsbeschränkt)",
   );
-  await textbox(page, "Stammkapital (share capital)").fill("25.000");
+  await textbox(page, "Stammkapital (share capital)").fill("25,000");
 
   const issue = checks.locator('[data-issue="ug_capital_below_gmbh_minimum"]');
   await expect(issue).toContainText("A UG (haftungsbeschränkt) has less than");
