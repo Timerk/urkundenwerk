@@ -1,4 +1,6 @@
+import type { LlmClient } from "@urkundenwerk/ai";
 import { locateQuote } from "../citations";
+import { extractDraftFields, type ExtractionReview } from "../llm/service";
 import {
   extractionFieldPaths,
   isFieldValue,
@@ -85,3 +87,28 @@ export const regexBaseline: Predictor = async (doc) => {
   }
   return { documentId: doc.id, fields };
 };
+
+export interface LlmPredictorOptions {
+  client: LlmClient;
+  model: string;
+  effort?: "low" | "medium" | "high";
+  /** Receives the full review of each document, for verified rates and cost. */
+  onReview?: (review: ExtractionReview) => void;
+}
+
+/**
+ * The LLM extraction pipeline as a predictor: the model proposes, our
+ * grounding decides, and the scorer checks the result independently.
+ */
+export function llmPredictor({
+  client,
+  model,
+  effort,
+  onReview,
+}: LlmPredictorOptions): Predictor {
+  return async (doc) => {
+    const review = await extractDraftFields(doc, { client, model, effort });
+    onReview?.(review);
+    return review.result;
+  };
+}
