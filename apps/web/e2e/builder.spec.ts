@@ -110,13 +110,52 @@ test("incomplete drafts point to the missing fields", async ({ page }) => {
   await waitForBuilder(page);
 
   await textbox(page, "Firma (company name)").fill("Hafenmuster UG");
+  // The rule shows next to the field and in the Checks panel.
+  const suffixRule = "End the Firma with “GmbH” or “UG (haftungsbeschränkt)”.";
   await expect(
-    page.getByText("End the Firma with “GmbH” or “UG (haftungsbeschränkt)”."),
+    page
+      .getByRole("form", { name: "Musterprotokoll data" })
+      .getByText(suffixRule),
   ).toBeVisible();
+  await expect(page.getByTestId("checks-panel")).toContainText(suffixRule);
 
   await page.getByRole("button", { name: /fields to complete$/ }).click();
   await expect(page.getByText("Still missing")).toBeVisible();
   await expect(page.getByRole("radio", { name: "Herr" })).toBeFocused();
+});
+
+test("the Checks panel explains a rule and leads to its field", async ({
+  page,
+}) => {
+  await signIn(page, "erik.editor@demo.test");
+  await page.getByRole("button", { name: "New Musterprotokoll" }).click();
+  await expect(page).toHaveURL(/\/app\/documents\//);
+  await waitForBuilder(page);
+
+  const checks = page.getByTestId("checks-panel");
+  await expect(checks.getByText("All checks pass")).toBeVisible();
+
+  await textbox(page, "Firma (company name)").fill(
+    "Hafenmuster UG (haftungsbeschränkt)",
+  );
+  await textbox(page, "Stammkapital (share capital)").fill("25.000");
+
+  const issue = checks.locator('[data-issue="ug_capital_below_gmbh_minimum"]');
+  await expect(issue).toContainText("A UG (haftungsbeschränkt) has less than");
+  await expect(issue).toContainText("§ 5a Abs. 1 GmbHG");
+
+  // AI_PROVIDER=fake answers with a scripted explanation.
+  await issue.getByRole("button", { name: "Explain" }).click();
+  await expect(issue).toContainText(
+    "AI-generated explanation — not legal advice",
+  );
+  await expect(issue).toContainText("Scripted explanation for local testing.");
+  await expect(issue).toContainText("Model fake-model, prompt explain-");
+
+  await issue
+    .getByRole("button", { name: "Go to Stammkapital (share capital)" })
+    .click();
+  await expect(textbox(page, "Stammkapital (share capital)")).toBeFocused();
 });
 
 test("a viewer opens a document read only", async ({ page }) => {
