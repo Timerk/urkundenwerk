@@ -29,7 +29,9 @@ never the secret key.
 
 Exports run in a Node route handler that loads the document through RLS,
 validates it, and returns PDF or DOCX with `Cache-Control: no-store`.
-Incomplete input yields `422` with the Zod issue paths and codes.
+Incomplete input yields `422` with the Zod issue paths and codes. Next.js
+bundles the renderer and emits its font file as a server asset. PDFKit stays an
+external package because it loads its default font from its own directory.
 
 ## Consequences
 
