@@ -1,4 +1,4 @@
-# ADR-0007 · Ingestion with verifiable source offsets
+# ADR-0008 · Ingestion with verifiable source offsets
 
 ## Context
 
