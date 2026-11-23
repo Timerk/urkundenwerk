@@ -230,6 +230,9 @@ importers:
       '@urkundenwerk/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@urkundenwerk/extraction':
+        specifier: workspace:*
+        version: link:../../packages/extraction
       '@urkundenwerk/render':
         specifier: workspace:*
         version: link:../../packages/render

@@ -14,6 +14,7 @@
     "@supabase/supabase-js": "2.119.1",
     "@urkundenwerk/ai": "workspace:*",
     "@urkundenwerk/core": "workspace:*",
+    "@urkundenwerk/extraction": "workspace:*",
     "@urkundenwerk/render": "workspace:*",
     "next": "16.4.6",
     "react": "^19.3.1",
