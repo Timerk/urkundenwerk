@@ -1,5 +1,6 @@
 import { resolve } from "node:path";
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
 
 const workspaceRoot = resolve(__dirname, "../..");
 
@@ -34,4 +35,7 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Resolves the per-request locale and messages from src/i18n/request.ts.
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
+export default withNextIntl(nextConfig);

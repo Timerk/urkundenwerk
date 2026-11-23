@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Instrument_Sans, Source_Serif_4 } from "next/font/google";
 import type { ReactNode } from "react";
 import { DemoNotice } from "../components/demo-notice";
@@ -18,21 +20,28 @@ const sourceSerif = Source_Serif_4({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Urkundenwerk",
-  description:
-    "A document builder for German law firms that assembles the statutory Musterprotokoll from structured case data.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata");
+  return { title: "Urkundenwerk", description: t("description") };
+}
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const locale = await getLocale();
   return (
     <html
-      lang="en"
+      lang={locale}
       className={`${instrumentSans.variable} ${sourceSerif.variable}`}
     >
       <body className="min-h-dvh antialiased">
-        <DemoNotice />
-        {children}
+        {/* Inherits the request's locale, messages, and time zone. */}
+        <NextIntlClientProvider>
+          <DemoNotice />
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );
