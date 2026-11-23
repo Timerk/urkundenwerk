@@ -1,0 +1,112 @@
+{
+  "fields": {
+    "notarisation.mode": {
+      "value": "in_person",
+      "quote": "persönlich erschienen: Herr Bjarne Musterperle"
+    },
+    "notarisation.deedNumber": {
+      "value": "82/2025",
+      "quote": "Urkunde Nr. 82/2025"
+    },
+    "notarisation.date": {
+      "value": "2025-03-07",
+      "quote": "am siebten März 2025"
+    },
+    "notarisation.notaryName": {
+      "value": "Elian Musterwacht",
+      "quote": "Notar Elian Musterwacht"
+    },
+    "notarisation.notarySeat": {
+      "value": "Graunest",
+      "quote": "mit Amtssitz in Graunest"
+    },
+    "founder.kind": {
+      "value": "natural_person",
+      "quote": "persönlich erschienen: Herr Bjarne Musterperle"
+    },
+    "founder.salutation": {
+      "value": "Herr",
+      "quote": "Herr Bjarne Musterperle"
+    },
+    "founder.firstName": {
+      "value": "Bjarne",
+      "quote": "Herr Bjarne Musterperle"
+    },
+    "founder.lastName": {
+      "value": "Musterperle",
+      "quote": "Herr Bjarne Musterperle"
+    },
+    "founder.birthDate": {
+      "value": "1988-04-06",
+      "quote": "geb. 06.IV.1988"
+    },
+    "founder.address.street": {
+      "value": "Sonnenstieg 9",
+      "quote": "Sonnenstieg 9, 00068 Kieselmünde"
+    },
+    "founder.address.postalCode": {
+      "value": "00068",
+      "quote": "00068 Kieselmünde"
+    },
+    "founder.address.city": {
+      "value": "Kieselmünde",
+      "quote": "00068 Kieselmünde"
+    },
+    "founder.name": null,
+    "founder.registerCourt": null,
+    "founder.registerNumber": null,
+    "founder.seat": null,
+    "founder.identificationDetails": {
+      "value": "aus einem früheren Beurkundungsvorgang persönlich bekannt",
+      "quote": "aus einem früheren Beurkundungsvorgang persönlich bekannt"
+    },
+    "company.name": {
+      "value": "Quellspule Pumpenbau GmbH",
+      "quote": "die Satzung der Quellspule Pumpenbau GmbH"
+    },
+    "company.seat": {
+      "value": "Kieselmünde",
+      "quote": "ihren Sitz in Kieselmünde"
+    },
+    "company.purpose": {
+      "value": "Reparatur von Niederdruckpumpen",
+      "quote": "Reparatur von Niederdruckpumpen"
+    },
+    "shareCapitalCents": {
+      "value": 2500000,
+      "quote": "Stammkapital von fünfundzwanzigtausend Euro"
+    },
+    "contribution": {
+      "value": "full",
+      "quote": "wird vollständig durch den Gründer in bar übernommen und ist sofort einzuzahlen"
+    },
+    "managingDirector.kind": {
+      "value": "other",
+      "quote": "bestellt der Alleingesellschafter Frau Mette Musterfarn, geboren am 3. Dezember 1991, aus Hafenreuth zur Geschäftsführerin"
+    },
+    "managingDirector.salutation": {
+      "value": "Frau",
+      "quote": "Frau Mette Musterfarn"
+    },
+    "managingDirector.firstName": {
+      "value": "Mette",
+      "quote": "Frau Mette Musterfarn"
+    },
+    "managingDirector.lastName": {
+      "value": "Musterfarn",
+      "quote": "Frau Mette Musterfarn"
+    },
+    "managingDirector.birthDate": {
+      "value": "1991-12-03",
+      "quote": "geboren am 3. Dezember 1991"
+    },
+    "managingDirector.residence": {
+      "value": "Hafenreuth",
+      "quote": "aus Hafenreuth zur Geschäftsführerin"
+    },
+    "notaryNotes": {
+      "value": "das Verbot der Rückgewähr des zur Erhaltung des Stammkapitals erforderlichen Vermögens",
+      "quote": "das Verbot der Rückgewähr des zur Erhaltung des Stammkapitals erforderlichen Vermögens"
+    }
+  }
+}

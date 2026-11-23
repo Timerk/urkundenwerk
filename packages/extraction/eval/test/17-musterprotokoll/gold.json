@@ -1,0 +1,100 @@
+{
+  "fields": {
+    "notarisation.mode": {
+      "value": "in_person",
+      "quote": "Vorgelesen, genehmigt und eigenhändig unterschrieben:"
+    },
+    "notarisation.deedNumber": {
+      "value": "486/2025",
+      "quote": "486/2025"
+    },
+    "notarisation.date": {
+      "value": "2025-07-23",
+      "quote": "23. Juli 2025"
+    },
+    "notarisation.notaryName": {
+      "value": "Dr. Runa Musterstich",
+      "quote": "Dr. Runa Musterstich"
+    },
+    "notarisation.notarySeat": {
+      "value": "Wollquell",
+      "quote": "Wollquell"
+    },
+    "founder.kind": {
+      "value": "legal_entity",
+      "quote": "Mustergrund Beteiligungs GmbH, mit Sitz in"
+    },
+    "founder.salutation": null,
+    "founder.firstName": null,
+    "founder.lastName": null,
+    "founder.birthDate": null,
+    "founder.address.street": null,
+    "founder.address.postalCode": null,
+    "founder.address.city": null,
+    "founder.name": {
+      "value": "Mustergrund Beteiligungs GmbH",
+      "quote": "Mustergrund Beteiligungs GmbH, mit Sitz in Blausaum,"
+    },
+    "founder.registerCourt": {
+      "value": "Amtsgericht Blausaum",
+      "quote": "Amtsgericht Blausaum"
+    },
+    "founder.registerNumber": {
+      "value": "HRB 73682",
+      "quote": "HRB 73682"
+    },
+    "founder.seat": {
+      "value": "Blausaum",
+      "quote": "GmbH, mit Sitz in Blausaum"
+    },
+    "founder.identificationDetails": {
+      "value": "vertreten durch Kaja Musterklinge",
+      "quote": "vertreten durch Kaja Musterklinge"
+    },
+    "company.name": {
+      "value": "Flachsschere Werkbänke GmbH",
+      "quote": "Flachsschere Werkbänke GmbH"
+    },
+    "company.seat": {
+      "value": "Ulmenrast",
+      "quote": "Ulmenrast"
+    },
+    "company.purpose": {
+      "value": "die Vermietung höhenverstellbarer Werkbänke",
+      "quote": "die Vermietung höhenverstellbarer Werkbänke"
+    },
+    "shareCapitalCents": {
+      "value": 3150000,
+      "quote": "31.500 €"
+    },
+    "contribution": {
+      "value": "half",
+      "quote": "zu 50 Prozent sofort, im Übrigen sobald die Gesellschafterversammlung ihre Einforderung beschließt"
+    },
+    "managingDirector.kind": {
+      "value": "other",
+      "quote": "Zum Geschäftsführer der Gesellschaft wird Frau Liska Mustersegel"
+    },
+    "managingDirector.salutation": {
+      "value": "Frau",
+      "quote": "Frau"
+    },
+    "managingDirector.firstName": {
+      "value": "Liska",
+      "quote": "Liska"
+    },
+    "managingDirector.lastName": {
+      "value": "Mustersegel",
+      "quote": "Mustersegel"
+    },
+    "managingDirector.birthDate": {
+      "value": "1989-09-08",
+      "quote": "8. September 1989"
+    },
+    "managingDirector.residence": {
+      "value": "Dornsilz",
+      "quote": "Dornsilz"
+    },
+    "notaryNotes": null
+  }
+}

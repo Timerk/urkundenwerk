@@ -1,0 +1,100 @@
+{
+  "fields": {
+    "notarisation.mode": {
+      "value": "video",
+      "quote": "erscheint mittels Videokommunikation"
+    },
+    "notarisation.deedNumber": {
+      "value": "V 009/2025",
+      "quote": "V 009/2025"
+    },
+    "notarisation.date": {
+      "value": "2025-01-29",
+      "quote": "Am 29.01.2025 erscheint"
+    },
+    "notarisation.notaryName": {
+      "value": "Nele Musterweide",
+      "quote": "Notarin Nele Musterweide"
+    },
+    "notarisation.notarySeat": {
+      "value": "Flockenau",
+      "quote": "Amtssitz Flockenau"
+    },
+    "founder.kind": {
+      "value": "legal_entity",
+      "quote": "Amtssitz Flockenau, die Musterweben Holding GmbH"
+    },
+    "founder.salutation": null,
+    "founder.firstName": null,
+    "founder.lastName": null,
+    "founder.birthDate": null,
+    "founder.address.street": null,
+    "founder.address.postalCode": null,
+    "founder.address.city": null,
+    "founder.name": {
+      "value": "Musterweben Holding GmbH",
+      "quote": "Amtssitz Flockenau, die Musterweben Holding GmbH"
+    },
+    "founder.registerCourt": {
+      "value": "Amtsgericht Rubinhag",
+      "quote": "beim Amtsgericht Rubinhag"
+    },
+    "founder.registerNumber": {
+      "value": "HRB 60973",
+      "quote": "unter HRB 60973"
+    },
+    "founder.seat": {
+      "value": "Rubinhag",
+      "quote": "Die GmbH hat ihren Sitz in Rubinhag"
+    },
+    "founder.identificationDetails": {
+      "value": "die einzelvertretungsberechtigte Geschäftsführerin Siv Musterkarde",
+      "quote": "die einzelvertretungsberechtigte Geschäftsführerin Siv Musterkarde"
+    },
+    "company.name": {
+      "value": "Rebnadel Materialkunde GmbH",
+      "quote": "errichtet die Rebnadel Materialkunde GmbH"
+    },
+    "company.seat": {
+      "value": "Eisengrund",
+      "quote": "Gesellschaftssitz auf Eisengrund fest"
+    },
+    "company.purpose": {
+      "value": "die Prüfung von Schutzbeschichtungen",
+      "quote": "die Prüfung von Schutzbeschichtungen"
+    },
+    "shareCapitalCents": {
+      "value": 3200000,
+      "quote": "Das Stammkapital beträgt 32.000 Euro"
+    },
+    "contribution": {
+      "value": "half",
+      "quote": "zahlt hiervon sofort die Hälfte"
+    },
+    "managingDirector.kind": {
+      "value": "other",
+      "quote": "bestellt die Gesellschafterin Herrn Hanno Mustersteg, wohnhaft zu Schiltenried, zum Geschäftsführer"
+    },
+    "managingDirector.salutation": {
+      "value": "Herr",
+      "quote": "Herrn Hanno Mustersteg"
+    },
+    "managingDirector.firstName": {
+      "value": "Hanno",
+      "quote": "Herrn Hanno Mustersteg"
+    },
+    "managingDirector.lastName": {
+      "value": "Mustersteg",
+      "quote": "Herrn Hanno Mustersteg"
+    },
+    "managingDirector.birthDate": null,
+    "managingDirector.residence": {
+      "value": "Schiltenried",
+      "quote": "wohnhaft zu Schiltenried"
+    },
+    "notaryNotes": {
+      "value": "auf die Prüfung der Registerunterlagen",
+      "quote": "auf die Prüfung der Registerunterlagen"
+    }
+  }
+}

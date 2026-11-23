@@ -1,0 +1,79 @@
+{
+  "kind": "minutes",
+  "format": "docx",
+  "title": "Protokoll über Errichtung und anschließenden Beschluss",
+  "paragraphs": [
+    "Eingang der Niederschrift",
+    "Urkunde Nr. 82/2025. In Graunest am siebten März 2025 vor mir, Notar Elian Musterwacht, mit Amtssitz in Graunest, persönlich erschienen: Herr Bjarne Musterperle, geb. 06.IV.1988, Sonnenstieg 9, 00068 Kieselmünde. Er ist mir aus einem früheren Beurkundungsvorgang persönlich bekannt. Die Schreibweise der Anschrift wurde mit ihm überprüft. Der Erschienene handelt im eigenen Namen und erklärt, dass kein Treuhandverhältnis besteht.",
+    "1. Errichtung",
+    "Der Erschienene stellt die Satzung der Quellspule Pumpenbau GmbH fest. Die Gesellschaft hat ihren Sitz in Kieselmünde; der Unternehmensgegenstand lautet Reparatur von Niederdruckpumpen. Zur Vornahme dieses Geschäfts legt er den vollständigen Satzungstext vom 4. März 2025 vor. Der Text wurde verlesen und wird als Anlage 1 zur Niederschrift genommen. Die Absatzfolge wurde während des Termins berichtigt; der Erschienene genehmigt die berichtigte Fassung.",
+    "Das gezeichnete Stammkapital von fünfundzwanzigtausend Euro wird vollständig durch den Gründer in bar übernommen und ist sofort einzuzahlen. Der hierfür übernommene Anteil ist als Geschäftsanteil Nr. 1 zu führen. Eine Aufrechnung mit Forderungen aus dem bereits in Vorbereitung befindlichen Werkstattmietvertrag ist nicht vorgesehen.",
+    "2. Gesonderte Bestellung nach Errichtung",
+    "Gesellschafterbeschluss. Nach Errichtung bestellt der Alleingesellschafter Frau Mette Musterfarn, geboren am 3. Dezember 1991, aus Hafenreuth zur Geschäftsführerin. Sie erklärt die Annahme. Ihre Annahmeerklärung wurde in der während des Termins vorgelegten schriftlichen Erklärung vom 5. März 2025 bestätigt. Als zunächst allein bestellte Geschäftsführerin ist sie einzelvertretungsberechtigt. Die Gesellschafterversammlung behält sich eine gesonderte Entscheidung über Prokura für den Werkstattbetrieb vor.",
+    "3. Belehrung und Vollzug",
+    "Ich wies auf das Verbot der Rückgewähr des zur Erhaltung des Stammkapitals erforderlichen Vermögens hin. Der Erschienene hat dem Notariat die Aufnahme der Geschäftsanschrift bestätigt und gebeten, die Registerunterlagen nach Vorlage der Versicherung der Geschäftsführerin einzureichen. Die Gesellschaft trägt nach der Satzung bis zu 2.000 Euro an nachgewiesenen Kosten der Errichtung und Registeranmeldung. Belege für Aufwendungen im Zusammenhang mit dem Werkstattmietvertrag bleiben davon getrennt.",
+    "Die Niederschrift und Anlage 1 wurden dem Erschienenen vorgelesen, von ihm genehmigt und von ihm und mir eigenhändig unterzeichnet.",
+    "Bjarne Musterperle · Elian Musterwacht, Notar"
+  ],
+  "labels": {
+    "notarisation.deedNumber": ["82/2025", "Urkunde Nr. 82/2025"],
+    "notarisation.mode": [
+      "in_person",
+      "persönlich erschienen: Herr Bjarne Musterperle"
+    ],
+    "notarisation.date": ["2025-03-07", "am siebten März 2025"],
+    "notarisation.notaryName": ["Elian Musterwacht", "Notar Elian Musterwacht"],
+    "notarisation.notarySeat": ["Graunest", "mit Amtssitz in Graunest"],
+    "founder.kind": [
+      "natural_person",
+      "persönlich erschienen: Herr Bjarne Musterperle"
+    ],
+    "founder.salutation": ["Herr", "Herr Bjarne Musterperle"],
+    "founder.firstName": ["Bjarne", "Herr Bjarne Musterperle"],
+    "founder.lastName": ["Musterperle", "Herr Bjarne Musterperle"],
+    "founder.birthDate": ["1988-04-06", "geb. 06.IV.1988"],
+    "founder.address.street": [
+      "Sonnenstieg 9",
+      "Sonnenstieg 9, 00068 Kieselmünde"
+    ],
+    "founder.address.postalCode": ["00068", "00068 Kieselmünde"],
+    "founder.address.city": ["Kieselmünde", "00068 Kieselmünde"],
+    "company.name": [
+      "Quellspule Pumpenbau GmbH",
+      "die Satzung der Quellspule Pumpenbau GmbH"
+    ],
+    "company.seat": ["Kieselmünde", "ihren Sitz in Kieselmünde"],
+    "company.purpose": [
+      "Reparatur von Niederdruckpumpen",
+      "Reparatur von Niederdruckpumpen"
+    ],
+    "shareCapitalCents": [
+      2500000,
+      "Stammkapital von fünfundzwanzigtausend Euro"
+    ],
+    "contribution": [
+      "full",
+      "wird vollständig durch den Gründer in bar übernommen und ist sofort einzuzahlen"
+    ],
+    "managingDirector.kind": [
+      "other",
+      "bestellt der Alleingesellschafter Frau Mette Musterfarn, geboren am 3. Dezember 1991, aus Hafenreuth zur Geschäftsführerin"
+    ],
+    "managingDirector.salutation": ["Frau", "Frau Mette Musterfarn"],
+    "managingDirector.firstName": ["Mette", "Frau Mette Musterfarn"],
+    "managingDirector.lastName": ["Musterfarn", "Frau Mette Musterfarn"],
+    "managingDirector.birthDate": ["1991-12-03", "geboren am 3. Dezember 1991"],
+    "managingDirector.residence": [
+      "Hafenreuth",
+      "aus Hafenreuth zur Geschäftsführerin"
+    ],
+    "founder.identificationDetails": [
+      "aus einem früheren Beurkundungsvorgang persönlich bekannt",
+      "aus einem früheren Beurkundungsvorgang persönlich bekannt"
+    ],
+    "notaryNotes": [
+      "das Verbot der Rückgewähr des zur Erhaltung des Stammkapitals erforderlichen Vermögens",
+      "das Verbot der Rückgewähr des zur Erhaltung des Stammkapitals erforderlichen Vermögens"
+    ]
+  }
+}

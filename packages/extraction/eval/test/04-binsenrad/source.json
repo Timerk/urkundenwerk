@@ -1,0 +1,57 @@
+{
+  "kind": "contract",
+  "format": "pdf",
+  "title": "Satzung der Binsenrad Prüfmittel GmbH",
+  "paragraphs": [
+    "Teil I. Firma, Sitz und Tätigkeit",
+    "Die Gesellschaft führt die Firma Binsenrad Prüfmittel GmbH mit Sitz in Doldenbrück. Unternehmensgegenstand ist der Bau von Prüflehren für Fahrradständer. Die Gesellschaft kann Zubehör aus eigener Fertigung liefern und mit Kunden Wartungsverträge für die gelieferten Lehren schließen. Ein eigener Prüfbetrieb kann durch Beschluss eingerichtet werden.",
+    "Teil II. Zeichnung des Geschäftsanteils",
+    "Als Gründerin zeichnet die Musterwacht Verwaltungsgesellschaft mbH, ansässig in Felswiese, im Register des Amtsgerichts Felswiese geführt als HRB 58107. Für sie handelt die vertretungsberechtigte Rika Musterwort. Der Nachweis ihrer Vertretungsbefugnis ist zu den Gründungsunterlagen zu nehmen.",
+    "Das Stammkapital ist mit 27.500 € festgesetzt. Die Gründerin übernimmt den einzigen Geschäftsanteil. Dieser trägt die laufende Nummer 1 und ist in Geld zu leisten. Für geleistete Zahlungen sind ein eigener Buchungsnachweis und der zugehörige Kontoauszug vorzuhalten. Über den Zeitpunkt einer Einforderung beschließt die Gesellschafterin gesondert.",
+    "Teil III. Geschäftsführung und Vertretung",
+    "Bei nur einer Bestellung vertritt der Geschäftsführer die Gesellschaft allein. Bei mehreren Bestellungen wird sie durch zwei Geschäftsführer oder durch einen Geschäftsführer und einen Prokuristen gemeinsam vertreten. Einzelvertretungsbefugnis und Befreiung von den Beschränkungen des § 181 BGB können im Rahmen der Bestellung beschlossen werden. Die Person des ersten Geschäftsführers wird in der gesonderten Niederschrift über die Bestellung bezeichnet.",
+    "Der Verkauf der Konstruktionsunterlagen für die Prüflehren, der Erwerb von Grundstücken und Verträge mit der Gründungsgesellschafterin außerhalb des gewöhnlichen Geschäftsbetriebs bedürfen im Innenverhältnis deren vorheriger Zustimmung. Die Zustimmung ist samt Bezeichnung des betroffenen Geschäfts festzuhalten.",
+    "Teil IV. Willensbildung",
+    "Die Geschäftsführung informiert die Gesellschafterin auf Verlangen über Auftragsbestand, Finanzierung und für den Betrieb wesentliche Verpflichtungen. Zur Versammlung wird in Textform mit einer Frist von vierzehn Tagen eingeladen. Ist nur eine Gesellschafterin vorhanden, genügt für einfach zu fassende Entscheidungen eine schriftliche Erklärung zu den Akten.",
+    "Die Verfügung über einen Geschäftsanteil oder dessen Teilung bedarf im gesetzlich zulässigen Umfang der Zustimmung. Die Geschäftsführung hat Änderungen der Beteiligungsverhältnisse entsprechend den gesetzlichen Vorgaben nachzuhalten.",
+    "Teil V. Geschäftsjahr und Jahresabschluss",
+    "Das Geschäftsjahr läuft vom 1. Juli bis zum 30. Juni. Der erste Abschluss erfasst den Zeitraum seit Eintragung der Gesellschaft bis zum nächsten Abschlussstichtag. Die Gesellschafterin entscheidet nach Vorlage des Jahresabschlusses über Ergebnisverwendung und Entlastung.",
+    "Teil VI. Bekanntmachung und Gründungsaufwand",
+    "Gesetzliche Bekanntmachungen der Gesellschaft erscheinen im Bundesanzeiger. Persönliche Benachrichtigungen werden an die mitgeteilten Geschäftsanschriften versandt. Die Gesellschaft erstattet den nachgewiesenen Gründungsaufwand für Registereintragung und Beurkundung bis zu 2.100 €. Die Kosten der Stellvertretung der Gründerin bei Abschluss dieses Vertrags trägt die Gründerin.",
+    "Teil VII. Schlussbestimmungen",
+    "Soweit diese Satzung nichts regelt, gelten die gesetzlichen Vorschriften. Eine nicht wirksame Bestimmung soll durch diejenige wirksame Bestimmung ersetzt werden, die ihren erkennbaren Zweck im zulässigen Rahmen am besten erreicht. Die übrigen Teile der Satzung bleiben bestehen."
+  ],
+  "labels": {
+    "company.name": [
+      "Binsenrad Prüfmittel GmbH",
+      "führt die Firma Binsenrad Prüfmittel GmbH"
+    ],
+    "company.seat": ["Doldenbrück", "mit Sitz in Doldenbrück"],
+    "company.purpose": [
+      "der Bau von Prüflehren für Fahrradständer",
+      "der Bau von Prüflehren für Fahrradständer"
+    ],
+    "founder.kind": [
+      "legal_entity",
+      "Als Gründerin zeichnet die Musterwacht Verwaltungsgesellschaft mbH"
+    ],
+    "founder.name": [
+      "Musterwacht Verwaltungsgesellschaft mbH",
+      "Musterwacht Verwaltungsgesellschaft mbH"
+    ],
+    "founder.seat": ["Felswiese", "ansässig in Felswiese"],
+    "founder.registerCourt": [
+      "Amtsgericht Felswiese",
+      "des Amtsgerichts Felswiese"
+    ],
+    "founder.registerNumber": ["HRB 58107", "geführt als HRB 58107"],
+    "founder.identificationDetails": [
+      "vertretungsberechtigte Rika Musterwort",
+      "Für sie handelt die vertretungsberechtigte Rika Musterwort"
+    ],
+    "shareCapitalCents": [
+      2750000,
+      "Das Stammkapital ist mit 27.500 € festgesetzt"
+    ]
+  }
+}

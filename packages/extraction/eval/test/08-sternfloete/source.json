@@ -1,0 +1,43 @@
+{
+  "kind": "contract",
+  "format": "pdf",
+  "title": "Vertrag über die Errichtung einer kleinen Gesellschaft",
+  "paragraphs": [
+    "Artikel 1. Firma, Sitz und Dauer",
+    "Sternflöte Vorrichtungen Unternehmergesellschaft (haftungsbeschränkt) ist die Firma. Der Sitz liegt in Ahornbrack. Die Gesellschaft wird auf unbestimmte Dauer errichtet. Sie darf Vertriebsstellen ohne eine Änderung der Satzung errichten, solange der eingetragene Sitz bestehen bleibt.",
+    "Artikel 2. Gegenstand des Betriebs",
+    "Die Tätigkeit umfasst die Fertigung von Abstandshaltern für Buchstützen. Dazu unterhält sie eine Kleinwerkstatt und verkauft angefertigte Teile an Buchbindereien und Werkstätten. Aufträge über Sondermaße sind gestattet. Die Anfertigung und Weitergabe von Mustern an Vertragspartner bedürfen keiner gesonderten Genehmigung.",
+    "Artikel 3. Kapital und Einlage",
+    "Festes Kapital: eintausendachthundert Euro. Frau Juna Musterflur übernimmt den Anteil Nr. 1 in gleicher Höhe und leistet die Einlage in einem Betrag bei Zeichnung. Sie leistet die Einlage in Geld. Der Stückpreis der herzustellenden Abstandshalter und der Wert eingebrachter Arbeitsleistungen werden auf die Einlage nicht angerechnet.",
+    "Artikel 4. Leitung und Vertretung",
+    "Die Gesellschaft wird bei nur einer Bestellung durch diese Person allein vertreten. Bei mehreren Geschäftsführern vertreten zwei gemeinschaftlich oder einer gemeinschaftlich mit einem Prokuristen. Über die Erteilung einer Einzelvertretungsbefugnis oder eine Befreiung von den Beschränkungen des § 181 BGB ist durch Gesellschafterbeschluss zu entscheiden. Die Veräußerung von Betriebsinventar außerhalb des laufenden Geschäftsgangs und Mietverträge mit einer festen Laufzeit von mehr als drei Jahren bedürfen der vorherigen Zustimmung.",
+    "Artikel 5. Beschlüsse und Veräußerung von Anteilen",
+    "Der Einberufung einer Versammlung bedarf es insbesondere, wenn die Geschäftsführung eine Maßnahme zur Zustimmung vorlegt oder gesetzliche Beschlüsse anstehen. Die Einladung nennt die Tagesordnung und lässt mindestens vierzehn Tage zur Vorbereitung. Ein Beschluss der Alleingesellschafterin wird mit dem Zeitpunkt der Beschlussfassung schriftlich dokumentiert und unterschrieben. Sollen Anteile nach einer späteren Kapitalerhöhung an Dritte veräußert werden, gilt ein Zustimmungsvorbehalt zugunsten der Gesellschafterversammlung.",
+    "Artikel 6. Jahresabschluss und Rücklage",
+    "Die Geschäftsführung legt den Jahresabschluss der Gesellschafterin vor. Das Geschäftsjahr ist das Kalenderjahr; das erste ist ein Rumpfgeschäftsjahr. Aus dem Ergebnis wird die gesetzlich vorgeschriebene Rücklage gebildet. Über eine Ausschüttung des danach verfügbaren Gewinns entscheidet die Gesellschafterin mit der Feststellung des Jahresabschlusses.",
+    "Artikel 7. Bekanntmachungen",
+    "Die Bekanntmachungen der Gesellschaft erfolgen im Bundesanzeiger. Interne Benachrichtigungen können in Textform erfolgen. Gibt eine Gesellschafterin eine neue Adresse an, sind ab diesem Zeitpunkt Mitteilungen an diese Adresse zu richten.",
+    "Artikel 8. Errichtungskosten und Bestand",
+    "Die Gesellschaft übernimmt die Kosten für Notar, Register und erforderliche Abschriften bis 590 €. Die darüber hinausgehenden Kosten trägt die Gründerin. Unwirksame Bestimmungen lassen die übrigen Vorschriften bestehen. Die Gesellschafterin entscheidet über eine erforderliche Ergänzung in der gesetzlich vorgesehenen Form."
+  ],
+  "labels": {
+    "company.name": [
+      "Sternflöte Vorrichtungen Unternehmergesellschaft (haftungsbeschränkt)",
+      "Sternflöte Vorrichtungen Unternehmergesellschaft (haftungsbeschränkt) ist die Firma"
+    ],
+    "company.seat": ["Ahornbrack", "Der Sitz liegt in Ahornbrack"],
+    "company.purpose": [
+      "die Fertigung von Abstandshaltern für Buchstützen",
+      "die Fertigung von Abstandshaltern für Buchstützen"
+    ],
+    "shareCapitalCents": [180000, "Festes Kapital: eintausendachthundert Euro"],
+    "contribution": [
+      "full",
+      "leistet die Einlage in einem Betrag bei Zeichnung"
+    ],
+    "founder.kind": ["natural_person", "Frau Juna Musterflur übernimmt"],
+    "founder.salutation": ["Frau", "Frau Juna Musterflur"],
+    "founder.firstName": ["Juna", "Frau Juna Musterflur"],
+    "founder.lastName": ["Musterflur", "Frau Juna Musterflur"]
+  }
+}

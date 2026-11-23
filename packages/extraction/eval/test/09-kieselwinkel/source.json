@@ -1,0 +1,36 @@
+{
+  "kind": "contract",
+  "format": "docx",
+  "title": "Auszug aus dem Vertrag der Kieselwinkel Akustik GmbH",
+  "paragraphs": [
+    "Vermerk zur Abschrift",
+    "Diese Abschrift ist für die Vorlage beim Eigentümer der anzumietenden Messräume bestimmt. Sie enthält die Bestimmungen über den Geschäftsbetrieb, die Vertretung und die Kostentragung. Der Abschnitt zum Kapital und die Übernahmeerklärung wurden nicht in diese Abschrift aufgenommen.",
+    "§ 1 Errichtung",
+    "Die Gesellschafterin errichtet unter der Firma Kieselwinkel Akustik GmbH eine Gesellschaft mit beschränkter Haftung. Sitz der Gesellschaft ist Muschelrain. Die Geschäftsführung kann zur Durchführung ihrer Aufträge einzelne Messräume und Lager anmieten. Eine Anschrift, an der für einen Kunden Messungen vorgenommen werden, bezeichnet keine Niederlassung der Gesellschaft.",
+    "§ 2 Tätigkeitsbereich",
+    "Gegenstand des Unternehmens ist die Vermessung von Proberäumen. Im Zusammenhang damit darf die Gesellschaft dokumentieren, welche Einrichtungen oder baulichen Gegebenheiten die ermittelten Werte beeinflussen. Sie kann geeignete Geräte für die Messungen erwerben sowie erforderliche Aufzeichnungen für Auftraggeber aufbereiten.",
+    "§ 4 Geschäftsführung und Verträge",
+    "Bei Bestellung nur eines Geschäftsführers ist dieser allein zur Vertretung berechtigt. Bei mehreren Bestellungen vertreten zwei Geschäftsführer oder ein Geschäftsführer gemeinsam mit einem Prokuristen. Für eine Änderung der Vertretungsbefugnis ist ein Gesellschafterbeschluss erforderlich. Zum Abschluss eines Mietvertrages über die dauerhafte Anmietung eines Proberaums muss die Geschäftsführung im Innenverhältnis die vorherige Zustimmung einholen. Die Verhandlung von Besichtigungsterminen und die Einholung von Angeboten kann sie selbständig übernehmen.",
+    "§ 5 Versammlungen und Beschlüsse",
+    "Die Geschäftsführung beruft eine Gesellschafterversammlung ein, wenn gesetzliche Entscheidungen anstehen oder eine zustimmungsbedürftige Maßnahme beabsichtigt ist. Die Tagesordnung und der Ort werden mit angemessener Frist mitgeteilt. Eine Beschlussfassung in Textform ist mit allseitiger Zustimmung zulässig. Bei einer Alleingesellschafterin wird der Beschluss schriftlich festgehalten, unterzeichnet und bei der Gesellschaft verwahrt.",
+    "§ 6 Geschäftsjahr",
+    "Das Geschäftsjahr läuft vom 1. Januar bis zum 31. Dezember. Die Geschäftsführung hat den Jahresabschluss innerhalb der gesetzlichen Fristen vorzulegen. Angefangene Aufträge und im Voraus vereinnahmte Beträge sind bei der Rechnungslegung dem zutreffenden Zeitraum zuzuordnen. Die Gesellschafterversammlung entscheidet über die Gewinnverwendung.",
+    "§ 7 Bekanntmachungen und Mitteilungen",
+    "Die Bekanntmachungen werden im Bundesanzeiger vorgenommen. Für Mitteilungen der Gesellschaft ist die Anschrift maßgebend, die der zuletzt eingereichten Gesellschafterliste entnommen werden kann oder der Gesellschaft gesondert als Empfangsadresse mitgeteilt wurde.",
+    "§ 8 Auslagen für die Gründung",
+    "Gründungsaufwand bis 850 EUR trägt die Gesellschaft. Das umfasst die gesetzlich anfallenden Notar- und Registergebühren sowie die Kosten notwendiger Abschriften. Aufwendungen für den späteren Mietvertrag fallen nicht unter diese Bestimmung.",
+    "§ 9 Schlussbestimmungen",
+    "Lässt sich eine Regelung dieses Vertrags nicht durchführen, setzen die Gesellschafter eine im Rahmen des zwingenden Rechts möglichst gleichwertige Bestimmung an ihre Stelle. Die übrigen Vorschriften bleiben wirksam. Die bei der Gesellschaft verwahrte vollständige Satzung ist im Zweifel heranzuziehen."
+  ],
+  "labels": {
+    "company.name": [
+      "Kieselwinkel Akustik GmbH",
+      "unter der Firma Kieselwinkel Akustik GmbH"
+    ],
+    "company.seat": ["Muschelrain", "Sitz der Gesellschaft ist Muschelrain"],
+    "company.purpose": [
+      "die Vermessung von Proberäumen",
+      "die Vermessung von Proberäumen"
+    ]
+  }
+}

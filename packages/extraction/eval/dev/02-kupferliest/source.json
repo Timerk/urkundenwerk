@@ -1,0 +1,62 @@
+{
+  "kind": "minutes",
+  "format": "docx",
+  "title": "Niederschrift über Errichtung und erste Beschlüsse · UR-Nr. 38/2025",
+  "paragraphs": [
+    "Erschienener",
+    "Am 21. Februar 2025 erschien in Flockensiek vor Notar Arved Musterwinde, Amtssitz Flockensiek, Herr Nils Musterlauf, geboren am 6. Juni 1989, wohnhaft Tannentritt 8, 00061 Mohnsiek. Er hat sich durch Vorlage eines Personalausweises ausgewiesen und erklärte, im eigenen Namen zu handeln. In der Besprechung am 18. Februar 2025 hatte er bereits einen Entwurf zur Durchsicht erhalten.",
+    "I. Errichtung und Satzung",
+    "Der Erschienene errichtet eine Unternehmergesellschaft mit beschränkter Haftung. Das Unternehmen führt den Namen Kupferliest UG (haftungsbeschränkt) und hat seinen Sitz in Mohnsiek. Er legt die Satzung in der Fassung vom 20. Februar 2025 vor und stellt sie wie aus Anlage 1 ersichtlich fest. Die Anlage lag bei der Verlesung vor und wurde von ihm genehmigt.",
+    "Für die Übernahme des einzigen Anteils werden dreihundert Euro Stammkapital festgesetzt. Der Betrag wird sofort vollständig in bar eingezahlt. Der Erschienene übernimmt den Geschäftsanteil Nr. 1 zum Nennbetrag des gesamten Stammkapitals. Der Erschienene wird den Kontoauszug über die Einzahlung zu den Unterlagen für die Anmeldung nehmen.",
+    "II. Beschluss des Alleingesellschafters",
+    "Der Erschienene verzichtet auf die Einhaltung von Einberufungsfristen und fasst als alleiniger Gesellschafter den folgenden Beschluss. Zum Geschäftsführer bestellt der Gründer sich selbst. Er nimmt das Amt an. Eine Prokura wird mit diesem Beschluss nicht erteilt. Die Bestellung soll der Anmeldung zur Eintragung beigefügt werden.",
+    "Die Geschäftsanschrift wird durch die Geschäftsführung in der Registeranmeldung angegeben. Die in der Vorbereitung besprochene Verwendung eines Briefkastens am Amtssitz des Notars wird nicht zur Geschäftsanschrift bestimmt.",
+    "III. Hinweise und Ausfertigung",
+    "Der Notar belehrte darüber, dass die Gesellschaft als solche erst mit der Eintragung im Handelsregister entsteht. Der Erschienene erklärte, vor der Eintragung keine Lieferverträge für die Gesellschaft abschließen zu wollen. Auf seine Bitte wird ihm eine beglaubigte Abschrift erteilt. Die elektronische Übermittlung der Registerunterlagen soll nach Eingang des Einzahlungsnachweises erfolgen.",
+    "Die Niederschrift wurde dem Erschienenen mit der Satzungsanlage vorgelesen. Er genehmigte sie und unterschrieb anschließend eigenhändig mit dem Notar.",
+    "Nils Musterlauf · Arved Musterwinde, Notar"
+  ],
+  "labels": {
+    "company.name": [
+      "Kupferliest UG (haftungsbeschränkt)",
+      "Namen Kupferliest UG (haftungsbeschränkt)"
+    ],
+    "company.seat": ["Mohnsiek", "hat seinen Sitz in Mohnsiek"],
+    "shareCapitalCents": [30000, "dreihundert Euro Stammkapital"],
+    "contribution": ["full", "sofort vollständig in bar eingezahlt"],
+    "founder.kind": [
+      "natural_person",
+      "Herr Nils Musterlauf, geboren am 6. Juni 1989"
+    ],
+    "founder.salutation": ["Herr", "Herr Nils Musterlauf"],
+    "founder.firstName": ["Nils", "Herr Nils Musterlauf"],
+    "founder.lastName": ["Musterlauf", "Herr Nils Musterlauf"],
+    "managingDirector.kind": [
+      "founder",
+      "Zum Geschäftsführer bestellt der Gründer sich selbst"
+    ],
+    "notarisation.mode": [
+      "in_person",
+      "Am 21. Februar 2025 erschien in Flockensiek vor Notar Arved Musterwinde"
+    ],
+    "notarisation.deedNumber": ["38/2025", "UR-Nr. 38/2025"],
+    "notarisation.date": ["2025-02-21", "Am 21. Februar 2025 erschien"],
+    "notarisation.notaryName": [
+      "Arved Musterwinde",
+      "vor Notar Arved Musterwinde"
+    ],
+    "notarisation.notarySeat": ["Flockensiek", "Amtssitz Flockensiek"],
+    "founder.birthDate": ["1989-06-06", "geboren am 6. Juni 1989"],
+    "founder.address.street": ["Tannentritt 8", "wohnhaft Tannentritt 8"],
+    "founder.address.postalCode": ["00061", "00061 Mohnsiek"],
+    "founder.address.city": ["Mohnsiek", "00061 Mohnsiek"],
+    "founder.identificationDetails": [
+      "durch Vorlage eines Personalausweises ausgewiesen",
+      "durch Vorlage eines Personalausweises ausgewiesen"
+    ],
+    "notaryNotes": [
+      "dass die Gesellschaft als solche erst mit der Eintragung im Handelsregister entsteht",
+      "dass die Gesellschaft als solche erst mit der Eintragung im Handelsregister entsteht"
+    ]
+  }
+}

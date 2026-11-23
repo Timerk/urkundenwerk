@@ -1,0 +1,36 @@
+{
+  "kind": "musterprotokoll",
+  "format": "pdf",
+  "input": {
+    "notarisation": {
+      "mode": "in_person",
+      "deedNumber": "788/2025",
+      "date": "2025-01-21",
+      "notaryName": "Dr. Tara Musterstich",
+      "notarySeat": "Blausaum"
+    },
+    "founder": {
+      "kind": "natural_person",
+      "salutation": "Frau",
+      "firstName": "Greta",
+      "lastName": "Musterreif",
+      "birthDate": "1994-01-08",
+      "address": {
+        "street": "Musterbogen 53",
+        "postalCode": "00101",
+        "city": "Bogenrost"
+      },
+      "identificationDetails": "ausgewiesen durch einen fiktiven Lichtbildausweis"
+    },
+    "company": {
+      "name": "Schieferwabe Prüfstände GmbH",
+      "seat": "Wollquell",
+      "purpose": "die Entwicklung optischer Vergleichslehren"
+    },
+    "shareCapitalCents": 3500000,
+    "contribution": "half",
+    "managingDirector": {
+      "kind": "founder"
+    }
+  }
+}

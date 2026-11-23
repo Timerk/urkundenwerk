@@ -1,0 +1,40 @@
+{
+  "kind": "contract",
+  "format": "docx",
+  "title": "Satzungsentwurf mit festgestellter Fassung",
+  "paragraphs": [
+    "Ausfertigungsvermerk",
+    "Der vor der Feststellung verwendete Arbeitsname Halmspiegel Planung GmbH bezeichnete das Vorhaben im Schriftwechsel mit dem Hausverwalter. Für die Anmeldung ist die nachfolgende Fassung maßgeblich. Der Entwurf vom 12. Februar 2025 gehört nicht zur beschlossenen Satzung.",
+    "I. Firma und Sitz",
+    "Firma: Halmspiegel Kartografie UG (haftungsbeschränkt). Sitz: Flockenau. Der Firmierung entsprechend ist der vollständige Rechtsformzusatz in die Unterlagen zur Registeranmeldung und in Geschäftsbriefe aufzunehmen.",
+    "II. Zweck",
+    "Gegenstand: Erstellung tastbarer Orientierungskarten. Die Gesellschaft kann in Auftrag gegebene Karten ausliefern, das dafür benötigte Datenmaterial verarbeiten und den Betrieb eigener Werkstätten unterhalten. Das Entwerfen von Orientierungssystemen für öffentliche Einrichtungen darf auch in Kooperation mit anderen Werkstätten erfolgen.",
+    "III. Kapital und Anteil",
+    "Das Stammkapital beträgt 920 EUR. Die Gründerin übernimmt den entsprechenden Geschäftsanteil und zahlt ihn vollständig vor der Anmeldung ein. Der Anteil wird unter Nummer 1 geführt. Die in der Vorplanung erwogene Beschaffung eines Prägegeräts für 30.000 Euro wird gesondert finanziert und begründet keine Leistungspflicht auf den Geschäftsanteil.",
+    "IV. Geschäftsführung",
+    "Die Geschäftsführung umfasst alle Maßnahmen des gewöhnlichen Geschäftsbetriebs. Bei mehreren Geschäftsführern vertreten zwei von ihnen gemeinsam oder einer gemeinsam mit einem Prokuristen. Einzeln bestellte Geschäftsführer vertreten allein. Die Gesellschafterversammlung kann im Einzelfall von den Beschränkungen des § 181 BGB befreien. Aufträge außerhalb des genehmigten Werkstattbudgets und langfristige Mietverträge bedürfen vor ihrer Unterzeichnung eines zustimmenden Beschlusses.",
+    "V. Einberufung und Beschlüsse",
+    "Die Geschäftsführung beruft eine Versammlung ein, sobald eine gesetzlich vorgeschriebene Entscheidung oder eine wesentliche Änderung der Haushaltsplanung ansteht. Sie teilt Beschlussgegenstand und vorgeschlagenen Termin mit. Die alleinige Gesellschafterin kann selbst entscheiden; sie unterzeichnet die zu den Gesellschaftsakten zu nehmende Niederschrift. Bei mehreren Gesellschaftern kann der Beschluss auch in Textform gefasst werden, wenn alle dem Verfahren zustimmen.",
+    "VI. Geschäftsjahr und Jahresergebnis",
+    "Das Geschäftsjahr endet jeweils am 30. September. Bis zum folgenden Jahresbeginn legt die Geschäftsführung eine Übersicht der noch nicht abgewickelten Kundenaufträge vor. Bei der Beschlussfassung über das Jahresergebnis ist die gesetzliche Rücklage der Unternehmergesellschaft vor einer Ausschüttung zu berücksichtigen.",
+    "VII. Veröffentlichungen",
+    "Veröffentlichungen erfolgen im Bundesanzeiger, soweit sie gesetzlich vorgeschrieben sind. Mitteilungen zur Bestellung oder Abberufung eines Geschäftsführers werden den Gesellschaftern mit dem Datum des Wirksamwerdens übermittelt.",
+    "VIII. Kostentragung",
+    "Die Gesellschaft trägt die Gebühren für die Feststellung der Satzung und die Ersteintragung bis zu 420 EUR. Eigene Aufwendungen der Gründerin für Entwürfe vor der Feststellung trägt diese selbst. Für Betriebsmittel und Mietkautionen gelten die jeweils später geschlossenen Verträge.",
+    "IX. Schlussregelung",
+    "Sollte eine Bestimmung dieser Satzung mit zwingendem Recht nicht vereinbar sein, bleibt der übrige Vertrag wirksam. Ist eine Anpassung nötig, beschließt die Gesellschafterin in der gebotenen Form eine Regelung mit möglichst gleicher wirtschaftlicher Wirkung."
+  ],
+  "labels": {
+    "company.name": [
+      "Halmspiegel Kartografie UG (haftungsbeschränkt)",
+      "Firma: Halmspiegel Kartografie UG (haftungsbeschränkt)"
+    ],
+    "company.seat": ["Flockenau", "Sitz: Flockenau"],
+    "company.purpose": [
+      "Erstellung tastbarer Orientierungskarten",
+      "Gegenstand: Erstellung tastbarer Orientierungskarten"
+    ],
+    "shareCapitalCents": [92000, "Das Stammkapital beträgt 920 EUR"],
+    "contribution": ["full", "zahlt ihn vollständig vor der Anmeldung ein"]
+  }
+}

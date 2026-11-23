@@ -1,0 +1,103 @@
+{
+  "fields": {
+    "notarisation.mode": {
+      "value": "in_person",
+      "quote": "Vorgelesen, genehmigt und eigenhändig unterschrieben:"
+    },
+    "notarisation.deedNumber": {
+      "value": "321/2025",
+      "quote": "321/2025"
+    },
+    "notarisation.date": {
+      "value": "2025-02-18",
+      "quote": "18. Februar 2025"
+    },
+    "notarisation.notaryName": {
+      "value": "Dr. Irma Musterstich",
+      "quote": "Dr. Irma Musterstich"
+    },
+    "notarisation.notarySeat": {
+      "value": "Bogenrost",
+      "quote": "Bogenrost"
+    },
+    "founder.kind": {
+      "value": "legal_entity",
+      "quote": "Musterquell Beteiligungs GmbH, mit Sitz in"
+    },
+    "founder.salutation": null,
+    "founder.firstName": null,
+    "founder.lastName": null,
+    "founder.birthDate": null,
+    "founder.address.street": null,
+    "founder.address.postalCode": null,
+    "founder.address.city": null,
+    "founder.name": {
+      "value": "Musterquell Beteiligungs GmbH",
+      "quote": "Musterquell Beteiligungs GmbH, mit Sitz in Sternsiek,"
+    },
+    "founder.registerCourt": {
+      "value": "Amtsgericht Sternsiek",
+      "quote": "Amtsgericht Sternsiek"
+    },
+    "founder.registerNumber": {
+      "value": "HRB 67033",
+      "quote": "HRB 67033"
+    },
+    "founder.seat": {
+      "value": "Sternsiek",
+      "quote": "GmbH, mit Sitz in Sternsiek"
+    },
+    "founder.identificationDetails": {
+      "value": "vertreten durch Liska Musterklinge",
+      "quote": "vertreten durch Liska Musterklinge"
+    },
+    "company.name": {
+      "value": "Riedharfe Formteile UG (haftungsbeschränkt)",
+      "quote": "Riedharfe Formteile UG (haftungsbeschränkt)"
+    },
+    "company.seat": {
+      "value": "Tüpfelried",
+      "quote": "Tüpfelried"
+    },
+    "company.purpose": {
+      "value": "der Handel mit faltbaren Sortiereinsätzen",
+      "quote": "der Handel mit faltbaren Sortiereinsätzen"
+    },
+    "shareCapitalCents": {
+      "value": 87100,
+      "quote": "871 €"
+    },
+    "contribution": {
+      "value": "full",
+      "quote": "sofort in voller Höhe"
+    },
+    "managingDirector.kind": {
+      "value": "other",
+      "quote": "Zum Geschäftsführer der Gesellschaft wird Frau Tara Musterkamm"
+    },
+    "managingDirector.salutation": {
+      "value": "Frau",
+      "quote": "Frau"
+    },
+    "managingDirector.firstName": {
+      "value": "Tara",
+      "quote": "Tara"
+    },
+    "managingDirector.lastName": {
+      "value": "Musterkamm",
+      "quote": "Musterkamm"
+    },
+    "managingDirector.birthDate": {
+      "value": "1978-04-15",
+      "quote": "15. April 1978"
+    },
+    "managingDirector.residence": {
+      "value": "Blausaum",
+      "quote": "Blausaum"
+    },
+    "notaryNotes": {
+      "value": "Die Hinweise zur Anmeldung wurden erläutert.",
+      "quote": "Die Hinweise zur Anmeldung wurden erläutert."
+    }
+  }
+}

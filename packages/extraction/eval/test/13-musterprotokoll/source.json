@@ -1,0 +1,40 @@
+{
+  "kind": "musterprotokoll",
+  "format": "pdf",
+  "input": {
+    "notarisation": {
+      "mode": "video",
+      "deedNumber": "222/2025",
+      "date": "2025-03-19",
+      "notaryName": "Dr. Kaja Musterstich",
+      "notarySeat": "Tauwinkel"
+    },
+    "founder": {
+      "kind": "natural_person",
+      "salutation": "Frau",
+      "firstName": "Runa",
+      "lastName": "Musterkran",
+      "birthDate": "1990-02-25",
+      "address": {
+        "street": "Musterbogen 56",
+        "postalCode": "00103",
+        "city": "Sternsiek"
+      }
+    },
+    "company": {
+      "name": "Schneekelle Vermessung GmbH",
+      "seat": "Blausaum",
+      "purpose": "die Kalibrierung handgeführter Messgeräte"
+    },
+    "shareCapitalCents": 2600000,
+    "contribution": "half",
+    "managingDirector": {
+      "kind": "other",
+      "salutation": "Frau",
+      "firstName": "Irma",
+      "lastName": "Musterband",
+      "birthDate": "1988-05-20",
+      "residence": "Bogenrost"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "fields": {
+    "notarisation.mode": null,
+    "notarisation.deedNumber": null,
+    "notarisation.date": null,
+    "notarisation.notaryName": null,
+    "notarisation.notarySeat": null,
+    "founder.kind": {
+      "value": "legal_entity",
+      "quote": "Als Gründerin zeichnet die Musterwacht Verwaltungsgesellschaft mbH"
+    },
+    "founder.salutation": null,
+    "founder.firstName": null,
+    "founder.lastName": null,
+    "founder.birthDate": null,
+    "founder.address.street": null,
+    "founder.address.postalCode": null,
+    "founder.address.city": null,
+    "founder.name": {
+      "value": "Musterwacht Verwaltungsgesellschaft mbH",
+      "quote": "Musterwacht Verwaltungsgesellschaft mbH"
+    },
+    "founder.registerCourt": {
+      "value": "Amtsgericht Felswiese",
+      "quote": "des Amtsgerichts Felswiese"
+    },
+    "founder.registerNumber": {
+      "value": "HRB 58107",
+      "quote": "geführt als HRB 58107"
+    },
+    "founder.seat": {
+      "value": "Felswiese",
+      "quote": "ansässig in Felswiese"
+    },
+    "founder.identificationDetails": {
+      "value": "vertretungsberechtigte Rika Musterwort",
+      "quote": "Für sie handelt die vertretungsberechtigte Rika Musterwort"
+    },
+    "company.name": {
+      "value": "Binsenrad Prüfmittel GmbH",
+      "quote": "führt die Firma Binsenrad Prüfmittel GmbH"
+    },
+    "company.seat": {
+      "value": "Doldenbrück",
+      "quote": "mit Sitz in Doldenbrück"
+    },
+    "company.purpose": {
+      "value": "der Bau von Prüflehren für Fahrradständer",
+      "quote": "der Bau von Prüflehren für Fahrradständer"
+    },
+    "shareCapitalCents": {
+      "value": 2750000,
+      "quote": "Das Stammkapital ist mit 27.500 € festgesetzt"
+    },
+    "contribution": null,
+    "managingDirector.kind": null,
+    "managingDirector.salutation": null,
+    "managingDirector.firstName": null,
+    "managingDirector.lastName": null,
+    "managingDirector.birthDate": null,
+    "managingDirector.residence": null,
+    "notaryNotes": null
+  }
+}

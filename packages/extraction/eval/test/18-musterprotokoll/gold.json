@@ -1,0 +1,94 @@
+{
+  "fields": {
+    "notarisation.mode": {
+      "value": "in_person",
+      "quote": "Vorgelesen, genehmigt und eigenhändig unterschrieben:"
+    },
+    "notarisation.deedNumber": {
+      "value": "966/2025",
+      "quote": "966/2025"
+    },
+    "notarisation.date": {
+      "value": "2025-08-15",
+      "quote": "15. August 2025"
+    },
+    "notarisation.notaryName": {
+      "value": "Dr. Elva Musterstich",
+      "quote": "Dr. Elva Musterstich"
+    },
+    "notarisation.notarySeat": {
+      "value": "Tüpfelried",
+      "quote": "Tüpfelried"
+    },
+    "founder.kind": {
+      "value": "natural_person",
+      "quote": "Yorik Musterbogen, geboren am 26. November 1995, wohnhaft in Musterbogen 87"
+    },
+    "founder.salutation": {
+      "value": "Herr",
+      "quote": "Herr Yorik Musterbogen, geboren am 26. November 1995, wohnhaft in Musterbogen 87, 00108 Blausaum."
+    },
+    "founder.firstName": {
+      "value": "Yorik",
+      "quote": "Herr Yorik Musterbogen, geboren am 26. November 1995, wohnhaft in Musterbogen 87, 00108 Blausaum."
+    },
+    "founder.lastName": {
+      "value": "Musterbogen",
+      "quote": "Herr Yorik Musterbogen, geboren am 26. November 1995, wohnhaft in Musterbogen 87, 00108 Blausaum."
+    },
+    "founder.birthDate": {
+      "value": "1995-11-26",
+      "quote": "26. November 1995, wohnhaft in Musterbogen 87,"
+    },
+    "founder.address.street": {
+      "value": "Musterbogen 87",
+      "quote": "Musterbogen 87"
+    },
+    "founder.address.postalCode": {
+      "value": "00108",
+      "quote": "00108"
+    },
+    "founder.address.city": {
+      "value": "Blausaum",
+      "quote": "in Musterbogen 87, 00108 Blausaum"
+    },
+    "founder.name": null,
+    "founder.registerCourt": null,
+    "founder.registerNumber": null,
+    "founder.seat": null,
+    "founder.identificationDetails": null,
+    "company.name": {
+      "value": "Mistelgitter Handel UG (haftungsbeschränkt)",
+      "quote": "Mistelgitter Handel UG (haftungsbeschränkt)"
+    },
+    "company.seat": {
+      "value": "Dornsilz",
+      "quote": "Dornsilz"
+    },
+    "company.purpose": {
+      "value": "die Herstellung transportabler Ablageflächen",
+      "quote": "die Herstellung transportabler Ablageflächen"
+    },
+    "shareCapitalCents": {
+      "value": 123200,
+      "quote": "1.232 €"
+    },
+    "contribution": {
+      "value": "full",
+      "quote": "sofort in voller Höhe"
+    },
+    "managingDirector.kind": {
+      "value": "founder",
+      "quote": "Zum Geschäftsführer der Gesellschaft wird Herr Yorik Musterbogen"
+    },
+    "managingDirector.salutation": null,
+    "managingDirector.firstName": null,
+    "managingDirector.lastName": null,
+    "managingDirector.birthDate": null,
+    "managingDirector.residence": null,
+    "notaryNotes": {
+      "value": "Die Hinweise zur Anmeldung wurden erläutert.",
+      "quote": "Die Hinweise zur Anmeldung wurden erläutert."
+    }
+  }
+}

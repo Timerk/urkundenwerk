@@ -1,0 +1,70 @@
+{
+  "kind": "minutes",
+  "format": "pdf",
+  "title": "Niederschrift über die Errichtung und Anlage zum Bestellungsbeschluss · UVZ 314/2025",
+  "paragraphs": [
+    "Vorbemerkung",
+    "Diese Niederschrift wurde am 20. Oktober 2025 in Mohnsiek aufgenommen. Vor Notarin Svea Musterborke, Amtssitz Mohnsiek, erschien persönlich Alrik Musterkranz, geboren am 9. April 1987, wohnhaft Moorleite 21, 00076 Dornmulde. Die Notarin stellte die Identität anhand des vorgelegten Personalausweises fest. Der Erschienene erklärte, im eigenen Namen zu handeln.",
+    "Ein mit Datum 17. Oktober 2025 versehener Entwurf des Bestellungsbeschlusses war vorab eingereicht worden. Zur Zuordnung zu den Registerakten wird die in der heutigen Sitzung beschlossene Fassung als Anlage gesondert unterschrieben.",
+    "A. Errichtungserklärung",
+    "Alrik Musterkranz richtet als alleiniger Gründer die Tautrichter UG (haftungsbeschränkt) ein. In der Satzung wird Dornmulde als Sitz bezeichnet. Die Satzung ist mit dem heutigen Datum versehen und dieser Niederschrift als Anlage 1 beigefügt. Die Firma und der Sitz wurden anhand des von der Geschäftsführung vorzubereitenden Anmeldungsentwurfs abgeglichen.",
+    "Es wird ein Geschäftsanteil zum Nennbetrag von vierhundert Euro ausgegeben. Dies ist das vollständige Stammkapital. Der Nennbetrag ist ohne Teilzahlung unverzüglich zu entrichten. Der Erschienene zeichnet diesen Anteil unter Nr. 1 im eigenen Namen und übernimmt die Verpflichtung zur Einzahlung auf das Gründungskonto.",
+    "B. Anlage 2 · Bestellungsbeschluss der Alleingesellschafterversammlung",
+    "Der Alleingesellschafter stellt fest, dass er sämtliche Geschäftsanteile hält. Auf Förmlichkeiten über die Ladung wird verzichtet. Der Alleingesellschafter bestellt sich mit Wirkung ab Errichtung zum Geschäftsführer. Er nimmt die Bestellung an und wird, solange kein weiterer Geschäftsführer hinzugewählt ist, die Gesellschaft allein vertreten. Über eine Prokura wird nicht entschieden. Eine unterschriebene Abschrift dieses Beschlusses ist in das Verzeichnis der Gesellschafterbeschlüsse aufzunehmen.",
+    "C. Registeranmeldung und Abschluss",
+    "Die Notarin erläuterte die Pflicht zur vollständigen Einzahlung vor der Anmeldung der Unternehmergesellschaft. Das Notariat soll die Unterlagen erst nach ausdrücklicher Freigabe durch den Geschäftsführer elektronisch einreichen. Der Erschienene erhält eine beglaubigte Abschrift; die Satzung und der Beschluss werden bei der Urschrift verwahrt.",
+    "Die Niederschrift und die Anlagen wurden vorgelesen und genehmigt. Der Erschienene unterzeichnete sodann eigenhändig mit der Notarin.",
+    "Alrik Musterkranz · Svea Musterborke, Notarin"
+  ],
+  "labels": {
+    "company.name": [
+      "Tautrichter UG (haftungsbeschränkt)",
+      "die Tautrichter UG (haftungsbeschränkt) ein"
+    ],
+    "company.seat": ["Dornmulde", "Dornmulde als Sitz bezeichnet"],
+    "founder.kind": [
+      "natural_person",
+      "Alrik Musterkranz richtet als alleiniger Gründer"
+    ],
+    "founder.firstName": ["Alrik", "erschien persönlich Alrik Musterkranz"],
+    "founder.lastName": [
+      "Musterkranz",
+      "erschien persönlich Alrik Musterkranz"
+    ],
+    "shareCapitalCents": [
+      40000,
+      "Nennbetrag von vierhundert Euro ausgegeben. Dies ist das vollständige Stammkapital"
+    ],
+    "contribution": ["full", "ohne Teilzahlung unverzüglich zu entrichten"],
+    "managingDirector.kind": [
+      "founder",
+      "Der Alleingesellschafter bestellt sich mit Wirkung ab Errichtung zum Geschäftsführer"
+    ],
+    "notarisation.mode": [
+      "in_person",
+      "Amtssitz Mohnsiek, erschien persönlich Alrik Musterkranz"
+    ],
+    "notarisation.deedNumber": ["314/2025", "UVZ 314/2025"],
+    "notarisation.date": [
+      "2025-10-20",
+      "am 20. Oktober 2025 in Mohnsiek aufgenommen"
+    ],
+    "notarisation.notaryName": [
+      "Svea Musterborke",
+      "Vor Notarin Svea Musterborke"
+    ],
+    "notarisation.notarySeat": ["Mohnsiek", "Amtssitz Mohnsiek"],
+    "founder.birthDate": ["1987-04-09", "geboren am 9. April 1987"],
+    "founder.address.street": ["Moorleite 21", "wohnhaft Moorleite 21"],
+    "founder.address.postalCode": ["00076", "00076 Dornmulde"],
+    "founder.address.city": ["Dornmulde", "00076 Dornmulde"],
+    "founder.identificationDetails": [
+      "anhand des vorgelegten Personalausweises",
+      "anhand des vorgelegten Personalausweises"
+    ],
+    "notaryNotes": [
+      "die Pflicht zur vollständigen Einzahlung vor der Anmeldung der Unternehmergesellschaft",
+      "die Pflicht zur vollständigen Einzahlung vor der Anmeldung der Unternehmergesellschaft"
+    ]
+  }
+}

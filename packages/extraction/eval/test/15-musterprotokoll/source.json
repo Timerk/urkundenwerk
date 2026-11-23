@@ -1,0 +1,31 @@
+{
+  "kind": "musterprotokoll",
+  "format": "pdf",
+  "input": {
+    "notarisation": {
+      "mode": "in_person"
+    },
+    "founder": {
+      "kind": "natural_person",
+      "salutation": null,
+      "firstName": "Tara",
+      "lastName": "Musterhain",
+      "birthDate": "1984-11-02",
+      "address": {
+        "street": "Musterbogen 35",
+        "postalCode": "00105",
+        "city": "Dornsilz"
+      }
+    },
+    "company": {
+      "name": "Schattenlot Lagertechnik UG (haftungsbeschränkt)",
+      "seat": "Tauwinkel",
+      "purpose": "die Konstruktion kleiner Regalsysteme"
+    },
+    "shareCapitalCents": 129800,
+    "contribution": "full",
+    "managingDirector": {
+      "kind": "founder"
+    }
+  }
+}

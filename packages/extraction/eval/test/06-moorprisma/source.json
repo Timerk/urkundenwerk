@@ -1,0 +1,40 @@
+{
+  "kind": "contract",
+  "format": "docx",
+  "title": "Gesellschaftsvertrag der Moorprisma Licht GmbH",
+  "paragraphs": [
+    "Erster Abschnitt · Gesellschaft und Betrieb",
+    "Die Firma der Gesellschaft lautet Moorprisma Licht GmbH. Ihr Gegenstand ist der Handel mit abgeschirmten Leuchten für Schaukästen. Neben dem Verkauf kann die Gesellschaft Lager für Ersatzteile unterhalten und für angebotene Leuchten technische Einbauhinweise bereitstellen.",
+    "Zum satzungsmäßigen Sitz wird Dämmerborn gewählt; die Werkstatt liegt dagegen in Lindensaum. Die Geschäftsführung kann geeignete Lagerflächen anmieten und die Anlieferung an verschiedene Standorte organisieren. Die Geschäftsanschrift wird zur Eintragung gesondert mitgeteilt.",
+    "Zweiter Abschnitt · Stammkapital und Geschäftsanteil",
+    "Das Stammkapital beträgt EUR 50.000. Der Gründer übernimmt einen einzigen Geschäftsanteil. Dieser erhält die Nummer 1, sein Nennbetrag entspricht dem Stammkapital. Die Einzahlung erfolgt vor Anmeldung in voller Höhe. Die Einlage ist in Geld zu leisten. Die Gesellschaft wird auf unbestimmte Zeit errichtet.",
+    "Dritter Abschnitt · Geschäftsführung",
+    "Ein einziger Geschäftsführer vertritt die Gesellschaft allein. Bei Bestellung mehrerer Geschäftsführer handeln zwei gemeinsam oder ein Geschäftsführer gemeinsam mit einem Prokuristen. Der Gesellschafter kann durch einen gesonderten Beschluss bestimmen, dass einzelne Geschäftsführer allein zur Vertretung berechtigt sind. Bei zustimmungsbedürftigen Geschäften ist die Vertretungsmacht im Außenverhältnis nach den allgemeinen Bestimmungen zu beurteilen.",
+    "Der Zustimmung bedürfen Verträge über eine ausschließliche Bezugsbindung von mehr als zwei Jahren, die Abgabe von Garantien für verbundene Unternehmen und die Aufgabe des Warenlagers. Wiederkehrende Geschäfte können in einem jährlichen Rahmen genehmigt werden.",
+    "Vierter Abschnitt · Beschlüsse und Rechnungslegung",
+    "Die Geschäftsführung leitet dem Gesellschafter die Unterlagen für Entscheidungen über den Jahresabschluss und sonstige Beschlussgegenstände rechtzeitig zu. Bei mehreren Gesellschaftern ist eine Versammlung mit vierzehntägiger Frist anzukündigen. Beschlüsse können im Umlaufverfahren gefasst werden, wenn sämtliche Gesellschafter der Form zustimmen. Beschlüsse werden mit der Mehrheit der abgegebenen Stimmen gefasst, soweit Satzung und Gesetz keine andere Mehrheit verlangen. Beschlüsse des Alleingesellschafters sind niederzulegen und zu unterzeichnen.",
+    "Das Geschäftsjahr ist das Kalenderjahr. Für das erste Geschäftsjahr wird ein Abschluss seit dem Tag der Eintragung bis zum 31. Dezember erstellt. Ein Ausschüttungsbeschluss soll bei der wirtschaftlichen Planung bereits gebundene Mittel für Lagerbestände berücksichtigen.",
+    "Fünfter Abschnitt · Veröffentlichungen, Kosten und Schluss",
+    "Bekanntmachungen erfolgen im Bundesanzeiger. Für Zustellungen durch die Gesellschaft gilt die dem Geschäftsführer zuletzt benannte Anschrift. Der Gesellschaft fallen die mit der Beurkundung und Eintragung verbundenen Kosten bis zu 2.500 € zur Last. Die Kosten für die Anmietung der Werkstatt sind hiervon getrennt zu behandeln.",
+    "Die Wirksamkeit der übrigen Vereinbarung bleibt von der Unwirksamkeit einzelner Bestimmungen unberührt. Wird eine Anpassung erforderlich, ist sie in der für Änderungen des Gesellschaftsvertrages vorgesehenen Form zu beschließen."
+  ],
+  "labels": {
+    "company.name": [
+      "Moorprisma Licht GmbH",
+      "Die Firma der Gesellschaft lautet Moorprisma Licht GmbH"
+    ],
+    "company.purpose": [
+      "der Handel mit abgeschirmten Leuchten für Schaukästen",
+      "der Handel mit abgeschirmten Leuchten für Schaukästen"
+    ],
+    "company.seat": [
+      "Dämmerborn",
+      "Zum satzungsmäßigen Sitz wird Dämmerborn gewählt"
+    ],
+    "shareCapitalCents": [5000000, "Das Stammkapital beträgt EUR 50.000"],
+    "contribution": [
+      "full",
+      "Die Einzahlung erfolgt vor Anmeldung in voller Höhe"
+    ]
+  }
+}
