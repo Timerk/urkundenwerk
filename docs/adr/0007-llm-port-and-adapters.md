@@ -40,6 +40,11 @@ returns data that matched the schema, or throws an `LlmError` with a kind:
   structured outputs (`output_config.format` from the Zod schema), so
   decoding is constrained to the schema. It still parses and validates the
   text with Zod, and maps refusals, truncation, and SDK errors to kinds.
+- **OpenAI adapter.** It uses the official `openai` SDK and the Responses
+  API with a strict JSON schema (`text.format`). It parses and validates
+  the response with Zod and maps errors to the same kinds. It sets
+  `store: false` to disable storage of the response for later API retrieval.
+  Provider retention is covered by [OpenAI's data controls][openai-data].
 - **Fake adapter.** `FakeLlmClient` answers from a script. It can return
   invalid output, refusals, errors, and hangs, and it records requests so
   tests can assert what would have been sent. `AI_PROVIDER=fake` uses it in
@@ -49,16 +54,19 @@ returns data that matched the schema, or throws an `LlmError` with a kind:
   SDK retries are off, so this is the only retry policy.
 
 **Configuration.** `parseAiConfig` validates `AI_PROVIDER`
-(`anthropic`, `fake`, or `disabled`), `ANTHROPIC_API_KEY`, per-task model
-ids (`AI_MODEL_EXPLAIN`, `AI_MODEL_EXTRACT`), and `AI_TIMEOUT_MS` with Zod.
-Without an explicit provider, a key turns Anthropic on and its absence turns
-AI off. Error messages name variables but never echo values. The key lives
-in `apps/web/.env.local`, which Git ignores.
+(`anthropic`, `openai`, `fake`, or `disabled`), the provider keys
+(`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`), per-task model IDs
+(`AI_MODEL_EXPLAIN`, `AI_MODEL_EXTRACT`), and the per-task timeouts with Zod.
+Both features use the selected provider. Without an explicit choice,
+Anthropic takes precedence when both keys are set, a single key selects its
+provider, and no key disables AI. Error messages name variables without
+echoing values. Local keys live in `apps/web/.env.local`, which Git ignores.
 
-**Models.** Explanations use `claude-haiku-5-5` at low effort. They are
-short, frequent, and latency-sensitive, and the rules already did the hard
-part. Extraction will default to `claude-opus-5-5`, because it reads long
-documents and must cite sources accurately. Both are configurable.
+**Models.** Explanations default to `claude-haiku-5-5` with Anthropic and
+`gpt-6-luna` with OpenAI, both at low effort. Explanations are short and
+latency-sensitive. Extraction reads longer documents and must quote its
+sources accurately. ADR-0009 records the extraction defaults. Both model
+IDs are configurable.
 
 **Data minimisation by construction.** The explanation payload is built from
 the rule registry, not from the draft: rule code, severity, legal reference,
@@ -94,3 +102,5 @@ limit are per server instance. That is enough for a single-instance demo,
 and a shared store is part of the deployment milestone. Explanations of
 issues with the same code but different params share one model answer per
 request; the second falls back to the summary.
+
+[openai-data]: https://developers.openai.com/api/docs/guides/your-data

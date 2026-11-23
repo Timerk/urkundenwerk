@@ -16,13 +16,13 @@ Model output can also be steered by text in the document itself.
 **The model proposes, our code decides.** One structured-output call returns,
 per field path from `extractionFieldPaths`, a value, a verbatim quote, and
 the id of the segment the quote starts in, plus optional short notes. The
-answer is an array rather than an object with 30 nullable fields, because
-structured outputs allow at most 16 union-typed and 24 optional properties.
+answer is an array of field entries to fit the structured-output constraints
+of both adapters.
 The adapter constrains decoding to the schema and validates it again; a
 mismatch is a typed `invalid_output` error. The prompt is static, versioned
-(`EXTRACTION_PROMPT_VERSION`), and sent as a cached prefix. The document
-follows in the user turn as a delimited block, one `[s12] text` line per
-segment.
+(`EXTRACTION_PROMPT_VERSION`), and is eligible for prefix caching. The
+document follows in the user turn as a delimited block, one `[s12] text`
+line per segment.
 
 Grounding then runs in `packages/extraction`, never in the model:
 
@@ -74,15 +74,17 @@ browser and again on the server, and the server action body limit is set
 just above that. Extraction refuses texts over 60,000 characters and has
 its own deadline, `AI_EXTRACT_TIMEOUT_MS` (two minutes by default).
 
-**Model and evaluation.** The default stays `claude-opus-5-5` at medium
-effort, as ADR-0007 planned. One call per import makes cost minor, under
-ten cents for a typical document, while missed or misquoted values cost review
-time. The decision is to be confirmed by the evaluation: the runner compares
-models on the test split with strict and lenient scores, citation accuracy,
-the share of predictions the grounding verifies, how often a verified value
-is right, latency, tokens, and cost. If a cheaper model matches Opus within
-the corpus's noise, it becomes the default. Prompts are developed on the
-dev split only, and the test split is used only for reporting.
+**Model and evaluation.** Extraction uses the configured provider at medium
+effort. The OpenAI default is `gpt-6.2-sol`. In the 2026-11-23 evaluation
+with prompt `extract-2026-11-23`, Sol led strict F1 (97.2%), grounded recall
+(92.5%), and verified precision (97.2%) at about $0.014 per document. Terra
+led citation accuracy (96.3% versus Sol's 95.1%) and cost about $0.006 per
+document. We prioritized recovering more correctly cited fields and reducing
+errors in verified values. The 16 fictional test documents are a small
+sample. Anthropic uses the planned default `claude-opus-5-5` pending a
+provider-specific evaluation. `AI_MODEL_EXTRACT` overrides either default.
+Prompts are developed on the dev split only, and the test split is used
+only for reporting. See the [evaluation results][evaluation].
 
 **Refusals.** A refusal is a typed error that the user sees. Server-side
 fallback to another model is not enabled, because a silent model switch
@@ -90,8 +92,10 @@ would make evaluation results and the reported model ambiguous.
 
 ## Consequences
 
-The provider receives the full text of each imported document. Before real
-client data could be imported, a firm would need a lawful basis for the
+The selected provider receives the full text of each imported document.
+The OpenAI adapter disables storage for later API retrieval with
+`store: false`. See [OpenAI's data controls][openai-data] for retention
+details. Before importing real client data, a firm would need a lawful basis for the
 processing (for example Art. 6(1)(b) or (f) GDPR), a processing agreement
 under Art. 28 GDPR, an assessment of international transfers and of the
 provider's retention, and compliance with professional secrecy when
@@ -107,3 +111,6 @@ decision. Classification fields without a reliable cue, such as who the
 managing director is, are verified on anchoring alone. The corpus is
 synthetic and small, so scores show regressions and relative model
 quality, not performance on real notarial files.
+
+[evaluation]: ../../README.md#evaluation
+[openai-data]: https://developers.openai.com/api/docs/guides/your-data

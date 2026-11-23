@@ -153,9 +153,14 @@ pnpm --filter @urkundenwerk/extraction eval -- --predictor regex-baseline --spli
 pnpm --filter @urkundenwerk/extraction eval -- --predictor llm \
   --model claude-opus-5-5 --model claude-sonnet-5-5 --model claude-haiku-5-5
 pnpm --filter @urkundenwerk/extraction eval -- --predictor llm --model claude-opus-5-5 --dry-run
+# With OPENAI_API_KEY exported or in apps/web/.env.local:
+pnpm --filter @urkundenwerk/extraction eval -- --predictor llm \
+  --provider openai --model gpt-6.2-sol --model gpt-6.1-terra --model gpt-6-luna
 ```
 
-Repeat `--predictor` and `--model` to compare runs in one table. `--effort`
+Repeat `--predictor` and `--model` to compare runs in one table.
+`--provider` selects the adapter for all LLM runs in an invocation and
+defaults to `anthropic`. `--effort`
 (`low`, `medium`, `high`; default `medium`), `--concurrency` (default 4),
 and `--timeout-ms` tune LLM runs. The first document runs alone so the
 others can read its cached system prompt. A failed document counts as

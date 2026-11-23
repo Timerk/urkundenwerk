@@ -5,6 +5,7 @@ import {
   AnthropicLlmClient,
   FakeLlmClient,
   type LlmClient,
+  OpenAiLlmClient,
   withResilience,
 } from "@urkundenwerk/ai";
 import { z } from "zod";
@@ -34,6 +35,7 @@ import { corpusRoot } from "../src/eval/corpus";
 // Usage (see the package README):
 //   eval -- --predictor regex-baseline --split test
 //   eval -- --predictor llm --model claude-opus-5-5 --model claude-haiku-5-5
+//   eval -- --predictor llm --provider openai --model gpt-6.2-sol
 //   eval -- --predictor llm --model claude-opus-5-5 --dry-run
 // Develop prompts on the dev split only. The test split is for reporting.
 
@@ -43,6 +45,7 @@ const { values } = parseArgs({
   options: {
     predictor: { type: "string", multiple: true, default: ["regex-baseline"] },
     model: { type: "string", multiple: true, default: [] },
+    provider: { type: "string", default: "anthropic" },
     split: { type: "string", default: "test" },
     effort: { type: "string", default: "medium" },
     concurrency: { type: "string", default: "4" },
@@ -55,6 +58,7 @@ const predictorNames = z
   .array(z.enum(["oracle", "regex-baseline", "fake", "llm"]))
   .parse(values.predictor);
 const split = splitSchema.parse(values.split);
+const provider = z.enum(["anthropic", "openai"]).parse(values.provider);
 const effort = z.enum(["low", "medium", "high"]).parse(values.effort);
 const concurrency = z.coerce
   .number()
@@ -113,20 +117,26 @@ if (values["dry-run"]) {
   process.exit(0);
 }
 
-function anthropicClient(): LlmClient {
+function providerClient(): LlmClient {
   // The key comes from the environment or from apps/web/.env.local, which Git
   // ignores. It is never printed.
+  const variable =
+    provider === "openai" ? "OPENAI_API_KEY" : "ANTHROPIC_API_KEY";
   const envFile = new URL("../../../apps/web/.env.local", import.meta.url);
-  if (!process.env.ANTHROPIC_API_KEY && existsSync(envFile)) {
+  if (!process.env[variable] && existsSync(envFile)) {
     process.loadEnvFile(envFile);
   }
-  const key = process.env.ANTHROPIC_API_KEY?.trim();
+  const key = process.env[variable]?.trim();
   if (!key) {
     throw new Error(
-      "Set ANTHROPIC_API_KEY or add it to apps/web/.env.local to run --predictor llm.",
+      `Set ${variable} or add it to apps/web/.env.local to run --predictor llm --provider ${provider}.`,
     );
   }
-  return withResilience(AnthropicLlmClient.fromApiKey(key), { timeoutMs });
+  const client =
+    provider === "openai"
+      ? OpenAiLlmClient.fromApiKey(key)
+      : AnthropicLlmClient.fromApiKey(key);
+  return withResilience(client, { timeoutMs });
 }
 
 /** Runs `task` over `items`, the first one alone so later ones read its cache. */
@@ -207,7 +217,7 @@ for (const predictorName of predictorNames) {
     const fake = predictorName === "fake";
     const client = fake
       ? new FakeLlmClient(fakeExtractionResponder)
-      : anthropicClient();
+      : providerClient();
     for (const model of fake ? ["fake-model"] : models) {
       const reviews: DocumentRun[] = [];
       runs.push(

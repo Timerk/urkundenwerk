@@ -84,7 +84,7 @@ export function ImportFlow({
 }: {
   tenantId: string;
   firmName: string;
-  provider: "anthropic" | "fake";
+  provider: "anthropic" | "openai" | "fake";
   model: string;
 }) {
   const [phase, setPhase] = useState<Phase>({ kind: "choose" });
@@ -269,7 +269,8 @@ export function ImportFlow({
             </li>
           ) : (
             <li>
-              The document&apos;s text is sent to Anthropic&apos;s API, model{" "}
+              The document&apos;s text is sent to{" "}
+              {provider === "openai" ? "OpenAI" : "Anthropic"}&apos;s API, model{" "}
               <code className="text-xs">{model}</code>, to extract the values.
               Use fictional documents in this demo.
             </li>

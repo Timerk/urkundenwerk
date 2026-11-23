@@ -1,19 +1,24 @@
 import { z } from "zod";
 import { AnthropicLlmClient } from "./anthropic";
 import { FakeLlmClient, type FakeResponder } from "./fake";
+import { OpenAiLlmClient } from "./openai";
 import type { LlmClient } from "./port";
 import { withResilience } from "./resilience";
 
 /**
- * Default models per task. Explanations are short, high-volume, and
- * latency-sensitive, so they use the current Haiku. Extraction reads whole
- * documents and must quote its sources verbatim, so it uses the current Opus
- * (ADR-0009). Both can be overridden per environment.
+ * Default models per provider and task. Explanations are short, frequent,
+ * and latency-sensitive, so they use a small model. Extraction reads whole
+ * documents and must quote its sources verbatim, so it uses a stronger one;
+ * ADR-0009 records the OpenAI choice from the evaluation. Each model ID
+ * can be overridden per environment.
  */
-export const DEFAULT_MODELS = {
-  explain: "claude-haiku-5-5",
-  extract: "claude-opus-5-5",
+export const PROVIDER_MODELS = {
+  anthropic: { explain: "claude-haiku-5-5", extract: "claude-opus-5-5" },
+  openai: { explain: "gpt-6-luna", extract: "gpt-6.2-sol" },
 } as const;
+
+/** The defaults of the Anthropic provider, also used by the fake. */
+export const DEFAULT_MODELS = PROVIDER_MODELS.anthropic;
 
 export type AiTask = keyof typeof DEFAULT_MODELS;
 
@@ -24,25 +29,25 @@ const optionalText = z.preprocess(
     typeof value === "string" && value.trim() === "" ? undefined : value,
   z.string().trim().optional(),
 );
-const modelId = (fallback: string) =>
-  z.preprocess(
-    (value) =>
-      typeof value === "string" && value.trim() === "" ? undefined : value,
-    z
-      .string()
-      .regex(/^[a-z0-9][a-z0-9.-]*$/, { error: "must be a model id" })
-      .default(fallback),
-  );
+const modelId = z.preprocess(
+  (value) =>
+    typeof value === "string" && value.trim() === "" ? undefined : value,
+  z
+    .string()
+    .regex(/^[a-z0-9][a-z0-9.-]*$/, { error: "must be a model id" })
+    .optional(),
+);
 
 const aiEnvSchema = z
   .object({
     ANTHROPIC_API_KEY: optionalText,
+    OPENAI_API_KEY: optionalText,
     AI_PROVIDER: z.preprocess(
       emptyAsUnset,
-      z.enum(["anthropic", "fake", "disabled"]).optional(),
+      z.enum(["anthropic", "openai", "fake", "disabled"]).optional(),
     ),
-    AI_MODEL_EXPLAIN: modelId(DEFAULT_MODELS.explain),
-    AI_MODEL_EXTRACT: modelId(DEFAULT_MODELS.extract),
+    AI_MODEL_EXPLAIN: modelId,
+    AI_MODEL_EXTRACT: modelId,
     AI_TIMEOUT_MS: z.preprocess(
       emptyAsUnset,
       z.coerce.number().int().min(1_000).max(120_000).default(20_000),
@@ -54,18 +59,42 @@ const aiEnvSchema = z
       z.coerce.number().int().min(10_000).max(300_000).default(120_000),
     ),
   })
-  .transform((env) => ({
-    // Without an explicit choice, a key turns the real provider on.
-    provider:
-      env.AI_PROVIDER ?? (env.ANTHROPIC_API_KEY ? "anthropic" : "disabled"),
-    apiKey: env.ANTHROPIC_API_KEY,
-    models: { explain: env.AI_MODEL_EXPLAIN, extract: env.AI_MODEL_EXTRACT },
-    timeoutMs: env.AI_TIMEOUT_MS,
-    extractTimeoutMs: env.AI_EXTRACT_TIMEOUT_MS,
-  }))
-  .refine((config) => config.provider !== "anthropic" || config.apiKey, {
-    error: "is required when AI_PROVIDER is anthropic",
-    path: ["ANTHROPIC_API_KEY"],
+  .transform((env) => {
+    // Without an explicit choice, a key turns its provider on; Anthropic
+    // wins if both keys are set.
+    const provider =
+      env.AI_PROVIDER ??
+      (env.ANTHROPIC_API_KEY
+        ? "anthropic"
+        : env.OPENAI_API_KEY
+          ? "openai"
+          : "disabled");
+    const defaults =
+      provider === "openai" ? PROVIDER_MODELS.openai : DEFAULT_MODELS;
+    return {
+      provider,
+      apiKey:
+        provider === "openai" ? env.OPENAI_API_KEY : env.ANTHROPIC_API_KEY,
+      models: {
+        explain: env.AI_MODEL_EXPLAIN ?? defaults.explain,
+        extract: env.AI_MODEL_EXTRACT ?? defaults.extract,
+      },
+      timeoutMs: env.AI_TIMEOUT_MS,
+      extractTimeoutMs: env.AI_EXTRACT_TIMEOUT_MS,
+    };
+  })
+  .superRefine((config, context) => {
+    const key = { anthropic: "ANTHROPIC_API_KEY", openai: "OPENAI_API_KEY" };
+    if (
+      (config.provider === "anthropic" || config.provider === "openai") &&
+      !config.apiKey
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: `is required when AI_PROVIDER is ${config.provider}`,
+        path: [key[config.provider]],
+      });
+    }
   });
 
 export type AiConfig = z.output<typeof aiEnvSchema>;
@@ -108,6 +137,10 @@ export function createLlmClient(
       return withResilience(new FakeLlmClient(fakeResponder), { timeoutMs });
     case "anthropic":
       return withResilience(AnthropicLlmClient.fromApiKey(config.apiKey!), {
+        timeoutMs,
+      });
+    case "openai":
+      return withResilience(OpenAiLlmClient.fromApiKey(config.apiKey!), {
         timeoutMs,
       });
   }
