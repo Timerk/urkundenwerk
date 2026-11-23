@@ -69,14 +69,15 @@ and Supabase (Postgres, Auth, and RLS). Vitest, pgTAP, and Playwright run in
 GitHub Actions, and Docker Compose runs the standalone web build locally.
 Vercel is planned.
 
-| Path                                 | Purpose                                                                     |
-| ------------------------------------ | --------------------------------------------------------------------------- |
-| [`apps/web`](apps/web)               | Next.js app, Playwright tests, and Dockerfile                               |
-| [`packages/core`](packages/core)     | Framework-free TypeScript domain package and Zod schemas                    |
-| [`packages/render`](packages/render) | Node DOCX and PDF export for the [template engine](packages/core/README.md) |
-| [`packages/ai`](packages/ai)         | Server-only LLM port, Anthropic and fake adapters, and explanations         |
-| [`supabase`](supabase)               | Migrations, seed data, pgTAP tests, and local config                        |
-| [`docs/adr`](docs/adr)               | Architecture decisions                                                      |
+| Path                                         | Purpose                                                                                                       |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| [`apps/web`](apps/web)                       | Next.js app, Playwright tests, and Dockerfile                                                                 |
+| [`packages/core`](packages/core)             | Framework-free TypeScript domain package and Zod schemas                                                      |
+| [`packages/render`](packages/render)         | Node DOCX and PDF export for the [template engine](packages/core/README.md)                                   |
+| [`packages/ai`](packages/ai)                 | Server-only LLM port, Anthropic and fake adapters, and explanations                                           |
+| [`packages/extraction`](packages/extraction) | Node document ingestion, source citations, and a [fictional evaluation corpus](packages/extraction/README.md) |
+| [`supabase`](supabase)                       | Migrations, seed data, pgTAP tests, and local config                                                          |
+| [`docs/adr`](docs/adr)                       | Architecture decisions                                                                                        |
 
 The shared TypeScript config enables `strict` and `noUncheckedIndexedAccess`.
 It leaves `exactOptionalPropertyTypes` off so app and schema types can use the
