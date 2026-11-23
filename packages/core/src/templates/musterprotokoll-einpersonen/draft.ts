@@ -94,8 +94,8 @@ function compact<T extends Record<string, unknown>>(value: T): Partial<T> {
 
 /**
  * Selects the fields of the chosen founder and director alternatives and drops
- * blank text. The result is a candidate for `musterprotokollSchema`, which
- * reports whatever is still missing or invalid.
+ * blank text. The result is a candidate for `validateMusterprotokoll`, which
+ * reports whatever is still missing, invalid, or inconsistent.
  */
 export function draftToInput(draft: MusterprotokollDraft) {
   const founder = draft.founder ?? {};
@@ -155,7 +155,64 @@ export function draftToInput(draft: MusterprotokollDraft) {
   });
 }
 
-/** Validates a draft against the full schema. */
-export function parseDraftAsInput(draft: MusterprotokollDraft) {
-  return musterprotokollSchema.safeParse(draftToInput(draft));
+/**
+ * The values the template and the rules read. Validated input satisfies it; a
+ * draft may leave any value out.
+ */
+export type MusterprotokollCandidate = {
+  notarisation?: {
+    mode?: "in_person" | "video";
+    deedNumber?: string;
+    date?: string;
+    notaryName?: string;
+    notarySeat?: string;
+  };
+  founder?: {
+    kind?: "natural_person" | "legal_entity";
+    salutation?: "Herr" | "Frau" | null;
+    firstName?: string;
+    lastName?: string;
+    birthDate?: string;
+    address?: { street?: string; postalCode?: string; city?: string };
+    name?: string;
+    registerCourt?: string;
+    registerNumber?: string;
+    seat?: string;
+    identificationDetails?: string;
+  };
+  company?: { name?: string; seat?: string; purpose?: string };
+  shareCapitalCents?: number;
+  contribution?: "full" | "half";
+  managingDirector?: {
+    kind?: "founder" | "other";
+    salutation?: "Herr" | "Frau" | null;
+    firstName?: string;
+    lastName?: string;
+    birthDate?: string;
+    residence?: string;
+  };
+  notaryNotes?: string;
+};
+
+/** Applies the schema's text normalisation without validating. */
+function tidy<T>(value: T): T {
+  if (typeof value === "string") {
+    return value.trim().replace(/\r\n?/g, "\n") as T;
+  }
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [key, tidy(entry)]),
+    ) as T;
+  }
+  return value;
+}
+
+/**
+ * Selects the chosen alternatives and normalises text as the schema would,
+ * without validating. The preview and the rules read this form of a draft.
+ */
+export function normaliseDraft(
+  draft: MusterprotokollDraft,
+): MusterprotokollCandidate {
+  return tidy(draftToInput(draft));
 }

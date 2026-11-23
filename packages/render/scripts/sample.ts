@@ -1,14 +1,20 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { buildMusterprotokoll } from "@urkundenwerk/core";
-import { exampleCase } from "../../core/src/templates/musterprotokoll-einpersonen/fixtures";
+import {
+  exampleCase,
+  exampleContext,
+} from "../../core/src/templates/musterprotokoll-einpersonen/fixtures";
 import { renderDocx, renderPdf } from "../src";
 
 const out = new URL("../out/", import.meta.url);
-const model = buildMusterprotokoll({
-  ...exampleCase,
-  notarisation: { mode: "in_person" },
-  notaryNotes: undefined,
-});
+const model = buildMusterprotokoll(
+  {
+    ...exampleCase,
+    notarisation: { mode: "in_person" },
+    notaryNotes: undefined,
+  },
+  exampleContext,
+);
 
 await mkdir(out, { recursive: true });
 const [docx, pdf] = await Promise.all([renderDocx(model), renderPdf(model)]);

@@ -4,14 +4,20 @@ import { XMLParser } from "fast-xml-parser";
 import JSZip from "jszip";
 import { extractText, getDocumentProxy } from "unpdf";
 import { afterEach, expect, it, vi } from "vitest";
-import { exampleCase } from "../../core/src/templates/musterprotokoll-einpersonen/fixtures";
+import {
+  exampleCase,
+  exampleContext,
+} from "../../core/src/templates/musterprotokoll-einpersonen/fixtures";
 import { renderDocx, renderPdf } from "./index";
 
-const model = buildMusterprotokoll({
-  ...exampleCase,
-  notarisation: { mode: "in_person" },
-  notaryNotes: undefined,
-});
+const model = buildMusterprotokoll(
+  {
+    ...exampleCase,
+    notarisation: { mode: "in_person" },
+    notaryNotes: undefined,
+  },
+  exampleContext,
+);
 const goldenUrl = new URL(
   "../../core/src/templates/musterprotokoll-einpersonen/goldens/notary-blanks.txt",
   import.meta.url,
@@ -131,10 +137,13 @@ it("continues a long clause across pages and keeps the closing and signatures to
   ).join("\n");
   const pdf = await getDocumentProxy(
     await renderPdf(
-      buildMusterprotokoll({
-        ...exampleCase,
-        notaryNotes,
-      }),
+      buildMusterprotokoll(
+        {
+          ...exampleCase,
+          notaryNotes,
+        },
+        exampleContext,
+      ),
     ),
   );
   try {

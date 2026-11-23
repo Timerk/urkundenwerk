@@ -21,7 +21,9 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
     command: "node .next/standalone/apps/web/server.js",
-    env: { HOSTNAME: hostname, PORT: String(port) },
+    // The scripted AI provider answers explanations without the network, so
+    // no test can spend money, even with a key in .env.local.
+    env: { HOSTNAME: hostname, PORT: String(port), AI_PROVIDER: "fake" },
     url: baseURL,
     reuseExistingServer: false,
   },

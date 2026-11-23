@@ -46,3 +46,6 @@ export const exampleEntity = {
   seat: "Musterstadt",
   identificationDetails: "vertreten durch Erika Mustermann",
 } as const satisfies MusterprotokollInput["founder"];
+
+/** The reference date of the tests: the day of the example notarisation. */
+export const exampleContext = { referenceDate: "2026-11-23" } as const;

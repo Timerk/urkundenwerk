@@ -1,12 +1,23 @@
 "use server";
 
+import {
+  type ExplanationResult,
+  explainableIssueSchema,
+} from "@urkundenwerk/ai";
 import { musterprotokollMetadata } from "@urkundenwerk/core";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import {
+  EXPLANATIONS_PER_MINUTE,
+  explain,
+  isExplanationEnabled,
+  takeExplanationQuota,
+} from "../../../../lib/ai/explanations";
 import { withDefaults } from "../../../../lib/builder/form-model";
 import {
   deleteDocument as deleteDocumentRow,
+  getDocument,
   insertDocument,
   updateDocument,
 } from "../../../../lib/documents/repository";
@@ -119,4 +130,42 @@ export async function deleteDocument(
 
   revalidatePath("/app");
   redirect("/app");
+}
+
+const explainRequestSchema = z.array(explainableIssueSchema).min(1).max(20);
+
+/**
+ * Explains rule issues of a document in plain English with an LLM. Members
+ * of the document's firm may call it, viewers included; row-level security
+ * decides whether the document exists for the caller. Only rule codes and
+ * numeric params are accepted, so no draft text can reach the model.
+ */
+export async function explainDocumentIssues(
+  id: unknown,
+  issues: unknown,
+): Promise<ActionResult<{ result: ExplanationResult }>> {
+  const documentId = documentIdSchema.safeParse(id);
+  if (!documentId.success) {
+    return { ok: false, error: "This document was not found." };
+  }
+  const request = explainRequestSchema.safeParse(issues);
+  if (!request.success) {
+    return { ok: false, error: "These issues cannot be explained." };
+  }
+
+  const { user, supabase } = await signedInClient();
+  const document = await getDocument(supabase, documentId.data);
+  if (!document) return { ok: false, error: "This document was not found." };
+  if (!isExplanationEnabled()) {
+    return { ok: false, error: "AI explanations are turned off." };
+  }
+  if (!takeExplanationQuota(user.id)) {
+    return {
+      ok: false,
+      error: `You can ask for ${EXPLANATIONS_PER_MINUTE} explanations a minute. Try again shortly.`,
+    };
+  }
+
+  const result = await explain(document.template_id, request.data);
+  return { ok: true, result };
 }

@@ -30,66 +30,15 @@ it("accepts a legal entity with a separate director and missing notarial details
   expect(musterprotokollSchema.parse(input)).toEqual(input);
 });
 
-it.each([
-  [
-    { company: { ...exampleCase.company, name: "Musterlicht UG" } },
-    ["company", "name"],
-    "company_legal_form_suffix",
-  ],
-  [
-    { company: { ...exampleCase.company, name: "MusterlichtXGmbH" } },
-    ["company", "name"],
-    "company_legal_form_suffix",
-  ],
-  [
-    { shareCapitalCents: 2_500_001 },
-    ["shareCapitalCents"],
-    "share_capital_whole_euros",
-  ],
-  [
-    { shareCapitalCents: 2_499_900 },
-    ["shareCapitalCents"],
-    "gmbh_capital_minimum",
-  ],
-  [
-    {
-      company: {
-        ...exampleCase.company,
-        name: "Musterlicht UG (haftungsbeschränkt)",
-      },
-    },
-    ["shareCapitalCents"],
-    "ug_capital_below_gmbh_minimum",
-  ],
-  [
-    {
-      company: {
-        ...exampleCase.company,
-        name: "Musterlicht UG (haftungsbeschränkt)",
-      },
-      shareCapitalCents: 100,
-      contribution: "half",
-    },
-    ["contribution"],
-    "ug_contribution_full",
-  ],
-  [
-    { founder: exampleEntity },
-    ["managingDirector", "kind"],
-    "director_founder_natural_person",
-  ],
-] satisfies [Partial<MusterprotokollInput>, string[], string][])(
-  "reports a stable violation for %j",
-  (overrides, path, rule) => {
-    const result = musterprotokollSchema.safeParse({
-      ...exampleCase,
-      ...overrides,
-    });
-    expect(result.error?.issues).toContainEqual(
-      expect.objectContaining({ code: "custom", path, params: { rule } }),
-    );
-  },
-);
+it("leaves cross-field and legal rules to the rule engine", () => {
+  // A UG with GmbH capital is structurally valid; the rules report it.
+  const input = {
+    ...exampleCase,
+    company: { ...exampleCase.company, name: "Musterlicht UG" },
+    shareCapitalCents: 2_500_050,
+  };
+  expect(musterprotokollSchema.safeParse(input).success).toBe(true);
+});
 
 it.each([
   [{ shareCapitalCents: -100 }, ["shareCapitalCents"], "too_small"],

@@ -4,6 +4,7 @@ import type { AppSupabaseClient, DocumentRow } from "./repository";
 
 const DOCUMENT_ID = "00000000-0000-4000-8000-0000000d0a01";
 const USER_ID = "00000000-0000-4000-8000-00000000a002";
+const REFERENCE_DATE = "2026-11-23";
 
 const completeDraft = {
   notarisation: { mode: "in_person" },
@@ -61,6 +62,7 @@ describe("exportDocument", () => {
     const response = await exportDocument(client, USER_ID, {
       id: DOCUMENT_ID,
       format: "pdf",
+      referenceDate: REFERENCE_DATE,
     });
 
     expect(from).toHaveBeenCalledWith("documents");
@@ -86,6 +88,7 @@ describe("exportDocument", () => {
     const response = await exportDocument(client, USER_ID, {
       id: DOCUMENT_ID,
       format: "docx",
+      referenceDate: REFERENCE_DATE,
     });
 
     expect(response.status).toBe(200);
@@ -102,6 +105,7 @@ describe("exportDocument", () => {
     const response = await exportDocument(client, null, {
       id: DOCUMENT_ID,
       format: "pdf",
+      referenceDate: REFERENCE_DATE,
     });
 
     expect(response.status).toBe(401);
@@ -114,6 +118,7 @@ describe("exportDocument", () => {
     const response = await exportDocument(client, USER_ID, {
       id: DOCUMENT_ID,
       format,
+      referenceDate: REFERENCE_DATE,
     });
 
     expect(response.status).toBe(400);
@@ -129,6 +134,7 @@ describe("exportDocument", () => {
     const malformed = await exportDocument(client, USER_ID, {
       id: "../tenants",
       format: "pdf",
+      referenceDate: REFERENCE_DATE,
     });
     expect(malformed.status).toBe(404);
     expect(from).not.toHaveBeenCalled();
@@ -136,6 +142,7 @@ describe("exportDocument", () => {
     const hidden = await exportDocument(client, USER_ID, {
       id: DOCUMENT_ID,
       format: "pdf",
+      referenceDate: REFERENCE_DATE,
     });
     expect(hidden.status).toBe(404);
     expect(hidden.headers.get("cache-control")).toBe("no-store");
@@ -149,13 +156,14 @@ describe("exportDocument", () => {
     const response = await exportDocument(client, USER_ID, {
       id: DOCUMENT_ID,
       format: "pdf",
+      referenceDate: REFERENCE_DATE,
     });
 
     expect(response.status).toBe(422);
     const body = await response.json();
     expect(body.error).toBe("incomplete");
     expect(body.issues).toContainEqual(
-      expect.objectContaining({ path: "company.seat", code: "invalid_type" }),
+      expect.objectContaining({ path: "company.seat", code: "field_required" }),
     );
   });
 
@@ -167,17 +175,55 @@ describe("exportDocument", () => {
     const response = await exportDocument(client, USER_ID, {
       id: DOCUMENT_ID,
       format: "pdf",
+      referenceDate: REFERENCE_DATE,
     });
 
     expect(response.status).toBe(422);
     expect((await response.json()).issues).toEqual([
       {
         path: "shareCapitalCents",
-        code: "custom",
-        rule: "gmbh_capital_minimum",
-        message: "GmbH share capital must be at least 25,000 euros",
+        code: "gmbh_capital_minimum",
+        message: "A GmbH needs a Stammkapital of at least 25.000 €.",
       },
     ]);
+  });
+
+  it("compares dates with the reference date of the request", async () => {
+    const { client } = fakeClient(documentRow());
+
+    const response = await exportDocument(client, USER_ID, {
+      id: DOCUMENT_ID,
+      format: "pdf",
+      // The founder, born in 1990, is not born yet on this day.
+      referenceDate: "1989-01-01",
+    });
+
+    expect(response.status).toBe(422);
+    expect((await response.json()).issues).toContainEqual(
+      expect.objectContaining({ code: "birth_date_not_in_future" }),
+    );
+  });
+
+  it("exports despite warnings and notes", async () => {
+    const { client } = fakeClient(
+      documentRow({
+        data: {
+          ...completeDraft,
+          company: {
+            ...completeDraft.company,
+            purpose: "Handel mit Waren aller Art",
+          },
+        },
+      }),
+    );
+
+    const response = await exportDocument(client, USER_ID, {
+      id: DOCUMENT_ID,
+      format: "docx",
+      referenceDate: REFERENCE_DATE,
+    });
+
+    expect(response.status).toBe(200);
   });
 
   it("rejects stored data that is not a valid draft", async () => {
@@ -186,6 +232,7 @@ describe("exportDocument", () => {
     const response = await exportDocument(client, USER_ID, {
       id: DOCUMENT_ID,
       format: "pdf",
+      referenceDate: REFERENCE_DATE,
     });
 
     expect(response.status).toBe(422);
@@ -200,6 +247,7 @@ describe("exportDocument", () => {
     const response = await exportDocument(client, USER_ID, {
       id: DOCUMENT_ID,
       format: "pdf",
+      referenceDate: REFERENCE_DATE,
     });
 
     expect(response.status).toBe(409);

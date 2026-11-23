@@ -5,7 +5,6 @@ import {
   getAt,
   legalFormOf,
   parseEuros,
-  ruleIssues,
   setAt,
   withDefaults,
 } from "./form-model";
@@ -89,24 +88,33 @@ describe("parseEuros", () => {
   });
 });
 
-describe("ruleIssues", () => {
+const TODAY = "2026-11-23";
+
+/** The issues of a draft, keyed by path, without the ones of a new draft. */
+function ruleFindings(draft: Parameters<typeof analyseDraft>[0]) {
+  return [...analyseDraft(draft, TODAY).issues.values()]
+    .filter((issue) => !issue.code.startsWith("field_"))
+    .map(({ path, code, message }) => ({ path, code, message }));
+}
+
+describe("rule issues in the form", () => {
   it("reports cross-field rules as soon as their inputs are given", () => {
     expect(
-      ruleIssues({
+      ruleFindings({
         company: { name: "Musterlicht UG (haftungsbeschränkt)" },
         shareCapitalCents: 3_000_000,
         contribution: "half",
-      }).map(({ path, rule, message }) => ({ path, rule, message })),
+      }),
     ).toEqual([
       {
         path: "shareCapitalCents",
-        rule: "ug_capital_below_gmbh_minimum",
+        code: "ug_capital_below_gmbh_minimum",
         message:
           "A UG (haftungsbeschränkt) has less than 25.000 € Stammkapital. From 25.000 € on, found a GmbH instead.",
       },
       {
         path: "contribution",
-        rule: "ug_contribution_full",
+        code: "ug_contribution_full",
         message:
           "A UG (haftungsbeschränkt) must be paid in full before registration (§ 5a Abs. 2 GmbHG).",
       },
@@ -114,28 +122,55 @@ describe("ruleIssues", () => {
   });
 
   it("waits until every value a rule compares is present", () => {
-    expect(ruleIssues({ shareCapitalCents: 100_000 })).toEqual([]);
-    expect(ruleIssues({ company: { name: "Musterlicht GmbH" } })).toEqual([]);
+    expect(ruleFindings({ shareCapitalCents: 100_000 })).toEqual([]);
+    expect(ruleFindings({ company: { name: "Musterlicht GmbH" } })).toEqual([]);
   });
 
   it("flags a legal entity appointed as Geschäftsführer", () => {
     expect(
-      ruleIssues({
+      ruleFindings({
         founder: { kind: "legal_entity" },
         managingDirector: { kind: "founder" },
       }),
     ).toEqual([
       expect.objectContaining({
         path: "managingDirector.kind",
-        rule: "director_founder_natural_person",
+        code: "director_founder_natural_person",
       }),
     ]);
   });
 
   it("flags a Firma without a legal form suffix", () => {
-    expect(ruleIssues({ company: { name: "Musterlicht" } })).toEqual([
-      expect.objectContaining({ rule: "company_legal_form_suffix" }),
+    expect(ruleFindings({ company: { name: "Musterlicht" } })).toEqual([
+      expect.objectContaining({ code: "company_legal_form_suffix" }),
     ]);
+  });
+
+  it("shows warnings and notes without blocking the export", () => {
+    const analysis = analyseDraft(
+      { company: { purpose: "Handel mit Waren aller Art" } },
+      TODAY,
+    );
+    expect(analysis.issues.get("company.purpose")).toMatchObject({
+      code: "company_purpose_specific",
+      severity: "warning",
+    });
+    expect(analysis.checks.map((issue) => issue.code)).toEqual([
+      "company_purpose_specific",
+    ]);
+  });
+
+  it("prefers a rule error over a missing value on the same path", () => {
+    const analysis = analyseDraft(
+      {
+        founder: { kind: "legal_entity" },
+        managingDirector: { kind: "founder" },
+      },
+      TODAY,
+    );
+    expect(analysis.issues.get("managingDirector.kind")?.code).toBe(
+      "director_founder_natural_person",
+    );
   });
 });
 
@@ -154,7 +189,7 @@ describe("legalFormOf", () => {
 
 describe("analyseDraft", () => {
   it("lists every missing required value of a new draft", () => {
-    const analysis = analyseDraft(withDefaults({}));
+    const analysis = analyseDraft(withDefaults({}), TODAY);
 
     expect(analysis.complete).toBe(false);
     expect([...analysis.issues.keys()]).toEqual([
@@ -180,34 +215,36 @@ describe("analyseDraft", () => {
   });
 
   it("is complete for a valid case", () => {
-    const analysis = analyseDraft({
-      notarisation: { mode: "in_person" },
-      founder: {
-        kind: "natural_person",
-        salutation: null,
-        firstName: "Alex",
-        lastName: "Beispiel",
-        birthDate: "1990-01-01",
-        address: {
-          street: "Musterweg 1",
-          postalCode: "12345",
-          city: "Musterstadt",
+    const analysis = analyseDraft(
+      {
+        notarisation: { mode: "in_person" },
+        founder: {
+          kind: "natural_person",
+          salutation: null,
+          firstName: "Alex",
+          lastName: "Beispiel",
+          birthDate: "1990-01-01",
+          address: {
+            street: "Musterweg 1",
+            postalCode: "12345",
+            city: "Musterstadt",
+          },
         },
+        company: {
+          name: "Musterlicht UG (haftungsbeschränkt)",
+          seat: "Musterstadt",
+          purpose: "Beratung",
+        },
+        shareCapitalCents: 100,
+        contribution: "full",
+        managingDirector: { kind: "founder" },
       },
-      company: {
-        name: "Musterlicht UG (haftungsbeschränkt)",
-        seat: "Musterstadt",
-        purpose: "Beratung",
-      },
-      shareCapitalCents: 100,
-      contribution: "full",
-      managingDirector: { kind: "founder" },
-    });
+      TODAY,
+    );
 
-    expect(analysis).toEqual({
-      complete: true,
-      issues: new Map(),
-      outstanding: 0,
-    });
+    // A UG with 1 € only gets the note about formation costs.
+    expect(analysis).toMatchObject({ complete: true, outstanding: 0 });
+    expect([...analysis.issues.keys()]).toEqual(["shareCapitalCents"]);
+    expect(analysis.checks.map((issue) => issue.severity)).toEqual(["info"]);
   });
 });

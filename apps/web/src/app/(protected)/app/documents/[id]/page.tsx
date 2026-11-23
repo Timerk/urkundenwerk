@@ -4,6 +4,8 @@ import {
 } from "@urkundenwerk/core";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { isExplanationEnabled } from "../../../../../lib/ai/explanations";
+import { todayInGermany } from "../../../../../lib/dates";
 import { getDocument } from "../../../../../lib/documents/repository";
 import { documentIdSchema } from "../../../../../lib/documents/schemas";
 import { createClient } from "../../../../../lib/supabase/server";
@@ -41,6 +43,8 @@ export default async function DocumentPage({
       canEdit={canEditDocuments(membership.role)}
       firmName={membership.name}
       templateLabel="Musterprotokoll, single founder"
+      referenceDate={todayInGermany()}
+      aiEnabled={isExplanationEnabled()}
     />
   );
 }

@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FormError } from "../../../components/form-error";
 import { analyseDraft } from "../../../lib/builder/form-model";
+import { todayInGermany } from "../../../lib/dates";
 import {
   type DocumentSummary,
   listDocuments,
@@ -33,13 +34,16 @@ const dateFormat = new Intl.DateTimeFormat("en-GB", {
 });
 
 /** How far a draft is from export, counted as in the builder. */
-function readiness(document: DocumentSummary): {
+function readiness(
+  document: DocumentSummary,
+  referenceDate: string,
+): {
   ready: boolean;
   label: string;
 } {
   const draft = musterprotokollDraftSchema.safeParse(document.data);
   if (!draft.success) return { ready: false, label: "Needs review" };
-  const { complete, outstanding } = analyseDraft(draft.data);
+  const { complete, outstanding } = analyseDraft(draft.data, referenceDate);
   if (complete) return { ready: true, label: "Ready to export" };
   return {
     ready: false,
@@ -78,6 +82,7 @@ export default async function AppHome({
 
   const supabase = await createClient();
   const documents = await listDocuments(supabase, membership.tenantId);
+  const today = todayInGermany();
   const canEdit = canEditDocuments(membership.role);
 
   return (
@@ -142,7 +147,7 @@ export default async function AppHome({
               </thead>
               <tbody className="divide-y divide-rule">
                 {documents.map((document) => {
-                  const state = readiness(document);
+                  const state = readiness(document, today);
                   const status = (
                     <span className="inline-flex flex-wrap items-center gap-2">
                       <span className="rounded-xs border border-rule-strong px-1.5 py-px text-xs text-ink-soft">
