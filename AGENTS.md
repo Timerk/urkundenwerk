@@ -37,4 +37,4 @@
 - The PR describes the change, links its issue, and gives verification steps.
 - Relevant tests cover the changes, and CI passes.
 - Documentation and ADRs reflect the behavior and decisions affected by the PR.
-- A reviewer has approved the PR.
+- The PR has been reviewed and all review conversations are resolved.
