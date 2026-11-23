@@ -11,6 +11,54 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      documents: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          data: NonNullable<Json>;
+          id: string;
+          status: Database["public"]["Enums"]["document_status"];
+          template_id: string;
+          template_version: string;
+          tenant_id: string;
+          title: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          data?: NonNullable<Json>;
+          id?: string;
+          status?: Database["public"]["Enums"]["document_status"];
+          template_id: string;
+          template_version: string;
+          tenant_id: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          data?: NonNullable<Json>;
+          id?: string;
+          status?: Database["public"]["Enums"]["document_status"];
+          template_id?: string;
+          template_version?: string;
+          tenant_id?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "documents_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           created_at: string;
@@ -93,6 +141,7 @@ export type Database = {
       create_tenant: { Args: { name: string }; Returns: string };
     };
     Enums: {
+      document_status: "draft" | "final";
       tenant_role: "admin" | "editor" | "viewer";
     };
     CompositeTypes: {
@@ -221,6 +270,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      document_status: ["draft", "final"],
       tenant_role: ["admin", "editor", "viewer"],
     },
   },
