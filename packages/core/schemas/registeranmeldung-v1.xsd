@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns="urn:urkundenwerk:registeranmeldung:1"
+  targetNamespace="urn:urkundenwerk:registeranmeldung:1"
+  elementFormDefault="qualified" version="1.0">
+
+  <xs:simpleType name="Kurztext">
+    <xs:restriction base="xs:token">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="200"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Langtext">
+    <xs:restriction base="xs:token">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="2000"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="DeutschePLZ">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]{5}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Betrag">
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0.01"/>
+      <xs:maxInclusive value="999999999.00"/>
+      <xs:totalDigits value="11"/>
+      <xs:fractionDigits value="2"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="Eurobetrag">
+    <xs:simpleContent>
+      <xs:extension base="Betrag">
+        <xs:attribute name="waehrung" type="xs:string" use="required" fixed="EUR"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:simpleType name="Einzahlungsoption">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="voll"/>
+      <xs:enumeration value="halb"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Vertretungsart">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="einzeln"/>
+      <xs:enumeration value="gemeinschaftlich"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="Anschrift">
+    <xs:sequence>
+      <xs:element name="strasseUndHausnummer" type="Kurztext"/>
+      <xs:element name="postleitzahl" type="Kurztext"/>
+      <xs:element name="ort" type="Kurztext"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Geschaeftsanschrift">
+    <xs:sequence>
+      <xs:element name="strasseUndHausnummer" type="Kurztext"/>
+      <xs:element name="postleitzahl" type="DeutschePLZ"/>
+      <xs:element name="ort" type="Kurztext"/>
+      <xs:element name="land" type="xs:token" fixed="DE"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:group name="Person">
+    <xs:sequence>
+      <xs:element name="vorname" type="Kurztext"/>
+      <xs:element name="nachname" type="Kurztext"/>
+      <xs:element name="geburtsdatum" type="xs:date"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="Gesellschafter">
+    <xs:choice>
+      <xs:element name="natuerlichePerson">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:group ref="Person"/>
+            <xs:element name="anschrift" type="Anschrift"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="juristischePerson">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="name" type="Kurztext"/>
+            <xs:element name="sitz" type="Kurztext"/>
+            <xs:element name="registergericht" type="Kurztext"/>
+            <xs:element name="registernummer" type="Kurztext"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="Geschaeftsfuehrer">
+    <xs:sequence>
+      <xs:group ref="Person"/>
+      <xs:element name="wohnort" type="Kurztext"/>
+      <xs:element name="konkreteVertretungsbefugnis">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="vertretungsart" type="Vertretungsart"/>
+            <xs:element name="befreitVonParagraf181BGB" type="xs:boolean"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="versicherungen">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="einlageZurFreienVerfuegung" type="xs:boolean" fixed="true"/>
+            <xs:element name="keineBestellungshindernisse" type="xs:boolean" fixed="true"/>
+            <xs:element name="ueberAuskunftspflichtBelehrt" type="xs:boolean" fixed="true"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="registeranmeldung">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="registergericht">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="gerichtsart" type="xs:token" fixed="Amtsgericht"/>
+              <xs:element name="ort" type="Kurztext"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="gesellschaft">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="firma" type="Kurztext"/>
+              <xs:element name="sitz" type="Kurztext"/>
+              <xs:element name="gegenstand" type="Langtext"/>
+              <xs:element name="stammkapital" type="Eurobetrag"/>
+              <xs:element name="geschaeftsanschrift" type="Geschaeftsanschrift"/>
+              <xs:element name="allgemeineVertretungsregelung">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="beiEinemGeschaeftsfuehrer" type="Vertretungsart"/>
+                    <xs:element name="beiMehrerenGeschaeftsfuehrern" type="Vertretungsart"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="gesellschafterliste">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="gesellschafter" type="Gesellschafter" minOccurs="1" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="geschaeftsfuehrung">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="geschaeftsfuehrer" type="Geschaeftsfuehrer" minOccurs="1" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="einzahlung">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="vereinbarteSofortzahlung" type="Einzahlungsoption"/>
+              <xs:element name="eingezahlt" type="Eurobetrag"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="anlagen">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="musterprotokoll" type="xs:token" fixed="zugleichGesellschafterliste"/>
+              <xs:element name="einzahlungsnachweis" type="xs:token" fixed="beigefuegt" minOccurs="0"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="generator">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="anmeldungTemplateId" type="Kurztext" fixed="handelsregisteranmeldung-gmbh"/>
+              <xs:element name="anmeldungTemplateVersion" type="Kurztext"/>
+              <xs:element name="musterprotokollTemplateId" type="Kurztext" fixed="musterprotokoll-einpersonen"/>
+              <xs:element name="musterprotokollTemplateVersion" type="Kurztext"/>
+              <xs:element name="generatedAt" type="xs:dateTime"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

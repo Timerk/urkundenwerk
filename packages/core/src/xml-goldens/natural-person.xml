@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registeranmeldung xmlns="urn:urkundenwerk:registeranmeldung:1">
+  <registergericht>
+    <gerichtsart>Amtsgericht</gerichtsart>
+    <ort>Musterstadt</ort>
+  </registergericht>
+  <gesellschaft>
+    <firma>Musterlicht Software GmbH</firma>
+    <sitz>Musterstadt</sitz>
+    <gegenstand>die Entwicklung und der Vertrieb von Software</gegenstand>
+    <stammkapital waehrung="EUR">25000.00</stammkapital>
+    <geschaeftsanschrift>
+      <strasseUndHausnummer>Musterkai 4</strasseUndHausnummer>
+      <postleitzahl>12345</postleitzahl>
+      <ort>Musterstadt</ort>
+      <land>DE</land>
+    </geschaeftsanschrift>
+    <allgemeineVertretungsregelung>
+      <beiEinemGeschaeftsfuehrer>einzeln</beiEinemGeschaeftsfuehrer>
+      <beiMehrerenGeschaeftsfuehrern>gemeinschaftlich</beiMehrerenGeschaeftsfuehrern>
+    </allgemeineVertretungsregelung>
+  </gesellschaft>
+  <gesellschafterliste>
+    <gesellschafter>
+      <natuerlichePerson>
+        <vorname>Erika</vorname>
+        <nachname>Mustermann</nachname>
+        <geburtsdatum>1990-03-07</geburtsdatum>
+        <anschrift>
+          <strasseUndHausnummer>Musterweg 12</strasseUndHausnummer>
+          <postleitzahl>12345</postleitzahl>
+          <ort>Musterstadt</ort>
+        </anschrift>
+      </natuerlichePerson>
+    </gesellschafter>
+  </gesellschafterliste>
+  <geschaeftsfuehrung>
+    <geschaeftsfuehrer>
+      <vorname>Erika</vorname>
+      <nachname>Mustermann</nachname>
+      <geburtsdatum>1990-03-07</geburtsdatum>
+      <wohnort>Musterstadt</wohnort>
+      <konkreteVertretungsbefugnis>
+        <vertretungsart>einzeln</vertretungsart>
+        <befreitVonParagraf181BGB>true</befreitVonParagraf181BGB>
+      </konkreteVertretungsbefugnis>
+      <versicherungen>
+        <einlageZurFreienVerfuegung>true</einlageZurFreienVerfuegung>
+        <keineBestellungshindernisse>true</keineBestellungshindernisse>
+        <ueberAuskunftspflichtBelehrt>true</ueberAuskunftspflichtBelehrt>
+      </versicherungen>
+    </geschaeftsfuehrer>
+  </geschaeftsfuehrung>
+  <einzahlung>
+    <vereinbarteSofortzahlung>voll</vereinbarteSofortzahlung>
+    <eingezahlt waehrung="EUR">25000.00</eingezahlt>
+  </einzahlung>
+  <anlagen>
+    <musterprotokoll>zugleichGesellschafterliste</musterprotokoll>
+  </anlagen>
+  <generator>
+    <anmeldungTemplateId>handelsregisteranmeldung-gmbh</anmeldungTemplateId>
+    <anmeldungTemplateVersion>1.0.0</anmeldungTemplateVersion>
+    <musterprotokollTemplateId>musterprotokoll-einpersonen</musterprotokollTemplateId>
+    <musterprotokollTemplateVersion>2022-08-01</musterprotokollTemplateVersion>
+    <generatedAt>2026-11-23T12:00:00.000Z</generatedAt>
+  </generator>
+</registeranmeldung>
