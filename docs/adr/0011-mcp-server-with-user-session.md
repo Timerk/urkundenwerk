@@ -49,10 +49,12 @@ rule list, and one prompt guides an agent from facts to a validated draft.
 
 **Same pipeline, no legal text.** Drafts are validated with the core draft
 schema and the web app's 32 KiB limit. Validation runs the core rule engine
-with today's date in Germany. Export runs only when no rule reports an
-error, builds the `DocumentModel` with core, renders it with
-`@urkundenwerk/render`, and returns the file base64-encoded as an embedded
-resource with its MIME type and suggested filename. With
+with today's date in Germany. An export requires the rules for the selected
+document to pass. PDF and DOCX exports build the `DocumentModel` with core
+and render it with `@urkundenwerk/render`. XML exports use a timestamp from
+the server clock and validate the generated XML against the XSD. Exports
+return the file base64-encoded as an embedded resource with its MIME type
+and suggested filename. With
 `URKUNDENWERK_EXPORT_DIR` set, it can also write the file below that
 directory; absolute paths, `..`, and symlinks out of the root are refused.
 The agent only moves structured data; it never writes or edits deed text.
@@ -87,6 +89,6 @@ OAuth 2.1: the MCP client obtains a Supabase-issued access token for the
 user through an authorization flow, the server verifies it and creates a
 per-request client with that token, and no password reaches the server.
 
-TODO: add an XML export tool once the M5 Handelsregisteranmeldung template
-and its XSD-validated export have landed, and accept that template in
-`create_draft`.
+The MCP server now accepts the optional `filing` section on the same draft
+and supports Handelsregisteranmeldung PDF and DOCX exports and XSD-validated
+register filing XML through `urkundenwerk_export_document`.

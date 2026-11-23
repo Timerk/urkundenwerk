@@ -3,7 +3,9 @@
 `@urkundenwerk/mcp` exposes Urkundenwerk's drafting workflow over the
 [Model Context Protocol](https://modelcontextprotocol.io), so an AI agent
 such as Claude Code or Claude Desktop can create a Musterprotokoll draft,
-fill it in, run the rule checks, and export the deed as PDF or DOCX.
+fill it in, run the rule checks, and export the deed or the accompanying
+Handelsregisteranmeldung as PDF or DOCX. The filing data can also be
+exported as XSD-validated XML.
 
 The agent supplies structured data only. The deed text is assembled
 deterministically from the versioned statutory template in
@@ -135,22 +137,51 @@ With the server signed in as `erik.editor@demo.test`:
 The `prepare_musterprotokoll` prompt starts the same workflow from a block
 of facts.
 
+To prepare the Handelsregisteranmeldung for the same draft, call
+`urkundenwerk_update_draft` with the document ID and the filing facts:
+
+```json
+{
+  "documentId": "00000000-0000-4000-8000-000000000001",
+  "patch": {
+    "filing": {
+      "registerCourt": "Musterstadt",
+      "businessAddress": {
+        "street": "Beispielweg 3",
+        "postalCode": "12345",
+        "city": "Musterstadt"
+      },
+      "paidCents": 2500000,
+      "fundsAtFreeDisposal": true,
+      "noDisqualification": true,
+      "instructedOnDisclosure": true
+    }
+  }
+}
+```
+
+Set the assurances to `true` only after the user confirms them. Call
+`urkundenwerk_validate_document` with `document: "anmeldung"` to check the
+deed and the filing. When it reports no errors, call
+`urkundenwerk_export_document` with `format: "xml"` for the register data or
+`document: "anmeldung", format: "pdf"` for the filing PDF.
+
 ## Tool reference
 
 All tools return JSON as text and as structured content that matches their
 output schema. Errors come back as tool results with `isError: true` and say
 how to recover. Amounts are integer cents; dates are ISO dates.
 
-| Tool                             | Annotations              | What it does                                                                                                                       |
-| -------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `urkundenwerk_list_firms`        | read-only                | Your firms with slug, name, role, and whether you can edit.                                                                        |
-| `urkundenwerk_list_documents`    | read-only                | A firm's documents with title, template, status, last change, and completeness. `tenant`, `limit` (≤ 100), `offset`.               |
-| `urkundenwerk_get_document`      | read-only                | One document's draft data, firm, edit right, and completeness. `documentId`.                                                       |
-| `urkundenwerk_create_draft`      | write                    | A new Musterprotokoll draft with the builder's defaults. `tenant`, `title` (defaults to the Firma), `data` (partial draft).        |
-| `urkundenwerk_update_draft`      | write, idempotent        | Deep-merges `patch` into the draft, removes `unset` paths, renames with `title`; validated before saving.                          |
-| `urkundenwerk_validate_document` | read-only                | Runs the rule engine with today's date in Germany; returns issues with code, severity, paths, message, and legal reference.        |
-| `urkundenwerk_export_document`   | write (disk), idempotent | PDF or DOCX as an embedded base64 resource with MIME type and filename, only without rule errors. `format`, `saveTo`, `overwrite`. |
-| `urkundenwerk_delete_draft`      | destructive, idempotent  | Deletes a document permanently. `documentId`.                                                                                      |
+| Tool                             | Annotations                 | What it does                                                                                                                                                                            |
+| -------------------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `urkundenwerk_list_firms`        | read-only                   | Your firms with slug, name, role, and whether you can edit.                                                                                                                             |
+| `urkundenwerk_list_documents`    | read-only                   | A firm's documents with title, template, status, last change, and Musterprotokoll completeness. `tenant`, `limit` (≤ 100), `offset`.                                                    |
+| `urkundenwerk_get_document`      | read-only                   | One document's draft data including optional `filing`, firm, edit right, and Musterprotokoll completeness. `documentId`.                                                                |
+| `urkundenwerk_create_draft`      | write                       | A new Musterprotokoll draft with the builder's defaults. `tenant`, `title` (defaults to the Firma), `data` (partial draft including optional `filing`).                                 |
+| `urkundenwerk_update_draft`      | write, idempotent           | Deep-merges `patch` (including optional `filing`), removes `unset` paths, and renames with `title`. Validates before saving.                                                            |
+| `urkundenwerk_validate_document` | read-only                   | Checks the Musterprotokoll by default. Pass `document: "anmeldung"` to include both the deed and filing rules. Returns issues with code, severity, paths, message, and legal reference. |
+| `urkundenwerk_export_document`   | write (disk), may overwrite | PDF, DOCX, or XSD-validated XML as an embedded base64 resource with MIME type and filename. `format`, `document`, `saveTo`, `overwrite`.                                                |
+| `urkundenwerk_delete_draft`      | destructive, idempotent     | Deletes a document permanently. `documentId`.                                                                                                                                           |
 
 Merge semantics of `urkundenwerk_update_draft`: nested objects merge key by
 key; any other value replaces the stored one, and `null` is a value
@@ -158,12 +189,17 @@ key; any other value replaces the stored one, and `null` is a value
 document has not changed since it was read, so a concurrent save in the web
 app is reported instead of overwritten.
 
+For PDF and DOCX exports, `document` defaults to `"musterprotokoll"` and
+can be set to `"anmeldung"`. XML always exports the filing (`application/xml`).
+Errors for the selected document block export. An Anmeldung export requires
+both sets of rules to pass.
+
 Resources:
 
 - `urkundenwerk://templates/musterprotokoll-einpersonen/draft-schema`: the
-  JSON Schema of the draft data.
+  JSON Schema of the draft data including the optional `filing` section.
 - `urkundenwerk://templates/musterprotokoll-einpersonen/rules`: every rule
-  with its code, severity, legal reference, and summary.
+  with its template, code, severity, legal reference, and summary.
 
 Prompt: `prepare_musterprotokoll` (`facts`, optional `tenant`).
 
@@ -180,7 +216,7 @@ The integration tests and the smoke run sign in as the seeded demo users
 and read the local URL and key from `apps/web/.env.local` (`pnpm db:env`)
 unless the variables are set. They delete the drafts they create.
 
-[`evaluation/urkundenwerk.xml`](evaluation/urkundenwerk.xml) holds ten
+[`evaluation/urkundenwerk.xml`](evaluation/urkundenwerk.xml) holds twelve
 read-only questions with verified answers for evaluating how well an agent
 uses the tools. Run them against a freshly reset database
 (`pnpm db:reset`) with the server signed in as `mia.multi@demo.test`, for
