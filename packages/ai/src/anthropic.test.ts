@@ -37,7 +37,12 @@ function message(
     ],
     stop_reason: "end_turn",
     stop_sequence: null,
-    usage: { input_tokens: 120, output_tokens: 30 },
+    usage: {
+      input_tokens: 120,
+      output_tokens: 30,
+      cache_creation_input_tokens: null,
+      cache_read_input_tokens: null,
+    },
     ...overrides,
   } as Anthropic.Message;
 }
@@ -63,7 +68,12 @@ describe("AnthropicLlmClient", () => {
     expect(result).toEqual({
       data: { answer: "42" },
       model: "claude-haiku-5-5",
-      usage: { inputTokens: 120, outputTokens: 30 },
+      usage: {
+        inputTokens: 120,
+        outputTokens: 30,
+        cacheCreationInputTokens: 0,
+        cacheReadInputTokens: 0,
+      },
       stopReason: "end_turn",
     });
     expect(create).toHaveBeenCalledWith(
@@ -82,6 +92,41 @@ describe("AnthropicLlmClient", () => {
       }),
       { signal, maxRetries: 0 },
     );
+  });
+
+  it("marks a stable system prompt as cacheable and reports cache usage", async () => {
+    const { client, create } = clientReturning(
+      message({
+        usage: {
+          input_tokens: 40,
+          output_tokens: 30,
+          cache_creation_input_tokens: 0,
+          cache_read_input_tokens: 1_800,
+        } as Anthropic.Usage,
+      }),
+    );
+
+    const result = await client.generateStructured({
+      ...request,
+      cacheSystemPrompt: true,
+    });
+
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        system: [
+          {
+            type: "text",
+            text: "System prompt",
+            cache_control: { type: "ephemeral" },
+          },
+        ],
+      }),
+      expect.anything(),
+    );
+    expect(result.usage).toMatchObject({
+      inputTokens: 40,
+      cacheReadInputTokens: 1_800,
+    });
   });
 
   it.each([

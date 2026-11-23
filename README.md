@@ -32,7 +32,16 @@ collects data.
 - **AI explanations, optional.** Any finding can be explained in plain
   English by an LLM. The rules decide; the model only explains, and its
   answers are labelled as AI-generated and not legal advice. See
-  [AI explanations](#ai-explanations).
+  [AI and privacy](#ai-and-privacy).
+- **Import from a contract.** Upload an existing deed or articles of
+  association as PDF or DOCX. An LLM proposes values for a new draft, each
+  with a verbatim quote, and Urkundenwerk's own code checks that every quote
+  exists in the document and states its value. On the review screen each
+  value sits next to the document as it was read: select a value to see its
+  passage, or a passage to see its value. You accept, edit, or clear every
+  value; nothing is saved until you create the draft, and the builder then
+  checks it like any other. See [AI and privacy](#ai-and-privacy) and
+  [Evaluation](#evaluation).
 - **Drafts that survive.** Changes are saved automatically after a short pause,
   with a visible and announced save status. A new document takes its Firma as
   its title.
@@ -45,6 +54,8 @@ collects data.
 
 The design direction is recorded in [`docs/design.md`](docs/design.md).
 
+![The import review with extracted values and their status on the left and the uploaded document with its quoted passages marked on the right](docs/screenshots/import-review.png)
+
 | Landing page                                  | Documents of a firm                              |
 | --------------------------------------------- | ------------------------------------------------ |
 | ![Landing page](docs/screenshots/landing.png) | ![Document list](docs/screenshots/dashboard.png) |
@@ -56,7 +67,7 @@ The design direction is recorded in [`docs/design.md`](docs/design.md).
 | [M1 · Foundation](https://github.com/Timerk/urkundenwerk/issues/1)             | Monorepo, CI, Supabase Auth, and row-level security (RLS)              | Done    |
 | [M2 · Template engine](https://github.com/Timerk/urkundenwerk/issues/2)        | Deterministic DOCX and PDF rendering                                   | Done    |
 | [M3 · Rule checks](https://github.com/Timerk/urkundenwerk/issues/3)            | Validation of structured formation data                                | Done    |
-| [M4 · AI extraction](https://github.com/Timerk/urkundenwerk/issues/4)          | Extract structured data with source citations and evaluate the results | Planned |
+| [M4 · AI extraction](https://github.com/Timerk/urkundenwerk/issues/4)          | Extract structured data with source citations and evaluate the results | Done    |
 | [M5 · XML export](https://github.com/Timerk/urkundenwerk/issues/5)             | Export registry XML and validate it against an XSD                     | Planned |
 | [M6 · MCP server](https://github.com/Timerk/urkundenwerk/issues/6)             | Expose the shared domain workflows over MCP                            | Planned |
 | [M7 · Audit, roles, and GDPR](https://github.com/Timerk/urkundenwerk/issues/7) | Audit log, role-based access, and data protection workflows            | Planned |
@@ -69,15 +80,15 @@ and Supabase (Postgres, Auth, and RLS). Vitest, pgTAP, and Playwright run in
 GitHub Actions, and Docker Compose runs the standalone web build locally.
 Vercel is planned.
 
-| Path                                         | Purpose                                                                                                       |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| [`apps/web`](apps/web)                       | Next.js app, Playwright tests, and Dockerfile                                                                 |
-| [`packages/core`](packages/core)             | Framework-free TypeScript domain package and Zod schemas                                                      |
-| [`packages/render`](packages/render)         | Node DOCX and PDF export for the [template engine](packages/core/README.md)                                   |
-| [`packages/ai`](packages/ai)                 | Server-only LLM port, Anthropic and fake adapters, and explanations                                           |
-| [`packages/extraction`](packages/extraction) | Node document ingestion, source citations, and a [fictional evaluation corpus](packages/extraction/README.md) |
-| [`supabase`](supabase)                       | Migrations, seed data, pgTAP tests, and local config                                                          |
-| [`docs/adr`](docs/adr)                       | Architecture decisions                                                                                        |
+| Path                                         | Purpose                                                                                                               |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| [`apps/web`](apps/web)                       | Next.js app, Playwright tests, and Dockerfile                                                                         |
+| [`packages/core`](packages/core)             | Framework-free TypeScript domain package and Zod schemas                                                              |
+| [`packages/render`](packages/render)         | Node DOCX and PDF export for the [template engine](packages/core/README.md)                                           |
+| [`packages/ai`](packages/ai)                 | Server-only LLM port, Anthropic and fake adapters, and explanations                                                   |
+| [`packages/extraction`](packages/extraction) | Ingestion, LLM extraction with verified citations, and a [fictional evaluation corpus](packages/extraction/README.md) |
+| [`supabase`](supabase)                       | Migrations, seed data, pgTAP tests, and local config                                                                  |
+| [`docs/adr`](docs/adr)                       | Architecture decisions                                                                                                |
 
 The shared TypeScript config enables `strict` and `noUncheckedIndexedAccess`.
 It leaves `exactOptionalPropertyTypes` off so app and schema types can use the
@@ -141,12 +152,50 @@ database with `pnpm db:start`, and run `pnpm build`. To refresh the README
 screenshots, run `pnpm db:reset` and then
 `SCREENSHOTS=1 pnpm test:e2e e2e/screenshots.spec.ts`.
 
-## AI explanations
+## AI and privacy
+
+Two features use an LLM, and neither lets it write legal text or decide
+anything on its own ([ADR-0002](docs/adr/0002-deterministic-legal-text.md)).
+Both are off unless configured, and both run behind the same
+provider-agnostic port with an Anthropic adapter and a scripted fake
+([ADR-0007](docs/adr/0007-llm-port-and-adapters.md)).
+
+### Extraction from a contract
+
+The model proposes; Urkundenwerk's code decides what is verified
+([ADR-0009](docs/adr/0009-llm-extraction-with-verified-citations.md)).
+
+- **What is sent.** The full text of the uploaded document, as Urkundenwerk
+  read it, with a static, versioned prompt. Unlike explanations, extraction
+  cannot work without the text, and it contains personal data. The demo
+  therefore uses fictional documents only, and the upload page says what is
+  sent and to which model. Importing real client data would first need a
+  lawful basis, a processing agreement with the provider, and a review under
+  the professional secrecy rules for lawyers and notaries.
+- **What is stored.** Nothing until you confirm. The upload is read in
+  memory, and the text and the model's proposals go back to your browser.
+  Creating the draft stores only the values you accepted or edited, as a
+  normal draft. Logs record failure kinds only.
+- **What comes back.** Per field a value, a verbatim quote, and the segment
+  it starts in, constrained to a schema and validated again. Our code anchors
+  each quote in the source, normalises the value to the draft's type, and
+  checks that the quote states it. Anything that fails is shown as
+  unverified with the reason, never dropped or trusted silently.
+- **Prompt injection.** The document is treated as data in a delimited
+  block, there are no tools, and the output can only be field proposals. A
+  value whose quote does not state it, or that is quoted from a passage
+  reading like an instruction to an AI, is not verified, and such passages
+  are flagged on the review screen.
+- **Human review.** Nothing is pre-accepted. Unverified values need an
+  explicit decision, and the review screen is labelled as AI-extracted and
+  not legal advice. Only editors and admins can import, six times per user
+  every ten minutes, PDF or DOCX up to 4 MB.
+
+### Explanations of rule findings
 
 The rule engine finds the issues. An LLM may then explain one in plain
-English, with a suggested fix. This follows
-[ADR-0002](docs/adr/0002-deterministic-legal-text.md): the model never
-decides whether data is valid and never writes deed text.
+English, with a suggested fix. The model never decides whether data is
+valid.
 
 - **What is sent.** Only the rule code, its legal reference, the rule's
   one-sentence summary, and the issue's params, which are numbers and
@@ -159,22 +208,73 @@ decides whether data is valid and never writes deed text.
   prompt version.
 - **Limits.** Only members of the document's firm can ask, ten times a
   minute. Answers are cached by code, params, model, and prompt version.
-- **Design.** A provider-agnostic port with an Anthropic adapter, a scripted
-  fake, timeouts, and one retry. See
-  [ADR-0007](docs/adr/0007-llm-port-and-adapters.md). Extraction in M4 builds
-  on the same port.
 
-Explanations are off unless configured. To use your own key, add it to
-`apps/web/.env.local`, which Git ignores:
+### Configuration
+
+AI is off unless configured. Without it, "Import from contract" explains
+that AI is not set up, and the Checks panel shows the rules' own summaries.
+To use your own key, add it to `apps/web/.env.local`, which Git ignores:
 
 ```sh
-ANTHROPIC_API_KEY=<your key>  # turns AI_PROVIDER=anthropic on
-# AI_PROVIDER=fake            # scripted answers without a key or network
+ANTHROPIC_API_KEY=<your key>     # turns AI_PROVIDER=anthropic on
+# AI_PROVIDER=fake               # scripted answers without a key or network
 # AI_MODEL_EXPLAIN=claude-haiku-5-5
+# AI_MODEL_EXTRACT=claude-opus-5-5
+# AI_EXTRACT_TIMEOUT_MS=120000
 ```
 
-The production server reads these at request time. Tests and CI use
-`AI_PROVIDER=fake` and never call a paid API.
+With `AI_PROVIDER=fake`, explanations are scripted and extraction finds a
+few fields with fixed patterns, so the whole flow can be tried without a
+key. The production server reads these settings at request time. Tests and
+CI use the fake and never call a paid API.
+
+## Evaluation
+
+Extraction is measured on the fictional corpus in
+[`packages/extraction/eval`](packages/extraction/README.md): 8 dev and 16
+test documents (statutory Musterprotokolle, authored articles, and
+minutes, as PDF and DOCX) with 374 gold values and their source passages,
+plus an adversarial prompt-injection document.
+
+- **Scores.** Precision, recall, and F1 over field values, micro-averaged,
+  in a strict mode and a lenient mode that accepts close wording for free
+  text. Citation accuracy is the share of correct values whose citation
+  verifies and overlaps the gold passage. Grounded recall is the share of
+  gold values that were found with a correct citation.
+- **Grounding.** Verified rate is the share of predictions our checks
+  verified, and verified precision the share of verified values that were
+  right. Together they show how far the badge on the review screen can be
+  trusted.
+- **Cost.** Latency per document, tokens, and a cost estimate from list
+  prices.
+- **Protocol.** Prompts are developed on the dev split only. The test split
+  is used for reporting and never for tuning. Scores describe these
+  synthetic documents, not scanned or real notarial files.
+
+Results on the test split (16 documents, 254 labelled fields), with prompt
+`extract-2026-11-23` at medium effort:
+
+| Predictor             | Strict P | Strict R | Strict F1 | Lenient F1 | Citation accuracy | Grounded recall | Verified rate | Verified precision | Failed | Median latency | Tokens in / out | Est. cost |
+| --------------------- | -------: | -------: | --------: | ---------: | ----------------: | --------------: | ------------: | -----------------: | -----: | -------------: | --------------: | --------: |
+| regex-baseline        |    90.4% |    26.0% |     40.4% |      40.4% |             86.4% |           22.4% |             — |                  — |      — |              — |               — |         — |
+| llm-claude-opus-5-5   |      TBD |      TBD |       TBD |        TBD |               TBD |             TBD |           TBD |                TBD |    TBD |            TBD |             TBD |       TBD |
+| llm-claude-sonnet-5-5 |      TBD |      TBD |       TBD |        TBD |               TBD |             TBD |           TBD |                TBD |    TBD |            TBD |             TBD |       TBD |
+| llm-claude-haiku-5-5  |      TBD |      TBD |       TBD |        TBD |               TBD |             TBD |           TBD |                TBD |    TBD |            TBD |             TBD |       TBD |
+
+The LLM rows are placeholders until the evaluation has been run with a real
+key; the runner prints this table, with these columns, ready to paste. To reproduce it, put
+`ANTHROPIC_API_KEY` in `apps/web/.env.local` or export it, then run:
+
+```sh
+pnpm --filter @urkundenwerk/extraction eval -- --predictor regex-baseline \
+  --predictor llm --model claude-opus-5-5 --model claude-sonnet-5-5 \
+  --model claude-haiku-5-5 --split test
+```
+
+Add `--dry-run` to estimate tokens and cost first; a full test-split run
+costs about $1 with Opus, $0.50 with Sonnet, and a few cents with Haiku.
+Reports for each run go to `packages/extraction/eval/results/`, which Git
+ignores.
 
 ## Security model
 
@@ -199,13 +299,15 @@ The production server reads these at request time. Tests and CI use
   Protected pages verify the user with the Auth server through
   `supabase.auth.getUser()` and do not trust the session cookie alone.
 - **Data minimisation.** `profiles` stores a display name only. Email
-  addresses stay in Supabase Auth.
+  addresses stay in Supabase Auth. Uploaded contracts are read in memory and
+  never stored; only values a user confirms become a draft.
 - **Tests.** pgTAP tests in [`supabase/tests`](supabase/tests) check RLS on
   every table through the catalog, so new tables are covered automatically.
   They also sign in as members of two tenants and prove that reads, writes,
   role escalation, and anonymous access across tenants fail. Playwright covers
   sign-in, sign-up, the redirect for unauthenticated users, the builder for
-  editors and viewers, and documents and exports across firms.
+  editors and viewers, documents and exports across firms, and the contract
+  import with its review for editors and its refusal for viewers.
 
 ## How this project is built
 

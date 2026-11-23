@@ -1,3 +1,4 @@
+import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import { NORD_DRAFT, signIn } from "./helpers";
 
@@ -50,4 +51,32 @@ test("dashboard and builder", async ({ page }) => {
       ?.focus({ preventScroll: true }),
   );
   await page.screenshot({ path: target("builder") });
+});
+
+test("import review", async ({ page }) => {
+  await signIn(page, "erik.editor@demo.test");
+  await page.goto("/app/import");
+  await page
+    .getByLabel(/Drop a PDF or DOCX here/)
+    .setInputFiles(
+      join(
+        __dirname,
+        "../../../packages/extraction/eval/dev/11-musterprotokoll/document.pdf",
+      ),
+    );
+  await expect(
+    page.getByRole("heading", { name: "Review extracted values" }),
+  ).toBeVisible();
+  // Accept the notarisation values, then show the Firma and its passage.
+  for (const label of ["Form of notarisation", "Deed number (UR. Nr.)"]) {
+    await page
+      .getByRole("listitem", { name: label, exact: true })
+      .getByRole("radio", { name: "Accept" })
+      .check();
+  }
+  await page
+    .getByRole("button", { name: /Show the passage for Firma/ })
+    .click();
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: target("import-review") });
 });

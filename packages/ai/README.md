@@ -29,17 +29,26 @@ const result = await explainIssues(issues, {
   `FakeLlmClient` answers from a script and never touches the network.
   `withResilience` adds a timeout per attempt and one retry for transient
   failures.
+- `cacheSystemPrompt` marks a stable system prompt for the provider's prompt
+  cache, and `LlmUsage` reports cache writes and reads, so callers can
+  estimate cost.
 - `explainIssues` sends only rule codes, legal references, rule summaries,
   and numeric or boolean params. It validates each answer and falls back to
   the rule summary on any failure. Results carry the model and
   `PROMPT_VERSION`.
 
-| Variable            | Default                                 |
-| ------------------- | --------------------------------------- |
-| `AI_PROVIDER`       | `anthropic` with a key, else `disabled` |
-| `ANTHROPIC_API_KEY` | unset                                   |
-| `AI_MODEL_EXPLAIN`  | `claude-haiku-5-5`                      |
-| `AI_MODEL_EXTRACT`  | `claude-opus-5-5` (used from M4)        |
-| `AI_TIMEOUT_MS`     | `20000`                                 |
+| Variable                | Default                                 |
+| ----------------------- | --------------------------------------- |
+| `AI_PROVIDER`           | `anthropic` with a key, else `disabled` |
+| `ANTHROPIC_API_KEY`     | unset                                   |
+| `AI_MODEL_EXPLAIN`      | `claude-haiku-5-5`                      |
+| `AI_MODEL_EXTRACT`      | `claude-opus-5-5`                       |
+| `AI_TIMEOUT_MS`         | `20000`                                 |
+| `AI_EXTRACT_TIMEOUT_MS` | `120000`                                |
+
+Contract extraction uses this port but lives in
+[`@urkundenwerk/extraction`](../extraction/README.md), next to ingestion and
+the citation checks it depends on. Its client is created with
+`timeoutMs: config.extractTimeoutMs`.
 
 Tests mock the SDK client or use the fake. No test calls a paid API.

@@ -76,6 +76,17 @@ v4 `@theme`), so a dark theme can redefine them later.
   "AI-generated explanation — not legal advice", with the model and prompt
   version in small print. The rule's own summary, shown when no model
   answers, uses a neutral box without that label.
+- **Review beside the source.** The contract import keeps the builder's two
+  panes: extracted values in the form's sections on the left, and the
+  uploaded document as it was read on a sheet on the right, in the deed's
+  serif. Quoted passages carry the stamp-blue wash of filled values; a
+  passage behind an unverified value is amber with a dotted underline, and a
+  passage that reads like an instruction to an AI is set off in alert red.
+  Choosing a value marks its passage, and choosing a passage focuses its
+  value. Each value shows "Verified in source" or "Unverified" with the
+  reason, its quote in the serif, and Accept, Edit, and Clear. The screen is
+  headed "AI-extracted — review every value; not legal advice". On narrow
+  screens a Values/Document toggle replaces the second pane.
 - **One radius per role.** Controls use 4 px, panels 6 px, and the sheet has
   square corners because paper does.
 

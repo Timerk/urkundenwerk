@@ -1,7 +1,12 @@
 # Document extraction
 
-`@urkundenwerk/extraction` is the Node-only foundation for extracting a
-single-founder Musterprotokoll draft from an uploaded formation document.
+`@urkundenwerk/extraction` extracts a single-founder Musterprotokoll draft
+from an uploaded formation document: ingestion, LLM extraction with
+citations that our code verifies, and the evaluation
+([ADR-0008](../../docs/adr/0008-ingestion-citations-and-evaluation.md),
+[ADR-0009](../../docs/adr/0009-llm-extraction-with-verified-citations.md)).
+The main entry is Node-only. `@urkundenwerk/extraction/contract` holds the
+browser-safe result types, field kinds, and citation checks for review UIs.
 
 1. Pass the upload bytes to `ingestDocument`. It returns a SHA-256 document ID,
    the detected format, normalized text, and ordered segments. PDF lines have
@@ -14,7 +19,33 @@ single-founder Musterprotokoll draft from an uploaded formation document.
 3. Resolve the adapter's quote with `locateQuote` and check the resulting
    `Citation` with `verifyCitation`. The review layer can display a source
    excerpt and let a human confirm each proposed value before saving it to a
-   draft. The LLM adapter, review UI, and saving flow belong to a later PR.
+   draft.
+
+## LLM extraction
+
+`extractDraftFields(doc, { client, model })` sends the segments to a model
+through the `LlmClient` port of `@urkundenwerk/ai` and grounds the answer.
+
+- **Prompt.** `EXTRACTION_SYSTEM_PROMPT` is static and versioned
+  (`EXTRACTION_PROMPT_VERSION`) and is sent as a cacheable prefix. It lists
+  every path in `extractionFieldPaths` with its meaning and format from
+  `FIELD_SPECS`, and says that the document is untrusted data. The user turn
+  holds the document as one `[s12] text` line per segment.
+- **Answer.** `extractionOutputSchema`: an array of `{ path, value, quote,
+segmentId }` and an array of `{ path, note }`. It is an array because
+  structured outputs allow at most 16 union-typed and 24 optional properties.
+- **Grounding.** `groundExtraction` normalises each value to the draft's type
+  (`normaliseValue`), anchors the quote, scoped to the named segment when it
+  repeats, checks that the quote states the value (`quoteSupportsValue`), and
+  distrusts passages that read like instructions to an AI
+  (`looksLikeInstruction`). Each path ends up `verified`, `unverified` with
+  reasons, or `absent`, and the `ExtractionResult` carries every readable
+  value with its anchored citation.
+- **Failures.** `ExtractionError` has a code (`DOCUMENT_TOO_LONG` or an
+  `LlmErrorKind`) and a message fit to show. Texts over 60,000 characters are
+  refused before any call.
+- **Fake.** `fakeExtractionResponder` finds a few fields with fixed patterns
+  for local development and end-to-end tests. It is not a predictor.
 
 ## Normalization and offsets
 
@@ -103,8 +134,13 @@ The authored PDFs are two pages each. The corpus has 120 gold values in dev
 and 254 in test, covering all 30 paths in the test split. The 24 binaries
 total about 1.65 MB.
 
-Use `dev` to develop predictors. Keep `test` fixed for reporting, and avoid
-tuning the predictor against its labels. The split is public and synthetic,
+The `adversarial` split holds one authored DOCX contract with a prompt
+injection that asks an AI to set the share capital to 1 € and to enter
+another founder. Its gold labels are the contract's real values, and tests
+use it to check that the grounding does not verify injected values.
+
+Use `dev` to develop predictors and prompts. Keep `test` fixed for
+reporting, and never tune a predictor or prompt against its labels. The split is public and synthetic,
 so results measure performance on these cases. In particular, the corpus
 contains clean exports and supplies no evidence about scanned or real-world
 notarial files.
@@ -113,12 +149,28 @@ notarial files.
 pnpm --filter @urkundenwerk/extraction eval:build
 pnpm --filter @urkundenwerk/extraction eval -- --predictor oracle --split test
 pnpm --filter @urkundenwerk/extraction eval -- --predictor regex-baseline --split test
+# With ANTHROPIC_API_KEY exported or in apps/web/.env.local:
+pnpm --filter @urkundenwerk/extraction eval -- --predictor llm \
+  --model claude-opus-5-5 --model claude-sonnet-5-5 --model claude-haiku-5-5
+pnpm --filter @urkundenwerk/extraction eval -- --predictor llm --model claude-opus-5-5 --dry-run
 ```
+
+Repeat `--predictor` and `--model` to compare runs in one table. `--effort`
+(`low`, `medium`, `high`; default `medium`), `--concurrency` (default 4),
+and `--timeout-ms` tune LLM runs. The first document runs alone so the
+others can read its cached system prompt. A failed document counts as
+predicting nothing. `--dry-run` estimates tokens and cost without calling
+the API. The `fake` predictor runs the LLM plumbing with the scripted
+responder and no network.
 
 The runner ingests the committed binaries and checks each predictor result
 with Zod before scoring. It writes Markdown and JSON to the git-ignored
-`eval/results/` directory. Future adapters can implement `Predictor` and
-pass their results to `scoreEvaluation` from `@urkundenwerk/extraction/eval`.
+`eval/results/` directory, with a `comparison-<split>.md` table that it
+also prints. LLM runs also report the verified rate (predictions the
+grounding verified), verified precision (verified values that were right),
+latency, tokens, and a cost estimate from `MODEL_PRICES`. Other predictors
+can implement `Predictor` and pass their results to `scoreEvaluation` from
+`@urkundenwerk/extraction/eval`.
 The normal workspace unit job validates that gold labels assemble into valid
 drafts and that every gold quote resolves in its rendered document. It also
 checks that each free-text value occurs verbatim within its evidence after

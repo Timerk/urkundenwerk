@@ -6,9 +6,9 @@ import { withResilience } from "./resilience";
 
 /**
  * Default models per task. Explanations are short, high-volume, and
- * latency-sensitive, so they use the current Haiku. Extraction (M4) reads
- * long documents and must cite sources accurately, so it uses the current
- * Opus. Both can be overridden per environment.
+ * latency-sensitive, so they use the current Haiku. Extraction reads whole
+ * documents and must quote its sources verbatim, so it uses the current Opus
+ * (ADR-0009). Both can be overridden per environment.
  */
 export const DEFAULT_MODELS = {
   explain: "claude-haiku-5-5",
@@ -18,6 +18,7 @@ export const DEFAULT_MODELS = {
 export type AiTask = keyof typeof DEFAULT_MODELS;
 
 // Empty values in .env files mean "not set".
+const emptyAsUnset = (value: unknown) => (value === "" ? undefined : value);
 const optionalText = z.preprocess(
   (value) =>
     typeof value === "string" && value.trim() === "" ? undefined : value,
@@ -37,14 +38,20 @@ const aiEnvSchema = z
   .object({
     ANTHROPIC_API_KEY: optionalText,
     AI_PROVIDER: z.preprocess(
-      (value) => (value === "" ? undefined : value),
+      emptyAsUnset,
       z.enum(["anthropic", "fake", "disabled"]).optional(),
     ),
     AI_MODEL_EXPLAIN: modelId(DEFAULT_MODELS.explain),
     AI_MODEL_EXTRACT: modelId(DEFAULT_MODELS.extract),
     AI_TIMEOUT_MS: z.preprocess(
-      (value) => (value === "" ? undefined : value),
+      emptyAsUnset,
       z.coerce.number().int().min(1_000).max(120_000).default(20_000),
+    ),
+    // Extraction reads a whole document and writes a long answer, so it gets
+    // its own, longer deadline.
+    AI_EXTRACT_TIMEOUT_MS: z.preprocess(
+      emptyAsUnset,
+      z.coerce.number().int().min(10_000).max(300_000).default(120_000),
     ),
   })
   .transform((env) => ({
@@ -54,6 +61,7 @@ const aiEnvSchema = z
     apiKey: env.ANTHROPIC_API_KEY,
     models: { explain: env.AI_MODEL_EXPLAIN, extract: env.AI_MODEL_EXTRACT },
     timeoutMs: env.AI_TIMEOUT_MS,
+    extractTimeoutMs: env.AI_EXTRACT_TIMEOUT_MS,
   }))
   .refine((config) => config.provider !== "anthropic" || config.apiKey, {
     error: "is required when AI_PROVIDER is anthropic",
@@ -83,21 +91,24 @@ export function parseAiConfig(
 /**
  * Creates the configured client, wrapped with the timeout and retry policy,
  * or `null` when AI is disabled. The fake answers with `fakeResponder`.
+ * `timeoutMs` overrides the default deadline per attempt, for example with
+ * `config.extractTimeoutMs`.
  */
 export function createLlmClient(
   config: AiConfig,
-  { fakeResponder }: { fakeResponder: FakeResponder },
+  {
+    fakeResponder,
+    timeoutMs = config.timeoutMs,
+  }: { fakeResponder: FakeResponder; timeoutMs?: number },
 ): LlmClient | null {
   switch (config.provider) {
     case "disabled":
       return null;
     case "fake":
-      return withResilience(new FakeLlmClient(fakeResponder), {
-        timeoutMs: config.timeoutMs,
-      });
+      return withResilience(new FakeLlmClient(fakeResponder), { timeoutMs });
     case "anthropic":
       return withResilience(AnthropicLlmClient.fromApiKey(config.apiKey!), {
-        timeoutMs: config.timeoutMs,
+        timeoutMs,
       });
   }
 }

@@ -8,6 +8,7 @@
       "types": "./src/index.ts",
       "node": "./src/index.ts"
     },
+    "./contract": "./src/contract.ts",
     "./eval": {
       "types": "./src/eval/index.ts",
       "node": "./src/eval/index.ts"
@@ -20,6 +21,7 @@
     "eval": "tsx scripts/eval.ts"
   },
   "dependencies": {
+    "@urkundenwerk/ai": "workspace:*",
     "@urkundenwerk/core": "workspace:*",
     "saxes": "^6.0.0",
     "unpdf": "^2.2.1",

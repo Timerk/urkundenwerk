@@ -5,6 +5,7 @@ import {
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FormError } from "../../../components/form-error";
+import { buttonClasses } from "../../../components/ui/button";
 import { analyseDraft } from "../../../lib/builder/form-model";
 import { todayInGermany } from "../../../lib/dates";
 import {
@@ -99,7 +100,27 @@ export default async function AppHome({
               : "You can open and download documents."}
           </p>
         </div>
-        {canEdit ? <NewDocumentForm tenantId={membership.tenantId} /> : null}
+        {canEdit ? (
+          <div className="flex flex-wrap items-start gap-2">
+            <Link
+              href="/app/import"
+              className={buttonClasses({ variant: "secondary" })}
+            >
+              <svg aria-hidden="true" viewBox="0 0 16 16" className="size-3.5">
+                <path
+                  d="M4 1.75h5.5L13 5.25v9H4zM9.25 1.75v3.75H13M8.5 12V7.75m0 0L6.5 9.75m2-2 2 2"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Import from contract
+            </Link>
+            <NewDocumentForm tenantId={membership.tenantId} />
+          </div>
+        ) : null}
       </div>
 
       <section aria-labelledby="documents-heading" className="space-y-3">

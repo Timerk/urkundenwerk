@@ -17,8 +17,10 @@ export const metadata: Metadata = { title: "Musterprotokoll · Urkundenwerk" };
 
 export default async function DocumentPage({
   params,
+  searchParams,
 }: PageProps<"/app/documents/[id]">) {
   const { id } = await params;
+  const { imported } = await searchParams;
   const documentId = documentIdSchema.safeParse(id);
   if (!documentId.success) notFound();
 
@@ -45,6 +47,7 @@ export default async function DocumentPage({
       templateLabel="Musterprotokoll, single founder"
       referenceDate={todayInGermany()}
       aiEnabled={isExplanationEnabled()}
+      imported={imported === "1"}
     />
   );
 }

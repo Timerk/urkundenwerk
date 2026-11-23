@@ -52,21 +52,35 @@ function fold(token: string): string {
   return token.toLowerCase().replaceAll("ς", "σ");
 }
 
-/** Prefers a unique verbatim match, then a unique whitespace/case-folded match. */
-export function locateQuote(
-  doc: SourceDocument,
-  quote: string,
-): Citation | null {
+export interface LocateOptions {
+  /**
+   * Accept only matches that start in this segment. A passage that repeats
+   * elsewhere in the document can still be anchored when the extractor names
+   * the segment it read it from.
+   */
+  segmentId?: string;
+}
+
+/**
+ * Every match of a quote, verbatim matches first. Only if there is none are
+ * whitespace- and case-folded matches returned.
+ */
+function quoteMatches(doc: SourceDocument, quote: string): Citation[] {
   const verbatim = quote.trim();
-  if (!verbatim) return null;
-  const exactStart = doc.text.indexOf(verbatim);
-  if (exactStart >= 0) {
-    if (doc.text.indexOf(verbatim, exactStart + 1) >= 0) return null;
-    return makeCitation(doc, exactStart, exactStart + verbatim.length);
+  if (!verbatim) return [];
+  const exact: Citation[] = [];
+  for (
+    let start = doc.text.indexOf(verbatim);
+    start >= 0;
+    start = doc.text.indexOf(verbatim, start + 1)
+  ) {
+    const candidate = makeCitation(doc, start, start + verbatim.length);
+    if (candidate) exact.push(candidate);
   }
+  if (exact.length) return exact;
 
   const needle = [...normalizeText(verbatim)].map(fold).join("");
-  if (!needle) return null;
+  if (!needle) return [];
   // Only token boundaries get source offsets. A match cannot cut a surrogate
   // pair, a case-fold expansion, or a collapsed whitespace run in half.
   const offsets: number[] = [];
@@ -82,7 +96,7 @@ export function locateQuote(
   );
   offsets[foldedLength] = doc.text.length;
 
-  let match: Citation | null = null;
+  const folded: Citation[] = [];
   for (
     let index = haystack.indexOf(needle);
     index >= 0;
@@ -92,9 +106,27 @@ export function locateQuote(
     const end = offsets[index + needle.length];
     if (start === undefined || end === undefined) continue;
     const candidate = makeCitation(doc, start, end);
-    if (!candidate) continue;
-    if (match) return null;
-    match = candidate;
+    if (candidate) folded.push(candidate);
   }
-  return match;
+  return folded;
+}
+
+/** How often a quote occurs, by the same matching rules as `locateQuote`. */
+export function countQuoteMatches(doc: SourceDocument, quote: string): number {
+  return quoteMatches(doc, quote).length;
+}
+
+/**
+ * Prefers a unique verbatim match, then a unique whitespace/case-folded match.
+ * With `segmentId`, only matches starting in that segment count.
+ */
+export function locateQuote(
+  doc: SourceDocument,
+  quote: string,
+  { segmentId }: LocateOptions = {},
+): Citation | null {
+  const matches = quoteMatches(doc, quote).filter(
+    (match) => segmentId === undefined || match.segmentId === segmentId,
+  );
+  return matches.length === 1 ? matches[0]! : null;
 }

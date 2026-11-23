@@ -15,6 +15,7 @@ describe("parseAiConfig", () => {
       apiKey: undefined,
       models: DEFAULT_MODELS,
       timeoutMs: 20_000,
+      extractTimeoutMs: 120_000,
     });
   });
 
@@ -47,10 +48,12 @@ describe("parseAiConfig", () => {
         AI_PROVIDER: "fake",
         AI_MODEL_EXPLAIN: "claude-sonnet-5-5",
         AI_TIMEOUT_MS: "5000",
+        AI_EXTRACT_TIMEOUT_MS: "180000",
       }),
     ).toMatchObject({
       models: { explain: "claude-sonnet-5-5", extract: DEFAULT_MODELS.extract },
       timeoutMs: 5_000,
+      extractTimeoutMs: 180_000,
     });
   });
 
@@ -59,6 +62,7 @@ describe("parseAiConfig", () => {
     [{ AI_PROVIDER: "openai" }, "AI_PROVIDER"],
     [{ AI_MODEL_EXPLAIN: "Claude Haiku" }, "AI_MODEL_EXPLAIN"],
     [{ AI_TIMEOUT_MS: "10" }, "AI_TIMEOUT_MS"],
+    [{ AI_EXTRACT_TIMEOUT_MS: "999999" }, "AI_EXTRACT_TIMEOUT_MS"],
   ])("rejects %j and names %s", (env, variable) => {
     expect(() => parseAiConfig(env)).toThrow(variable);
   });
