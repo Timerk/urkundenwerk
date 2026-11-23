@@ -3,6 +3,7 @@ import {
   type CachedExplanation,
   type ExplainableIssue,
   explainIssues,
+  type ExplanationLocale,
   type ExplanationResult,
   LruCache,
 } from "@urkundenwerk/ai";
@@ -27,26 +28,29 @@ export function takeExplanationQuota(userId: string): boolean {
 }
 
 /**
- * Explains rule issues with the configured model. Never throws for model
+ * Explains rule issues with the configured model, in the UI language of the
+ * request. Never throws for model
  * failures: entries fall back to the rule summary. Logs only the failure
  * kind, never prompts or answers.
  */
 export async function explain(
   templateId: string,
   issues: readonly ExplainableIssue[],
+  locale: ExplanationLocale,
 ): Promise<ExplanationResult> {
   const current = aiState();
   const client = current.ok ? current.explainClient : null;
   const model = current.ok ? current.config.models.explain : "";
   const result = await explainIssues(issues, {
     templateId,
+    locale,
     client,
     model,
     cache,
   });
   if (result.failure) {
     console.warn(
-      `[ai] explain fell back to rule summaries: ${result.failure} (model ${model}, prompt ${result.promptVersion})`,
+      `[ai] explain fell back to rule summaries: ${result.failure} (model ${model}, prompt ${result.promptVersion}, ${locale})`,
     );
   }
   return result;

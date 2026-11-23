@@ -42,7 +42,12 @@ export {
   type ExplainableIssue,
   type ExplanationItem,
 } from "./explain/payload";
-export { PROMPT_VERSION, SYSTEM_PROMPT } from "./explain/prompt";
+export {
+  EXPLANATION_LOCALES,
+  type ExplanationLocale,
+  explanationSystemPrompt,
+  PROMPT_VERSION,
+} from "./explain/prompt";
 export {
   explainIssues,
   explanationCacheKey,
