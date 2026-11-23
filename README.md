@@ -5,25 +5,54 @@
 Urkundenwerk is an AI-assisted document builder for German law firms. Its first
 planned workflow covers forming a German GmbH with the statutory
 `Musterprotokoll` (Anlage 1 GmbHG) and preparing the `Handelsregisteranmeldung`.
-The app currently provides sign-up, sign-in, a firm workspace on a
-multi-tenant Supabase backend, document drafts per firm, and PDF and DOCX
-exports of complete drafts.
+A lawyer fills in structured data for a single-founder GmbH or UG and gets a
+signature-ready Musterprotokoll (Anlage 1 a) GmbHG) as PDF or DOCX. The deed
+text is assembled deterministically from a versioned template; the app only
+collects data.
 
 > **Demonstration project. Not legal advice.** Urkundenwerk uses fictional case
 > data and public legal texts only.
 
+![The Musterprotokoll builder with the form on the left and the live deed preview on the right](docs/screenshots/builder.png)
+
+## Features
+
+- **Musterprotokoll builder.** A form in the order of the deed, with a live A4
+  preview built in the browser from the same `DocumentModel` that the exports
+  use. Missing values show as labelled dotted lines and filled values in ink.
+  Choosing either in the preview focuses its field.
+- **Checks while typing.** Missing fields and the template's cross-field rules
+  (GmbH minimum capital, UG below 25.000 € and paid in full, only a natural
+  person as Geschäftsführer) appear next to the field. Messages map the stable
+  codes of the core Zod schema.
+- **Drafts that survive.** Changes are saved automatically after a short pause,
+  with a visible and announced save status. A new document takes its Firma as
+  its title.
+- **PDF and DOCX exports.** A Node route handler validates the stored draft
+  with the full schema and returns the rendered file, or `422` with the
+  missing fields.
+- **Firms and roles.** Each firm sees only its own documents. Editors and
+  admins write. Viewers get a read-only builder and can download. Members of
+  several firms switch between them.
+
+The design direction is recorded in [`docs/design.md`](docs/design.md).
+
+| Landing page                                  | Documents of a firm                              |
+| --------------------------------------------- | ------------------------------------------------ |
+| ![Landing page](docs/screenshots/landing.png) | ![Document list](docs/screenshots/dashboard.png) |
+
 ## Roadmap
 
-| Milestone                                                                      | Scope                                                                  | Status      |
-| ------------------------------------------------------------------------------ | ---------------------------------------------------------------------- | ----------- |
-| [M1 · Foundation](https://github.com/Timerk/urkundenwerk/issues/1)             | Monorepo, CI, Supabase Auth, and row-level security (RLS)              | Done        |
-| [M2 · Template engine](https://github.com/Timerk/urkundenwerk/issues/2)        | Deterministic DOCX and PDF rendering                                   | In progress |
-| [M3 · Rule checks](https://github.com/Timerk/urkundenwerk/issues/3)            | Validation of structured formation data                                | Planned     |
-| [M4 · AI extraction](https://github.com/Timerk/urkundenwerk/issues/4)          | Extract structured data with source citations and evaluate the results | Planned     |
-| [M5 · XML export](https://github.com/Timerk/urkundenwerk/issues/5)             | Export registry XML and validate it against an XSD                     | Planned     |
-| [M6 · MCP server](https://github.com/Timerk/urkundenwerk/issues/6)             | Expose the shared domain workflows over MCP                            | Planned     |
-| [M7 · Audit, roles, and GDPR](https://github.com/Timerk/urkundenwerk/issues/7) | Audit log, role-based access, and data protection workflows            | Planned     |
-| [M8 · Deployment](https://github.com/Timerk/urkundenwerk/issues/8)             | Deploy the portfolio demo                                              | Planned     |
+| Milestone                                                                      | Scope                                                                  | Status  |
+| ------------------------------------------------------------------------------ | ---------------------------------------------------------------------- | ------- |
+| [M1 · Foundation](https://github.com/Timerk/urkundenwerk/issues/1)             | Monorepo, CI, Supabase Auth, and row-level security (RLS)              | Done    |
+| [M2 · Template engine](https://github.com/Timerk/urkundenwerk/issues/2)        | Deterministic DOCX and PDF rendering                                   | Done    |
+| [M3 · Rule checks](https://github.com/Timerk/urkundenwerk/issues/3)            | Validation of structured formation data                                | Planned |
+| [M4 · AI extraction](https://github.com/Timerk/urkundenwerk/issues/4)          | Extract structured data with source citations and evaluate the results | Planned |
+| [M5 · XML export](https://github.com/Timerk/urkundenwerk/issues/5)             | Export registry XML and validate it against an XSD                     | Planned |
+| [M6 · MCP server](https://github.com/Timerk/urkundenwerk/issues/6)             | Expose the shared domain workflows over MCP                            | Planned |
+| [M7 · Audit, roles, and GDPR](https://github.com/Timerk/urkundenwerk/issues/7) | Audit log, role-based access, and data protection workflows            | Planned |
+| [M8 · Deployment](https://github.com/Timerk/urkundenwerk/issues/8)             | Deploy the portfolio demo                                              | Planned |
 
 ## Stack and layout
 
@@ -65,6 +94,8 @@ Their password is `demo-password-123`. It exists only in the local seed data.
 | `erik.editor@demo.test`   | Demo-Kanzlei Nord | editor |
 | `victor.viewer@demo.test` | Demo-Kanzlei Nord | viewer |
 | `sara.admin@demo.test`    | Demo-Kanzlei Süd  | admin  |
+| `mia.multi@demo.test`     | Demo-Kanzlei Nord | editor |
+| `mia.multi@demo.test`     | Demo-Kanzlei Süd  | viewer |
 
 Each firm has one fictional draft: a complete Musterprotokoll for Nord and an
 unfinished one for Süd.
@@ -96,7 +127,9 @@ the Supabase variables at runtime.
 
 Before running the end-to-end tests locally, install Chromium with
 `pnpm --filter @urkundenwerk/web exec playwright install chromium`, start the
-database with `pnpm db:start`, and run `pnpm build`.
+database with `pnpm db:start`, and run `pnpm build`. To refresh the README
+screenshots, run `pnpm db:reset` and then
+`SCREENSHOTS=1 pnpm test:e2e e2e/screenshots.spec.ts`.
 
 ## Security model
 
@@ -126,8 +159,8 @@ database with `pnpm db:start`, and run `pnpm build`.
   every table through the catalog, so new tables are covered automatically.
   They also sign in as members of two tenants and prove that reads, writes,
   role escalation, and anonymous access across tenants fail. Playwright covers
-  sign-in, sign-up, the redirect for unauthenticated users, and exports
-  across firms.
+  sign-in, sign-up, the redirect for unauthenticated users, the builder for
+  editors and viewers, and documents and exports across firms.
 
 ## How this project is built
 
