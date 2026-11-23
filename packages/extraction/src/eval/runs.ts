@@ -12,8 +12,9 @@ export interface ModelPrice {
 
 /**
  * List prices for cost estimates, in US dollars per million tokens, as
- * published for the Claude API in November 2026. Cache writes with the
- * five-minute lifetime cost 1.25 times the input price. Check current prices
+ * published by Anthropic and OpenAI in November 2026. Anthropic charges 1.25
+ * times the input price to write the five-minute prompt cache; OpenAI caches
+ * automatically and charges writes as normal input. Check current prices
  * before relying on an estimate.
  */
 export const MODEL_PRICES: Readonly<Record<string, ModelPrice>> = {
@@ -30,6 +31,9 @@ export const MODEL_PRICES: Readonly<Record<string, ModelPrice>> = {
     cacheWrite: 0.125,
     cacheRead: 0.01,
   },
+  "gpt-6.2-sol": { input: 2, output: 10, cacheWrite: 2, cacheRead: 0.1 },
+  "gpt-6.1-terra": { input: 1, output: 5, cacheWrite: 1, cacheRead: 0.05 },
+  "gpt-6-luna": { input: 0.1, output: 0.5, cacheWrite: 0.1, cacheRead: 0.01 },
 };
 
 /** The estimated cost of the usage in US dollars, or `null` for unknown models. */
