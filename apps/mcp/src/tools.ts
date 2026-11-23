@@ -1,9 +1,17 @@
 import {
   buildMusterprotokoll,
+  buildRegisterFiling,
   type MusterprotokollDraft,
   musterprotokollMetadata,
+  type RegisterFilingData,
+  type RegisterFilingIssue,
   validateMusterprotokoll,
+  validateRegisterFiling,
 } from "@urkundenwerk/core";
+import {
+  buildRegisterFilingXml,
+  validateRegisterFilingXml,
+} from "@urkundenwerk/core/register-filing-xml";
 import { renderDocx, renderPdf } from "@urkundenwerk/render";
 import {
   assertSupportedTemplate,
@@ -12,7 +20,9 @@ import {
   type Completeness,
   completenessOf,
   DEFAULT_DOCUMENT_TITLE,
+  type ExportDocument,
   exportFilename,
+  type ExportFormat,
   membershipFor,
   mergeDraft,
   parseDraft,
@@ -23,7 +33,7 @@ import {
   unsetPath,
   withDefaults,
 } from "./domain";
-import { ToolError } from "./errors";
+import { RegisterFilingXmlError, ToolError } from "./errors";
 import { writeExport } from "./output";
 import type { DocumentStore, Membership, StoredDocument } from "./store";
 
@@ -41,11 +51,10 @@ export interface ToolContext {
   exportDir: string | undefined;
 }
 
-export type ExportFormat = "pdf" | "docx";
-
-export const CONTENT_TYPES: Record<ExportFormat, string> = {
+const CONTENT_TYPES: Record<ExportFormat, string> = {
   pdf: "application/pdf",
   docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  xml: "application/xml",
 };
 
 const RENDERERS = { pdf: renderPdf, docx: renderDocx } as const;
@@ -292,7 +301,7 @@ export async function updateDraft(
 
 export async function validateDocument(
   ctx: ToolContext,
-  args: { documentId: string },
+  args: { documentId: string; document: ExportDocument },
 ): Promise<{
   documentId: string;
   referenceDate: string;
@@ -301,7 +310,11 @@ export async function validateDocument(
 }> {
   const { document } = await loadDocument(ctx, args.documentId);
   const referenceDate = ctx.today();
-  const issues = checkDraft(storedDraft(document), referenceDate);
+  const issues = checkDraft(
+    storedDraft(document),
+    referenceDate,
+    args.document,
+  );
   return {
     documentId: document.id,
     referenceDate,
@@ -323,10 +336,40 @@ export type ExportResult = {
   issues: ReportedIssue[];
 };
 
+function assertExportReady<T>(
+  validation:
+    | { success: true; data: T; issues: RegisterFilingIssue[] }
+    | { success: false; issues: RegisterFilingIssue[] },
+) {
+  if (!validation.success) {
+    const errors = validation.issues.filter(
+      ({ severity }) => severity === "error",
+    );
+    throw new ToolError(
+      `The document is not ready to export: ${errors.length} rule error(s). Fix them with urkundenwerk_update_draft, then export again.`,
+      { issues: reportIssues(errors) },
+    );
+  }
+  return validation;
+}
+
+async function renderFilingXml(data: RegisterFilingData, generatedAt: string) {
+  try {
+    const xml = buildRegisterFilingXml(data, { generatedAt });
+    if (await validateRegisterFilingXml(xml)) {
+      return new TextEncoder().encode(xml);
+    }
+  } catch {
+    // The generator or validator may include personal data in diagnostics.
+  }
+  throw new RegisterFilingXmlError();
+}
+
 export async function exportDocument(
   ctx: ToolContext,
   args: {
     documentId: string;
+    document?: ExportDocument;
     format: ExportFormat;
     saveTo?: string;
     overwrite: boolean;
@@ -334,23 +377,38 @@ export async function exportDocument(
 ): Promise<{ result: ExportResult; bytes: Uint8Array }> {
   const { document } = await loadDocument(ctx, args.documentId);
   const draft = storedDraft(document);
-
+  const { format } = args;
+  const target =
+    args.document ?? (format === "xml" ? "anmeldung" : "musterprotokoll");
   // The same rules as in the web app decide; warnings do not block.
   const context = { referenceDate: ctx.today() };
-  const validation = validateMusterprotokoll(draft, context);
-  if (!validation.success) {
-    const errors = validation.issues.filter(
-      (issue) => issue.severity === "error",
+  let bytes: Uint8Array;
+  let issues: RegisterFilingIssue[];
+  if (target === "anmeldung" || format === "xml") {
+    if (target !== "anmeldung") {
+      throw new ToolError(
+        'XML is available for the Handelsregisteranmeldung. Omit document or pass document: "anmeldung".',
+      );
+    }
+    const validation = assertExportReady(
+      validateRegisterFiling(draft, context),
     );
-    throw new ToolError(
-      `The document is not ready to export: ${errors.length} rule error(s). Fix them with urkundenwerk_update_draft, then export again.`,
-      { issues: reportIssues(errors) },
+    issues = validation.issues;
+    bytes =
+      format === "xml"
+        ? await renderFilingXml(validation.data, new Date().toISOString())
+        : await RENDERERS[format](buildRegisterFiling(draft, context));
+  } else {
+    const validation = assertExportReady(
+      validateMusterprotokoll(draft, context),
+    );
+    issues = validation.issues;
+    bytes = await RENDERERS[format](
+      buildMusterprotokoll(validation.data, context),
     );
   }
 
-  const model = buildMusterprotokoll(validation.data, context);
-  const bytes = await RENDERERS[args.format](model);
-  const filename = exportFilename(document.title, args.format);
+  const filename = exportFilename(document.title, format, target);
   const savedTo =
     args.saveTo === undefined
       ? null
@@ -366,13 +424,13 @@ export async function exportDocument(
     result: {
       documentId: document.id,
       title: document.title,
-      format: args.format,
+      format,
       filename,
-      mimeType: CONTENT_TYPES[args.format],
+      mimeType: CONTENT_TYPES[format],
       sizeBytes: bytes.byteLength,
       resourceUri: `urkundenwerk://documents/${document.id}/export/${filename}`,
       savedTo,
-      issues: reportIssues(validation.issues),
+      issues: reportIssues(issues),
     },
     bytes,
   };

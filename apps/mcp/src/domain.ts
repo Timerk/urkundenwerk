@@ -1,10 +1,11 @@
 import {
-  checkMusterprotokoll,
   getRule,
   type MusterprotokollDraft,
-  type MusterprotokollIssue,
   musterprotokollDraftSchema,
   musterprotokollMetadata,
+  registerFilingMetadata,
+  type RegisterFilingIssue,
+  runRules,
 } from "@urkundenwerk/core";
 import { z } from "zod";
 import { ToolError } from "./errors";
@@ -206,14 +207,14 @@ export function storedDraft(document: StoredDocument): MusterprotokollDraft {
 
 export type ReportedIssue = {
   code: string;
-  severity: MusterprotokollIssue["severity"];
+  severity: RegisterFilingIssue["severity"];
   paths: string[];
   message: string;
   legalReference: string | null;
 };
 
 export function reportIssues(
-  issues: readonly MusterprotokollIssue[],
+  issues: readonly RegisterFilingIssue[],
 ): ReportedIssue[] {
   return issues.map((issue) => ({
     code: issue.code,
@@ -221,7 +222,7 @@ export function reportIssues(
     paths: [...issue.paths],
     message: issue.message,
     legalReference:
-      getRule(musterprotokollMetadata.id, issue.code)?.legalReference ?? null,
+      getRule(registerFilingMetadata.id, issue.code)?.legalReference ?? null,
   }));
 }
 
@@ -236,7 +237,7 @@ export type Completeness = {
 };
 
 export function completenessOf(
-  issues: readonly MusterprotokollIssue[],
+  issues: readonly RegisterFilingIssue[],
 ): Completeness {
   const errors = issues.filter((issue) => issue.severity === "error");
   const fields = new Set(
@@ -254,13 +255,19 @@ export function completenessOf(
 export function checkDraft(
   draft: MusterprotokollDraft,
   referenceDate: string,
-): MusterprotokollIssue[] {
-  return checkMusterprotokoll(draft, { referenceDate });
+  document: ExportDocument = "musterprotokoll",
+): RegisterFilingIssue[] {
+  const template =
+    document === "anmeldung" ? registerFilingMetadata : musterprotokollMetadata;
+  return runRules(template.id, draft, { referenceDate });
 }
 
 // ---------------------------------------------------------------------------
 // Exports
 // ---------------------------------------------------------------------------
+
+export type ExportDocument = "musterprotokoll" | "anmeldung";
+export type ExportFormat = "pdf" | "docx" | "xml";
 
 const TRANSLITERATIONS: Record<string, string> = {
   ä: "ae",
@@ -273,7 +280,11 @@ const TRANSLITERATIONS: Record<string, string> = {
 };
 
 /** An ASCII-only filename, built as in the web app's export route. */
-export function exportFilename(title: string, format: "pdf" | "docx"): string {
+export function exportFilename(
+  title: string,
+  format: ExportFormat,
+  document: ExportDocument = format === "xml" ? "anmeldung" : "musterprotokoll",
+): string {
   const base = title
     .replace(/[äöüÄÖÜß]/g, (char) => TRANSLITERATIONS[char] ?? "")
     .normalize("NFKD")
@@ -282,5 +293,7 @@ export function exportFilename(title: string, format: "pdf" | "docx"): string {
     .replace(/^-+|-+$/g, "")
     .slice(0, 80)
     .replace(/-+$/, "");
-  return `Musterprotokoll${base ? `-${base}` : ""}.${format}`;
+  const prefix =
+    document === "anmeldung" ? "Handelsregisteranmeldung" : "Musterprotokoll";
+  return `${prefix}${base ? `-${base}` : ""}.${format}`;
 }
