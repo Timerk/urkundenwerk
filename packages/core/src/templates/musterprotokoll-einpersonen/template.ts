@@ -15,8 +15,9 @@ import {
   type MusterprotokollInput,
 } from "./schema";
 
+// "a)" in Anlage 1 only enumerates the annex variants; it is not part of the deed.
 const heading =
-  "a) Musterprotokoll\nfür die Gründung einer Einpersonengesellschaft";
+  "Musterprotokoll\nfür die Gründung einer Einpersonengesellschaft";
 
 export const musterprotokollMetadata = {
   id: "musterprotokoll-einpersonen",

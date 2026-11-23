@@ -11,6 +11,9 @@ import type { MusterprotokollInput } from "./schema";
 import source from "./SOURCE.md?raw";
 import { buildMusterprotokoll, musterprotokollTemplate } from "./template";
 
+// Fictional first names that match each salutation, so the goldens read naturally.
+const firstNameFor = { Herr: "Jonas", Frau: "Erika", none: "Alex" } as const;
+
 const matrix = (["Herr", "Frau", null] as const).flatMap((salutation) =>
   (["in_person", "video"] as const).flatMap((mode) =>
     (["full", "half"] as const).flatMap((contribution) =>
@@ -18,7 +21,11 @@ const matrix = (["Herr", "Frau", null] as const).flatMap((salutation) =>
         name: `${salutation?.toLowerCase() ?? "no-salutation"}-${mode}-${contribution}-${director}`,
         input: {
           ...exampleCase,
-          founder: { ...exampleFounder, salutation },
+          founder: {
+            ...exampleFounder,
+            salutation,
+            firstName: firstNameFor[salutation ?? "none"],
+          },
           notarisation: { ...exampleCase.notarisation, mode },
           contribution,
           managingDirector:
@@ -73,7 +80,11 @@ function normalizeWhitespace(text: string) {
 }
 
 it("preserves all fixed statutory wording for every alternative after normalizing fill-in positions", () => {
-  const statutoryText = source.split("```text")[1]!.split("\nHinweise:")[0]!;
+  // The annex enumerates its variants as "a)" and "b)"; the deed omits that label.
+  const statutoryText = source
+    .split("```text")[1]!
+    .split("\nHinweise:")[0]!
+    .replace(/^\s*a\) /, "");
   for (const { name, input } of variants) {
     const founderSalutation =
       input.founder.kind === "natural_person" ? input.founder.salutation : null;
