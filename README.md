@@ -42,9 +42,7 @@ same optional property conventions as Next.js and Zod.
 
 ## Local development
 
-Use Node.js 24 LTS (`.nvmrc`) and pnpm 12.23.0. The app declares Node.js 20.9 as
-its minimum. The scaffold pins versions of Tailwind CSS, typescript-eslint, and
-Vite that support the Node 20 toolchain. The scaffold runs without environment variables. The keys in
+Use Node.js 24 LTS (`.nvmrc`) and pnpm 12.23.0. The scaffold runs without environment variables. The keys in
 [`.env.example`](.env.example) are reserved for later integrations.
 
 ```sh

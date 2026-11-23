@@ -3,9 +3,7 @@ packages:
   - packages/*
 
 catalog:
-  # Vite 6 keeps Vitest 4 compatible with Node 20.9.
-  vite: ^6.4.6
-  vitest: ^4.1.12
+  vitest: ^5.1.1
 
 allowBuilds:
   esbuild: true
