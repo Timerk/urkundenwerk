@@ -47,6 +47,8 @@ export type BuilderProps = {
   referenceDate: string;
   /** Whether the server can explain issues with an LLM. */
   aiEnabled: boolean;
+  /** The draft was just created from an imported contract. */
+  imported?: boolean;
 };
 
 const timeFormat = new Intl.DateTimeFormat("en-GB", {
@@ -146,6 +148,7 @@ export function Builder({
   templateLabel,
   referenceDate,
   aiEnabled,
+  imported = false,
 }: BuilderProps) {
   const [draft, setDraft] = useState(() =>
     canEdit ? withDefaults(initialDraft) : initialDraft,
@@ -492,6 +495,15 @@ export function Builder({
             }`}
           >
             <div className="mx-auto max-w-xl space-y-4">
+              {imported ? (
+                <Notice
+                  tone="success"
+                  title="Created from an imported contract"
+                >
+                  The values you accepted are filled in. Complete the rest here;
+                  the checks below apply to imported values like any others.
+                </Notice>
+              ) : null}
               {!canEdit ? (
                 <Notice title="Read only">
                   You can read and download this document. Editing needs the
