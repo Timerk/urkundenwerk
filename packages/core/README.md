@@ -4,7 +4,7 @@
 flowchart LR
   Input["Structured case input"] --> Zod["Zod schema: structure"]
   Zod --> Rules["Rule engine: law and consistency"]
-  Rules --> Template["Versioned statutory template"]
+  Rules --> Template["Versioned template"]
   Template --> Model["DocumentModel"]
   Model --> Preview["Browser preview and plain text"]
   Model --> Exports["Node DOCX and PDF renderers"]
@@ -22,6 +22,38 @@ if (result.success) {
   // A rich preview can use each run's kind and field path.
 }
 ```
+
+## Register filing
+
+The same formation draft can carry an optional `filing` section. Use
+`getTemplate("handelsregisteranmeldung-gmbh")` to check, preview or build
+the filing. `validateRegisterFiling(draft, context)` checks the deed and
+filing together and returns complete data on success. For XML, use the
+Node entry point:
+
+```ts
+import { validateRegisterFiling } from "@urkundenwerk/core";
+import {
+  buildRegisterFilingXml,
+  validateRegisterFilingXml,
+} from "@urkundenwerk/core/register-filing-xml";
+
+const result = validateRegisterFiling(draft, { referenceDate: "2026-11-23" });
+if (result.success) {
+  const xml = buildRegisterFilingXml(result.data, {
+    generatedAt: "2026-11-23T12:00:00Z",
+  });
+  if (!(await validateRegisterFilingXml(xml))) {
+    throw new Error("Register filing XML failed validation");
+  }
+  // Deliver the XML after validation.
+}
+```
+
+The [filing template source](src/templates/handelsregisteranmeldung-gmbh/SOURCE.md)
+records its legal bases. The [v1 XSD](schemas/registeranmeldung-v1.xsd)
+defines the project XML contract. See the
+[XJustiz mapping](../../docs/xjustiz-mapping.md) for electronic submission.
 
 The registry exposes metadata, a structural Zod schema, the rules, and a
 builder for each template. The schema checks required fields, types,

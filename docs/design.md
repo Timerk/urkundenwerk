@@ -58,6 +58,10 @@ v4 `@theme`), so a dark theme can redefine them later.
   readable column and the sheet stays in view on the right. On narrow screens a
   Form/Preview toggle replaces the second pane; choosing a value in the preview
   switches back to the form and focuses the field.
+- **Two documents in one draft.** The builder toolbar switches between the
+  Musterprotokoll and the Handelsregisteranmeldung. Each step shows its
+  preview, checks and downloads. Selecting a shared value in the filing
+  preview opens its field in the Musterprotokoll.
 - **Order follows the deed.** Sections run Notarisation, Founder, Company,
   Capital, Geschäftsführer, Notes, in the order the clauses use them. Sections
   are not numbered because the deed's own clause numbers are different.
