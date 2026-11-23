@@ -1,4 +1,4 @@
-# ADR-0010 · MCP server acting as the signed-in user
+# ADR-0011 · MCP server acting as the signed-in user
 
 ## Context
 

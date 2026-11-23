@@ -177,7 +177,7 @@ and exports the deed once no error remains.
 - **Same rights as the user.** The server signs in to Supabase Auth with a
   user's credentials and runs every query with that user's JWT, so RLS
   applies exactly as in the browser. It refuses secret and service-role
-  keys ([ADR-0010](docs/adr/0010-mcp-server-with-user-session.md)).
+  keys ([ADR-0011](docs/adr/0011-mcp-server-with-user-session.md)).
 - **No generated legal text.** The tools move structured data through the
   same schema, rules, template, and renderers as the web app. The agent
   never writes deed text.

@@ -4,7 +4,7 @@ import type { AppSupabaseClient } from "./session";
 
 /*
  * Data access for the MCP tools. It mirrors apps/web/src/lib/documents/
- * repository.ts (ADR-0010 says why it is not shared yet): every query runs
+ * repository.ts (ADR-0011 says why it is not shared yet): every query runs
  * through the signed-in user's client, so row-level security decides which
  * rows exist and which writes succeed.
  */

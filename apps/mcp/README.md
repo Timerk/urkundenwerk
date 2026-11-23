@@ -21,7 +21,7 @@ generates or edits legal text, and validation involves no LLM.
   Postgres row-level security decides which firms and documents exist for
   the agent and which writes succeed, exactly as in the browser
   ([ADR-0003](../../docs/adr/0003-tenancy-with-row-level-security.md),
-  [ADR-0010](../../docs/adr/0010-mcp-server-with-user-session.md)).
+  [ADR-0011](../../docs/adr/0011-mcp-server-with-user-session.md)).
 - **No secret key.** Only the publishable key is accepted. `sb_secret_…`
   and service-role keys bypass RLS, so the server refuses to start with one.
 - **Roles.** Viewers can list, read, validate, and export. Creating,
