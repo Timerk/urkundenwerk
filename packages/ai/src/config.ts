@@ -9,8 +9,8 @@ import { withResilience } from "./resilience";
  * Default models per provider and task. Explanations are short, frequent,
  * and latency-sensitive, so they use a small model. Extraction reads whole
  * documents and must quote its sources verbatim, so it uses a stronger one;
- * the evaluation decides which (ADR-0009). Every id can be overridden per
- * environment.
+ * ADR-0009 records the OpenAI choice from the evaluation. Each model ID
+ * can be overridden per environment.
  */
 export const PROVIDER_MODELS = {
   anthropic: { explain: "claude-haiku-5-5", extract: "claude-opus-5-5" },

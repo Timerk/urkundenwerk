@@ -157,8 +157,9 @@ screenshots, run `pnpm db:reset` and then
 Two features use an LLM, and neither lets it write legal text or decide
 anything on its own ([ADR-0002](docs/adr/0002-deterministic-legal-text.md)).
 Both are off unless configured, and both run behind the same
-provider-agnostic port with an Anthropic adapter and a scripted fake
-([ADR-0007](docs/adr/0007-llm-port-and-adapters.md)).
+provider-agnostic port with adapters for Anthropic and OpenAI and a
+scripted fake ([ADR-0007](docs/adr/0007-llm-port-and-adapters.md)). One
+provider is active at a time, chosen by configuration.
 
 ### Extraction from a contract
 
@@ -169,9 +170,13 @@ The model proposes; Urkundenwerk's code decides what is verified
   read it, with a static, versioned prompt. Unlike explanations, extraction
   cannot work without the text, and it contains personal data. The demo
   therefore uses fictional documents only, and the upload page says what is
-  sent and to which model. Importing real client data would first need a
-  lawful basis, a processing agreement with the provider, and a review under
-  the professional secrecy rules for lawyers and notaries.
+  sent and names the configured provider and model. The OpenAI adapter
+  sends `store: false` to disable storage for later API retrieval. Abuse
+  monitoring retention follows [OpenAI's data controls][openai-data].
+  Importing real client data would need a lawful basis, a processing
+  agreement with the provider, a review of
+  its retention and international transfers, and a review under the
+  professional secrecy rules for lawyers and notaries.
 - **What is stored.** Nothing until you confirm. The upload is read in
   memory, and the text and the model's proposals go back to your browser.
   Creating the draft stores only the values you accepted or edited, as a
@@ -216,12 +221,15 @@ that AI is not set up, and the Checks panel shows the rules' own summaries.
 To use your own key, add it to `apps/web/.env.local`, which Git ignores:
 
 ```sh
-ANTHROPIC_API_KEY=<your key>     # turns AI_PROVIDER=anthropic on
-# AI_PROVIDER=fake               # scripted answers without a key or network
-# AI_MODEL_EXPLAIN=claude-haiku-5-5
-# AI_MODEL_EXTRACT=claude-opus-5-5
+# ANTHROPIC_API_KEY=<your key>     # selects Anthropic
+# OPENAI_API_KEY=<your key>        # selects OpenAI
+# AI_PROVIDER=fake                # scripted answers without a key or network
+# AI_MODEL_EXPLAIN=claude-haiku-5-5   # gpt-6-luna with OpenAI
+# AI_MODEL_EXTRACT=claude-opus-5-5    # gpt-6.2-sol with OpenAI
 # AI_EXTRACT_TIMEOUT_MS=120000
 ```
+
+With both keys set, Anthropic is used unless `AI_PROVIDER` says otherwise.
 
 With `AI_PROVIDER=fake`, explanations are scripted and extraction finds a
 few fields with fixed patterns, so the whole flow can be tried without a
@@ -251,30 +259,46 @@ plus an adversarial prompt-injection document.
   is used for reporting and never for tuning. Scores describe these
   synthetic documents, not scanned or real notarial files.
 
-Results on the test split (16 documents, 254 labelled fields), with prompt
-`extract-2026-11-23` at medium effort:
+On 2026-11-23, we ran the regex baseline and three OpenAI models on the test
+split (16 documents, 254 labelled fields) with prompt `extract-2026-11-23`
+and medium reasoning effort. The comparison covers OpenAI, and the app
+also supports Anthropic.
 
-| Predictor             | Strict P | Strict R | Strict F1 | Lenient F1 | Citation accuracy | Grounded recall | Verified rate | Verified precision | Failed | Median latency | Tokens in / out | Est. cost |
-| --------------------- | -------: | -------: | --------: | ---------: | ----------------: | --------------: | ------------: | -----------------: | -----: | -------------: | --------------: | --------: |
-| regex-baseline        |    90.4% |    26.0% |     40.4% |      40.4% |             86.4% |           22.4% |             — |                  — |      — |              — |               — |         — |
-| llm-claude-opus-5-5   |      TBD |      TBD |       TBD |        TBD |               TBD |             TBD |           TBD |                TBD |    TBD |            TBD |             TBD |       TBD |
-| llm-claude-sonnet-5-5 |      TBD |      TBD |       TBD |        TBD |               TBD |             TBD |           TBD |                TBD |    TBD |            TBD |             TBD |       TBD |
-| llm-claude-haiku-5-5  |      TBD |      TBD |       TBD |        TBD |               TBD |             TBD |           TBD |                TBD |    TBD |            TBD |             TBD |       TBD |
+| Predictor         | Strict P | Strict R | Strict F1 | Lenient F1 | Citation accuracy | Grounded recall | Verified rate | Verified precision | Failed | Median latency | Tokens in / out | Est. cost |
+| ----------------- | -------: | -------: | --------: | ---------: | ----------------: | --------------: | ------------: | -----------------: | -----: | -------------: | --------------: | --------: |
+| regex-baseline    |    90.4% |    26.0% |     40.4% |      40.4% |             86.4% |           22.4% |             — |                  — |      — |              — |               — |         — |
+| llm-gpt-6.2-sol   |    97.2% |    97.2% |     97.2% |      98.8% |             95.1% |           92.5% |         98.0% |              97.2% |      0 |         11.4 s | 41,868 / 13,562 |     $0.22 |
+| llm-gpt-6.1-terra |    96.8% |    95.7% |     96.2% |      97.8% |             96.3% |           92.1% |         97.2% |              96.7% |      0 |         12.2 s | 41,212 / 14,920 |     $0.09 |
+| llm-gpt-6-luna    |    93.3% |    93.3% |     93.3% |      96.5% |             96.2% |           89.8% |         95.3% |              94.6% |      0 |          8.3 s | 41,212 / 16,461 |     $0.01 |
 
-The LLM rows are placeholders until the evaluation has been run with a real
-key; the runner prints this table, with these columns, ready to paste. To reproduce it, put
-`ANTHROPIC_API_KEY` in `apps/web/.env.local` or export it, then run:
+All three models raised strict recall from 26.0% to 93.3–97.2% and strict
+F1 from 40.4% to 93.3–97.2%. Among strictly correct values, 95.1–96.3% had
+matching citations, up from 86.4% for the baseline, and 94.6–97.2% of
+verified model values matched the gold labels. The per-document reports
+show that models often returned full sentences for identification details
+and notary notes where the labels selected shorter phrases, and Luna
+overstated three share capital amounts by a factor of 100. Sol led strict
+F1, grounded recall, and verified precision, so it is the OpenAI extraction
+default at $0.22 for this run, compared with $0.09 for Terra and $0.01 for
+Luna. With 16 fictional test documents, the sample is small and the
+one-percentage-point strict F1 gap between Sol and Terra may vary across
+documents.
+
+To reproduce the comparison, put `OPENAI_API_KEY` in `apps/web/.env.local`
+or export it and run the following command.
 
 ```sh
 pnpm --filter @urkundenwerk/extraction eval -- --predictor regex-baseline \
-  --predictor llm --model claude-opus-5-5 --model claude-sonnet-5-5 \
-  --model claude-haiku-5-5 --split test
+  --predictor llm --provider openai --model gpt-6.2-sol \
+  --model gpt-6.1-terra --model gpt-6-luna --split test
 ```
 
-Add `--dry-run` to estimate tokens and cost first; a full test-split run
-costs about $1 with Opus, $0.50 with Sonnet, and a few cents with Haiku.
-Reports for each run go to `packages/extraction/eval/results/`, which Git
-ignores.
+Add `--dry-run` to estimate tokens and cost before the run. To evaluate
+Claude models, use `--provider anthropic` (the default),
+`ANTHROPIC_API_KEY`, and Claude model IDs. Reports go to
+`packages/extraction/eval/results/`, which Git ignores.
+
+[openai-data]: https://developers.openai.com/api/docs/guides/your-data
 
 ## Security model
 

@@ -26,6 +26,8 @@ const result = await explainIssues(issues, {
 - `LlmClient.generateStructured` is the port. It returns data validated
   against a Zod schema, or throws an `LlmError` with a `kind`.
 - `AnthropicLlmClient` uses the official SDK with structured outputs.
+  `OpenAiLlmClient` uses the OpenAI Responses API with Structured Outputs
+  and disables response storage for later API retrieval.
   `FakeLlmClient` answers from a script and never touches the network.
   `withResilience` adds a timeout per attempt and one retry for transient
   failures.
@@ -37,14 +39,15 @@ const result = await explainIssues(issues, {
   the rule summary on any failure. Results carry the model and
   `PROMPT_VERSION`.
 
-| Variable                | Default                                 |
-| ----------------------- | --------------------------------------- |
-| `AI_PROVIDER`           | `anthropic` with a key, else `disabled` |
-| `ANTHROPIC_API_KEY`     | unset                                   |
-| `AI_MODEL_EXPLAIN`      | `claude-haiku-5-5`                      |
-| `AI_MODEL_EXTRACT`      | `claude-opus-5-5`                       |
-| `AI_TIMEOUT_MS`         | `20000`                                 |
-| `AI_EXTRACT_TIMEOUT_MS` | `120000`                                |
+| Variable                | Default                                                |
+| ----------------------- | ------------------------------------------------------ |
+| `AI_PROVIDER`           | Provider with a key (Anthropic first), else `disabled` |
+| `ANTHROPIC_API_KEY`     | unset                                                  |
+| `OPENAI_API_KEY`        | unset                                                  |
+| `AI_MODEL_EXPLAIN`      | Anthropic `claude-haiku-5-5`, OpenAI `gpt-6-luna`      |
+| `AI_MODEL_EXTRACT`      | Anthropic `claude-opus-5-5`, OpenAI `gpt-6.2-sol`      |
+| `AI_TIMEOUT_MS`         | `20000`                                                |
+| `AI_EXTRACT_TIMEOUT_MS` | `120000`                                               |
 
 Contract extraction uses this port but lives in
 [`@urkundenwerk/extraction`](../extraction/README.md), next to ingestion and

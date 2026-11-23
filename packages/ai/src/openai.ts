@@ -50,8 +50,8 @@ export function toOpenAiLlmError(error: unknown): LlmError {
 /**
  * Calls the OpenAI Responses API with Structured Outputs: the Zod schema is
  * sent as a strict JSON schema that constrains decoding, and the answer is
- * still parsed and validated here. Responses are not stored on OpenAI's side
- * (`store: false`). OpenAI caches long prompt prefixes automatically, so the
+ * still parsed and validated here. Setting `store: false` disables storage
+ * for later API retrieval. OpenAI caches long prompt prefixes, so the
  * `cacheSystemPrompt` hint only adds a stable cache key per task.
  */
 export class OpenAiLlmClient implements LlmClient {

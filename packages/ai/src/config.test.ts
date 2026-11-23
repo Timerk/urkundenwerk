@@ -1,10 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  createLlmClient,
-  DEFAULT_MODELS,
-  parseAiConfig,
-  PROVIDER_MODELS,
-} from "./config";
+import { createLlmClient, DEFAULT_MODELS, parseAiConfig } from "./config";
 import type { FakeResponder } from "./fake";
 
 const fakeResponder: FakeResponder = () => ({
@@ -44,7 +39,7 @@ describe("parseAiConfig", () => {
     expect(parseAiConfig({ OPENAI_API_KEY: "test-key" })).toMatchObject({
       provider: "openai",
       apiKey: "test-key",
-      models: PROVIDER_MODELS.openai,
+      models: { explain: "gpt-6-luna", extract: "gpt-6.2-sol" },
     });
   });
 
