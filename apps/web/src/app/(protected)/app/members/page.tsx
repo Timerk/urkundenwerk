@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { z } from "zod";
+import { Announcer } from "../../../../components/announcer";
 import { PageHeader } from "../../../../components/page-header";
 import { Notice } from "../../../../components/ui/notice";
 import { formatDateTime } from "../../../../i18n/format";
@@ -12,7 +13,6 @@ import { getCurrentMembership } from "../../../../lib/tenants/memberships";
 import {
   InvitationForm,
   MemberRow,
-  MembersAnnouncer,
   PersonLabel,
   RevokeInvitationForm,
 } from "./member-forms";
@@ -64,7 +64,7 @@ export default async function MembersPage() {
         title={t("title")}
         description={t("intro", { firm: firm.name, count: people.length })}
       />
-      <MembersAnnouncer>
+      <Announcer>
         <section aria-labelledby="people-heading" className="space-y-3">
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
             <h2
@@ -169,7 +169,7 @@ export default async function MembersPage() {
             </div>
           </section>
         ) : null}
-      </MembersAnnouncer>
+      </Announcer>
     </div>
   );
 }

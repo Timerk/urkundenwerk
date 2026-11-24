@@ -161,7 +161,10 @@ test("an editor prepares and downloads the deed and register filing", async ({
   ).toHaveValue("30,000");
   await expect(page.getByText("Ready to export")).toBeVisible();
 
-  await page.getByRole("main").getByRole("link", { name: "Documents" }).click();
+  await page
+    .getByRole("navigation", { name: "Application navigation" })
+    .getByRole("link", { name: "Documents" })
+    .click();
   await expect(
     page.getByRole("row", { name: new RegExp(firma) }),
   ).toContainText("Ready to export");

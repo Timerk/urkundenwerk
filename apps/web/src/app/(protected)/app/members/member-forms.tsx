@@ -1,15 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import {
-  createContext,
-  type ReactNode,
-  useActionState,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
+import { useAnnounce } from "../../../../components/announcer";
 import { FormError } from "../../../../components/form-error";
 import { Button } from "../../../../components/ui/button";
 import {
@@ -30,35 +23,6 @@ import {
   createInvitation,
   revokeInvitation,
 } from "./actions";
-
-/*
- * A removed member or a revoked invitation disappears from the list when the
- * page revalidates, and with it any message next to it. Results that remove
- * their row are therefore announced in one region above the lists, and focus
- * moves there so keyboard users are not left on a vanished control.
- */
-const AnnounceContext = createContext<(message: string) => void>(() => {});
-
-export function MembersAnnouncer({ children }: { children: ReactNode }) {
-  const [message, setMessage] = useState("");
-  const region = useRef<HTMLDivElement>(null);
-  function announce(text: string) {
-    setMessage(text);
-    requestAnimationFrame(() => region.current?.focus());
-  }
-  return (
-    <AnnounceContext.Provider value={announce}>
-      <div ref={region} tabIndex={-1} className="outline-none">
-        <StatusMessage
-          tone="success"
-          message={message}
-          className="rounded-sm border border-ok/30 bg-paper px-4 py-2.5"
-        />
-      </div>
-      {children}
-    </AnnounceContext.Provider>
-  );
-}
 
 function Feedback({ state }: { state: FormResult }) {
   const t = useTranslations("members");
@@ -90,7 +54,7 @@ export function MemberRow({
 }) {
   const t = useTranslations("members");
   const roles = useTranslations("roles");
-  const announce = useContext(AnnounceContext);
+  const announce = useAnnounce();
   const [state, action, pending] = useActionState(
     async (previous: FormResult, form: FormData) => {
       const result = await changeMembership(tenantId, userId, previous, form);
@@ -359,7 +323,7 @@ export function RevokeInvitationForm({
   email: string;
 }) {
   const t = useTranslations("members");
-  const announce = useContext(AnnounceContext);
+  const announce = useAnnounce();
   const [state, action, pending] = useActionState(async () => {
     const result = await revokeInvitation(tenantId, id);
     if (result.success) announce(t("revokedNamed", { email }));

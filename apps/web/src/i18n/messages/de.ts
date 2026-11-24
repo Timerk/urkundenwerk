@@ -417,9 +417,12 @@ export const de: Messages = {
     ready: "Bereit zum Export",
     outstanding: "{count, plural, one {# Feld offen} other {# Felder offen}}",
     delete: "Löschen",
-    deleting: "Wird gelöscht …",
-    confirmDelete:
-      "„{title}“ löschen? Dieser Schritt kann nicht rückgängig gemacht werden.",
+    deleting: "Wird gelöscht…",
+    confirmDeleteTitle: "„{title}“ löschen?",
+    confirmDeleteBody:
+      "Der Entwurf und seine Falldaten werden für alle in {firm} entfernt; das lässt sich nicht rückgängig machen. Im Kanzleiprotokoll bleibt die Löschung vermerkt.",
+    cancel: "Abbrechen",
+    deleted: "„{title}“ wurde gelöscht.",
   },
   documents: {
     defaultTitle: "Musterprotokoll ohne Titel",

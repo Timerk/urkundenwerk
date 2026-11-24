@@ -407,7 +407,11 @@ export const en = {
       "{count, plural, one {# field to complete} other {# fields to complete}}",
     delete: "Delete",
     deleting: "Deleting…",
-    confirmDelete: "Delete “{title}”? This cannot be undone.",
+    confirmDeleteTitle: "Delete “{title}”?",
+    confirmDeleteBody:
+      "The draft and its case data are removed for everyone in {firm}, and this cannot be undone. The audit log keeps a record of the deletion.",
+    cancel: "Cancel",
+    deleted: "“{title}” was deleted.",
   },
   documents: {
     defaultTitle: "Untitled Musterprotokoll",

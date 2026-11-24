@@ -112,22 +112,23 @@ v4 `@theme`), so a dark theme can redefine them later.
 
 ## Patterns for firm and account pages
 
-- **Destructive actions confirm in place.** Remove, Revoke, Leave firm and
-  Delete account first show a quiet red trigger. It opens a `ConfirmPanel`
-  where the control was: a 3 px alert rule on an alert wash, a question
-  that names the person, firm or invitation, one sentence on what is lost
-  and what stays, the action again as a solid alert button with the same
-  verb, and Cancel. Focus moves to the question; Escape or Cancel closes
-  the panel and returns focus to the trigger. There are no browser
-  `confirm()` dialogs and no modals. Account deletion keeps its confirmation
-  checkboxes inside the panel, and firms that will be deleted with the
-  account are listed beforehand in a hint box.
-- **Results are announced where they stay visible.** A role save reports
-  next to its row through an always-present `role="status"` region. A
-  result that removes its own row, such as a removal or a revocation, is
-  announced in one status line above the lists, which also takes focus so
-  keyboard users are not left on a control that no longer exists. Errors
-  use `role="alert"`. Buttons say what they are doing while pending
+- **Destructive actions confirm in place.** Delete document, Remove, Revoke,
+  Leave firm and Delete account first show a quiet red trigger. It opens a
+  `ConfirmPanel` where the control was, or for a document in a row of its own
+  below it, spanning the table: a 3 px alert rule on an alert wash, a question
+  that names the document, person, firm or invitation, one sentence on what is
+  lost and what stays, the action again as a solid alert button with the same
+  verb, and Cancel. Focus moves to the question; Escape or Cancel closes the
+  panel and returns focus to the trigger. There are no browser `confirm()`
+  dialogs and no modals. Account deletion keeps its confirmation checkboxes
+  inside the panel, and firms that will be deleted with the account are listed
+  beforehand in a hint box.
+- **Results are announced where they stay visible.** A role save reports next
+  to its row through an always-present `role="status"` region. A result that
+  removes its own row, such as a deletion, a removal or a revocation, is
+  announced in one status line above the lists (`Announcer`), which also takes
+  focus so keyboard users are not left on a control that no longer exists.
+  Errors use `role="alert"`. Buttons say what they are doing while pending
   ("Saving…", "Removing…").
 - **Change only what changed.** A member's role is a select; Save and
   Cancel appear only once it differs from the stored role.
@@ -165,8 +166,8 @@ disabled controls they cannot explain.
 `apps/web/src/components/ui` holds the primitives: `Button`, `Field` with
 `TextInput`, `TextArea`, and `Select`, `SegmentedControl`, `Notice`, and
 `Section`, plus `ConfirmPanel` and `StatusMessage` for destructive
-confirmation and announced results. `PageHeader`, `SettingsRow` and
-`AuditList` sit in `apps/web/src/components`.
+confirmation and announced results. `PageHeader`, `SettingsRow`,
+`Announcer` and `AuditList` sit in `apps/web/src/components`.
 
 `DocumentPreview` renders any core `DocumentModel` and adds only layout
 and field affordances; it never changes the wording. `ChecksPanel` renders

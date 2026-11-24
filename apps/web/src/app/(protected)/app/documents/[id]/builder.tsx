@@ -8,7 +8,6 @@ import {
   registerFilingMetadata,
 } from "@urkundenwerk/core";
 import { useLocale, useTranslations } from "next-intl";
-import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -367,24 +366,7 @@ export function Builder({
         >
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3 sm:px-6">
             <div className="flex min-w-0 flex-1 items-center gap-3">
-              <Link
-                href="/app"
-                className="inline-flex shrink-0 items-center gap-1 rounded-sm text-sm text-ink-soft hover:text-ink"
-              >
-                <svg aria-hidden="true" viewBox="0 0 16 16" className="size-4">
-                  <path
-                    d="M10 3.5 5.5 8l4.5 4.5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                {common("documents")}
-              </Link>
-              <span aria-hidden="true" className="h-6 w-px bg-rule" />
-              <div className="min-w-0 flex-1">
+              <div className="-ml-1.5 min-w-0 flex-1">
                 {canEdit ? (
                   <>
                     <label htmlFor="document-title" className="sr-only">
