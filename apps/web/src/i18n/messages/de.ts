@@ -78,28 +78,66 @@ export const de: Messages = {
   },
   members: {
     title: "Mitglieder",
+    intro:
+      "{count, plural, one {# Person hat} other {# Personen haben}} Zugriff auf {firm}.",
+    people: "Personen mit Zugriff",
+    you: "Sie",
     unknown: "Mitglied ohne Anzeigenamen",
+    readOnlyTitle: "Mitglieder verwaltet die Administration",
+    readOnlyBody:
+      "Sie sehen, wer Zugriff auf diese Kanzlei hat. Für Einladungen und Rollenänderungen wenden Sie sich an ein Mitglied mit der Rolle Administration.",
     role: "Rolle",
+    roleOf: "Rolle von {name}",
+    roleHelp: {
+      admin:
+        "Alles, was die Bearbeitung darf, dazu Mitglieder, Einladungen und das Kanzleiprotokoll.",
+      editor: "Erstellt, bearbeitet, importiert und löscht Dokumente.",
+      viewer: "Öffnet Dokumente und lädt sie herunter.",
+    },
     email: "E-Mail-Adresse der eingeladenen Person",
     create: "Einladung erstellen",
+    creating: "Wird erstellt…",
+    createdTitle: "Einladung für {email} erstellt",
+    createdBody:
+      "Kopieren Sie den Link jetzt und senden Sie ihn der eingeladenen Person. Er wird nur einmal angezeigt.",
     copy: "Link kopieren",
     link: "Einladungslink",
-    copied: "Der Link wurde kopiert.",
-    copyManually: "Markieren und kopieren Sie den Link von Hand.",
+    copied: "Der Link wurde in die Zwischenablage kopiert.",
+    copiedShort: "Kopiert",
+    copyManually:
+      "Das Kopieren ist fehlgeschlagen. Markieren Sie den Link und kopieren Sie ihn von Hand.",
     invitations: "Einladungen",
     inviteHelp:
-      "Kopieren Sie den Link beim Erstellen und geben Sie ihn an die eingeladene Person weiter. Urkundenwerk versendet keine E-Mails. Der Link ist sieben Tage gültig und setzt ein Konto mit der eingeladenen E-Mail-Adresse voraus. In der gehosteten Demo muss das Konto bereits bestehen.",
+      "Urkundenwerk versendet keine E-Mails. Erstellen Sie die Einladung, kopieren Sie den Link und senden Sie ihn selbst. Er ist sieben Tage gültig, nur einmal verwendbar und nur für ein Konto mit der eingeladenen E-Mail-Adresse.",
+    inviteDemo:
+      "In der gehosteten Demo muss die eingeladene Person bereits ein Konto haben.",
     pending: "Offene Einladungen",
-    expires: "Gültig bis {date}",
-    noPending: "Es liegen keine offenen Einladungen vor.",
+    pendingDetails: "{role}, gültig bis {date}",
+    noPending: "Keine offenen Einladungen",
+    noPendingHelp:
+      "Erstellte Einladungen erscheinen hier, bis sie angenommen, widerrufen oder abgelaufen sind.",
     revoke: "Widerrufen",
+    revoking: "Wird widerrufen…",
+    confirmRevokeTitle: "Einladung für {email} widerrufen?",
+    confirmRevokeBody:
+      "Der Link funktioniert danach nicht mehr. Sie können später eine neue Einladung erstellen.",
     revoked: "Die Einladung wurde widerrufen.",
+    revokedNamed: "Die Einladung für {email} wurde widerrufen.",
     saveRole: "Rolle speichern",
+    saving: "Wird gespeichert…",
     roleSaved: "Die Rolle wurde gespeichert.",
     remove: "Entfernen",
-    confirmRemove: "Entfernen bestätigen",
+    leave: "Kanzlei verlassen",
+    removing: "Wird entfernt…",
+    confirmRemoveTitle: "{name} aus {firm} entfernen?",
+    confirmRemoveBody:
+      "Die Person verliert sofort den Zugriff auf die Dokumente der Kanzlei. Ihre bisherigen Einträge bleiben im Kanzleiprotokoll, und Sie können sie später erneut einladen.",
+    confirmLeaveTitle: "{firm} verlassen?",
+    confirmLeaveBody:
+      "Sie verlieren sofort den Zugriff auf die Dokumente der Kanzlei. Für eine Rückkehr muss die Administration Sie erneut einladen.",
     cancel: "Abbrechen",
     removed: "Das Mitglied wurde entfernt.",
+    removedNamed: "{name} wurde aus der Kanzlei entfernt.",
     forbidden:
       "Nur Personen mit der Rolle Administration dürfen Mitglieder und Einladungen verwalten.",
     invalid: "Prüfen Sie die E-Mail-Adresse und die gewählte Rolle.",
