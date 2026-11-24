@@ -65,6 +65,8 @@ export const COMPLETE_FILING = {
  */
 export class FakeStore implements DocumentStore {
   documents = new Map<string, StoredDocument>();
+  /** Exports recorded in the audit log, in order. */
+  exports: { id: string; format: string; document: string }[] = [];
   private clock = Date.parse("2026-11-23T09:00:00Z");
   private sequence = 0;
 
@@ -144,6 +146,11 @@ export class FakeStore implements DocumentStore {
     const updated = { ...document, ...changes, updatedAt: this.tick() };
     this.documents.set(id, updated);
     return structuredClone(updated);
+  }
+
+  async recordExport(id: string, format: string, document: string) {
+    if (!(await this.getDocument(id))) throw new Error("Document not found.");
+    this.exports.push({ id, format, document });
   }
 
   async deleteDocument(id: string) {

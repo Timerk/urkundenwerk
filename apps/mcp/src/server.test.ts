@@ -553,6 +553,10 @@ describe("export_document", () => {
 
     const exported = await call("urkundenwerk_export_document", { documentId });
     expect(exported.isError, exported.text).toBe(false);
+    // Only the successful export reaches the audit log.
+    expect(store.exports).toEqual([
+      { id: documentId, format: "pdf", document: "musterprotokoll" },
+    ]);
   });
 
   it("blocks a filing export when the deed has rule errors", async () => {

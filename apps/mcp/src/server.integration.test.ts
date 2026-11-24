@@ -87,9 +87,11 @@ const COMPANY = {
 
 const created: string[] = [];
 let editor: Connection;
+let editorSession: UserSession;
 
 beforeAll(async () => {
   editor = await as("erik.editor@demo.test");
+  editorSession = open[0]!.session;
 });
 
 afterAll(async () => {
@@ -161,6 +163,24 @@ describe("MCP server against local Supabase", () => {
     const pdf = Buffer.from(resource!.blob, "base64");
     expect(pdf.subarray(0, 5).toString("latin1")).toBe("%PDF-");
     expect(pdf.subarray(-6).toString("latin1")).toContain("%%EOF");
+
+    // The export is in the audit log under the user's own name.
+    const { data: events, error } = await editorSession.client
+      .from("audit_events")
+      .select("action, actor_id, metadata")
+      .eq("entity_id", documentId)
+      .eq("action", "document.exported");
+    expect(error).toBeNull();
+    expect(events).toEqual([
+      {
+        action: "document.exported",
+        actor_id: editorSession.userId,
+        metadata: expect.objectContaining({
+          format: "pdf",
+          document: "musterprotokoll",
+        }),
+      },
+    ]);
 
     const listed = await editor.call("urkundenwerk_list_documents", {
       limit: 100,
