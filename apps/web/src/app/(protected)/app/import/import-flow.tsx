@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import {
   type ChangeEvent,
@@ -9,10 +10,11 @@ import {
   useState,
 } from "react";
 import { Notice } from "../../../../components/ui/notice";
+import { formatNumber } from "../../../../i18n/format";
 import {
   ACCEPT_ATTRIBUTE,
   checkUpload,
-  MAX_UPLOAD_BYTES,
+  MAX_UPLOAD_MEGABYTES,
 } from "../../../../lib/import/limits";
 import { type ExtractedContract, extractContract } from "./actions";
 import { ReviewScreen } from "./review-screen";
@@ -22,12 +24,13 @@ type Phase =
   | { kind: "extracting"; file: { name: string; size: number } }
   | { kind: "review"; contract: ExtractedContract };
 
-const sizeFormat = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 1 });
-
-function formatSize(bytes: number): string {
-  return bytes < 1024 * 1024
-    ? `${sizeFormat.format(bytes / 1024)} KB`
-    : `${sizeFormat.format(bytes / 1024 / 1024)} MB`;
+function FileSize({ bytes }: { bytes: number }) {
+  const t = useTranslations("import");
+  const locale = useLocale();
+  // Formatted here, with one decimal; the messages only place the unit.
+  const kb = bytes < 1024 * 1024;
+  const size = formatNumber(locale, bytes / 1024 / (kb ? 1 : 1024), 1);
+  return <>{t(kb ? "sizeKb" : "sizeMb", { size })}</>;
 }
 
 function DocumentGlyph() {
@@ -60,6 +63,7 @@ function DocumentGlyph() {
 
 /** Seconds since the extraction started, shown but not announced. */
 function Elapsed() {
+  const t = useTranslations("import");
   const [seconds, setSeconds] = useState(0);
   useEffect(() => {
     const started = Date.now();
@@ -71,7 +75,7 @@ function Elapsed() {
   }, []);
   return (
     <span aria-hidden="true" className="tabular-nums">
-      {seconds} s
+      {t("seconds", { seconds })}
     </span>
   );
 }
@@ -90,11 +94,16 @@ export function ImportFlow({
   const [phase, setPhase] = useState<Phase>({ kind: "choose" });
   const [dragging, setDragging] = useState(false);
   const hintId = useId();
+  const t = useTranslations("import");
+  const common = useTranslations("common");
 
   async function upload(file: File) {
     const problem = checkUpload(file);
     if (problem) {
-      setPhase({ kind: "choose", error: problem });
+      setPhase({
+        kind: "choose",
+        error: t(`upload.${problem}`, { size: MAX_UPLOAD_MEGABYTES }),
+      });
       return;
     }
     setPhase({
@@ -113,11 +122,7 @@ export function ImportFlow({
       );
     } catch {
       // The request itself failed, for example over the body size limit.
-      setPhase({
-        kind: "choose",
-        error:
-          "The upload did not reach the server. Check your connection and the file, then try again.",
-      });
+      setPhase({ kind: "choose", error: t("errors.network") });
     }
   }
 
@@ -132,7 +137,7 @@ export function ImportFlow({
     setDragging(false);
     const files = event.dataTransfer.files;
     if (files.length > 1) {
-      setPhase({ kind: "choose", error: "Drop one file at a time." });
+      setPhase({ kind: "choose", error: t("errors.oneFile") });
       return;
     }
     if (files[0]) void upload(files[0]);
@@ -166,16 +171,11 @@ export function ImportFlow({
             strokeLinejoin="round"
           />
         </svg>
-        Documents
+        {common("documents")}
       </Link>
-      <h1 className="mt-6 font-serif text-3xl text-ink">
-        Import from a contract
-      </h1>
+      <h1 className="mt-6 font-serif text-3xl text-ink">{t("title")}</h1>
       <p className="mt-3 max-w-prose text-ink-soft">
-        Upload an existing formation deed or articles of association. An AI
-        model proposes values for a new Musterprotokoll in {firmName} and quotes
-        the passage each one comes from. You review every value, and nothing is
-        saved until you create the draft.
+        {t("intro", { firm: firmName })}
       </p>
 
       <div className="mt-8">
@@ -191,17 +191,14 @@ export function ImportFlow({
                   {phase.file.name}
                 </p>
                 <p className="text-sm text-ink-faint">
-                  {formatSize(phase.file.size)}
+                  <FileSize bytes={phase.file.size} />
                 </p>
                 <p
                   role="status"
                   aria-live="polite"
                   className="mt-4 flex items-baseline justify-between gap-4 text-sm text-ink"
                 >
-                  <span>
-                    Reading the document and extracting values. This usually
-                    takes under a minute.
-                  </span>
+                  <span>{t("reading")}</span>
                   <Elapsed />
                 </p>
                 <div className="mt-3 h-1 overflow-hidden rounded-full bg-desk">
@@ -227,14 +224,16 @@ export function ImportFlow({
             >
               <DocumentGlyph />
               <span className="text-lg text-ink">
-                Drop a PDF or DOCX here, or{" "}
-                <span className="font-medium text-stamp underline underline-offset-4">
-                  choose a file
-                </span>
+                {t.rich("drop", {
+                  choose: (chunks) => (
+                    <span className="font-medium text-stamp underline underline-offset-4">
+                      {chunks}
+                    </span>
+                  ),
+                })}
               </span>
               <span id={hintId} className="text-sm text-ink-faint">
-                A text-based PDF or a DOCX, up to{" "}
-                {MAX_UPLOAD_BYTES / 1024 / 1024} MB. Scans cannot be read yet.
+                {t("dropHint", { size: MAX_UPLOAD_MEGABYTES })}
               </span>
               <input
                 type="file"
@@ -259,30 +258,22 @@ export function ImportFlow({
         className="mt-10 border-t border-rule pt-6 text-sm text-ink-soft"
       >
         <h2 id="import-privacy" className="font-medium text-ink">
-          What happens to the document
+          {t("privacy.title")}
         </h2>
         <ul className="mt-2 max-w-prose list-disc space-y-1.5 pl-5">
           {provider === "fake" ? (
-            <li>
-              This server uses scripted extraction for testing. The document
-              text does not leave the server, and no AI model reads it.
-            </li>
+            <li>{t("privacy.fake")}</li>
           ) : (
             <li>
-              The document&apos;s text is sent to{" "}
-              {provider === "openai" ? "OpenAI" : "Anthropic"}&apos;s API, model{" "}
-              <code className="text-xs">{model}</code>, to extract the values.
-              Use fictional documents in this demo.
+              {t.rich("privacy.provider", {
+                provider: provider === "openai" ? "OpenAI" : "Anthropic",
+                model,
+                code: (chunks) => <code className="text-xs">{chunks}</code>,
+              })}
             </li>
           )}
-          <li>
-            Urkundenwerk does not store the file or its text. Only the values
-            you accept are saved, in a new draft.
-          </li>
-          <li>
-            The AI may be wrong. Each value shows its source passage, and our
-            code checks that the passage exists and states the value.
-          </li>
+          <li>{t("privacy.storage")}</li>
+          <li>{t("privacy.accuracy")}</li>
         </ul>
       </section>
     </div>

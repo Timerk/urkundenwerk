@@ -62,7 +62,7 @@ test("an editor imports a contract, reviews it, and opens the draft", async ({
     .getByRole("textbox", {
       name: "New value for Stammkapital (share capital)",
     })
-    .fill("20.000");
+    .fill("20,000");
   await page.getByRole("button", { name: "Accept all verified" }).click();
   await expect(page.getByText(/^All \d+ values decided$/)).toBeVisible();
 
@@ -77,7 +77,7 @@ test("an editor imports a contract, reviews it, and opens the draft", async ({
   ).toHaveValue("Schieferwabe Prüfstände GmbH");
   await expect(
     page.getByRole("textbox", { name: "Stammkapital (share capital)" }),
-  ).toHaveValue("20.000");
+  ).toHaveValue("20,000");
   await expect(
     page.getByRole("textbox", { name: "Document title" }),
   ).toHaveValue("Schieferwabe Prüfstände GmbH");

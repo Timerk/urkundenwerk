@@ -1,15 +1,14 @@
-import {
-  formatEuroAmount,
-  formatGermanDate,
-  type MusterprotokollDraft,
-} from "@urkundenwerk/core";
+import type { MusterprotokollDraft } from "@urkundenwerk/core";
 import {
   type ExtractionFieldPath,
   type FieldReview,
   fieldKind,
   isFieldValue,
 } from "@urkundenwerk/extraction/contract";
-import { parseEuros, setAt } from "../builder/form-model";
+import { formatEuroCents, formatIsoDate } from "../../i18n/format";
+import type { Locale } from "../../i18n/locale";
+import { formatEuros, parseEuros, setAt } from "../builder/form-model";
+import { dateInputText, parseDateInput } from "../date-input";
 
 // The review screen's state, kept free of React so it can be tested alone.
 
@@ -22,22 +21,14 @@ export type Decision =
 
 export type Decisions = Partial<Record<ExtractionFieldPath, Decision>>;
 
-/** The sections of the builder, in the deed's order. */
+/** The sections of the builder, in the deed's order; `review.sections.<id>` names them. */
 export const REVIEW_SECTIONS = [
-  { id: "notarisation", title: "Notarisation", prefix: "notarisation." },
-  { id: "founder", title: "Founder (Gesellschafter)", prefix: "founder." },
-  { id: "company", title: "Company", prefix: "company." },
-  {
-    id: "capital",
-    title: "Capital",
-    prefix: ["shareCapitalCents", "contribution"],
-  },
-  {
-    id: "director",
-    title: "Geschäftsführer (managing director)",
-    prefix: "managingDirector.",
-  },
-  { id: "notes", title: "Notary's notes", prefix: ["notaryNotes"] },
+  { id: "notarisation", prefix: "notarisation." },
+  { id: "founder", prefix: "founder." },
+  { id: "company", prefix: "company." },
+  { id: "capital", prefix: ["shareCapitalCents", "contribution"] },
+  { id: "director", prefix: "managingDirector." },
+  { id: "notes", prefix: ["notaryNotes"] },
 ] as const;
 
 export function sectionOf(path: ExtractionFieldPath): string {
@@ -48,46 +39,37 @@ export function sectionOf(path: ExtractionFieldPath): string {
   )!.id;
 }
 
-const OPTION_LABELS: Record<string, Record<string, string>> = {
-  "notarisation.mode": { in_person: "In person", video: "By video" },
-  "founder.kind": {
-    natural_person: "Natural person",
-    legal_entity: "Legal entity",
-  },
-  contribution: {
-    full: "In full, immediately",
-    half: "50 % now, the rest when called in",
-  },
-  "managingDirector.kind": { founder: "The founder", other: "Another person" },
-};
+/** Names an option of an enum field in the UI language. */
+export type OptionLabel = (path: ExtractionFieldPath, value: string) => string;
 
 /** The options of an enum field with their labels. */
 export function fieldOptions(
   path: ExtractionFieldPath,
+  optionLabel: OptionLabel,
 ): { value: string; label: string }[] {
   const kind = fieldKind(path);
   if (kind.type !== "enum") return [];
   return kind.values.map((value) => ({
     value,
-    label: OPTION_LABELS[path]?.[value] ?? value,
+    label: optionLabel(path, value),
   }));
 }
 
-/** A value as the review screen shows it, in the builder's conventions. */
+/** A value as the review screen shows it, in the UI language's conventions. */
 export function formatValue(
   path: ExtractionFieldPath,
   value: string | number,
+  locale: Locale,
+  optionLabel: OptionLabel,
 ): string {
   const kind = fieldKind(path);
   if (kind.type === "amount" && typeof value === "number") {
-    return formatEuroAmount(value);
+    return formatEuroCents(locale, value);
   }
   if (kind.type === "date" && typeof value === "string") {
-    return formatGermanDate(value);
+    return formatIsoDate(locale, value);
   }
-  if (kind.type === "enum") {
-    return OPTION_LABELS[path]?.[String(value)] ?? String(value);
-  }
+  if (kind.type === "enum") return optionLabel(path, String(value));
   return String(value);
 }
 
@@ -95,45 +77,60 @@ export function formatValue(
 export function editText(
   path: ExtractionFieldPath,
   value: string | number | null,
+  locale: Locale,
 ): string {
   if (value === null) return "";
-  if (fieldKind(path).type === "amount" && typeof value === "number") {
-    return String(Math.floor(value / 100)).replace(
-      /\B(?=(\d{3})+(?!\d))/g,
-      ".",
-    );
+  const kind = fieldKind(path).type;
+  if (kind === "amount" && typeof value === "number") {
+    return formatEuros(value, false, locale);
+  }
+  if (kind === "date" && typeof value === "string") {
+    return dateInputText(locale, value);
   }
   return String(value);
 }
 
+/** Why an edit is not a value yet; `review.edit.<reason>` words most. */
+export type EditProblem =
+  | "amountMissing"
+  | "amountFormat"
+  | "amountRange"
+  | "valueMissing"
+  | "date"
+  | "invalid";
+
 export type EditResult =
-  { ok: true; value: string | number } | { ok: false; message: string };
+  { ok: true; value: string | number } | { ok: false; problem: EditProblem };
 
 /** Reads an edited value and checks it against the draft field's schema. */
-export function parseEdit(path: ExtractionFieldPath, text: string): EditResult {
+export function parseEdit(
+  path: ExtractionFieldPath,
+  text: string,
+  locale: Locale,
+): EditResult {
   const kind = fieldKind(path);
   let value: string | number;
   if (kind.type === "amount") {
-    const euros = parseEuros(text);
-    if (euros.kind === "empty") {
-      return { ok: false, message: "Enter an amount, or clear the value." };
+    const euros = parseEuros(text, false, locale);
+    if (euros.kind === "empty") return { ok: false, problem: "amountMissing" };
+    if (euros.kind === "invalid") {
+      return {
+        ok: false,
+        problem: euros.reason === "format" ? "amountFormat" : "amountRange",
+      };
     }
-    if (euros.kind === "invalid") return { ok: false, message: euros.message };
     value = euros.cents;
+  } else if (kind.type === "date") {
+    const date = parseDateInput(text);
+    if (date.kind === "empty") return { ok: false, problem: "valueMissing" };
+    if (date.kind === "invalid") return { ok: false, problem: "date" };
+    value = date.iso;
   } else {
     value = text.trim();
-    if (!value) {
-      return { ok: false, message: "Enter a value, or clear it instead." };
-    }
+    if (!value) return { ok: false, problem: "valueMissing" };
   }
   if (!isFieldValue(path, value)) {
-    return {
-      ok: false,
-      message:
-        kind.type === "date"
-          ? "Enter a valid date."
-          : "This value is not valid for the field.",
-    };
+    return { ok: false, problem: kind.type === "date" ? "date" : "invalid" };
   }
   return { ok: true, value };
 }

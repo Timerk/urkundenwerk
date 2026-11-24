@@ -17,6 +17,9 @@ export default defineConfig({
   use: {
     baseURL,
     trace: "retain-on-failure",
+    // The UI follows Accept-Language until a language is chosen. Most tests
+    // read English texts; e2e/i18n.spec.ts covers German and the switcher.
+    locale: "en-GB",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {

@@ -8,7 +8,7 @@ import {
 import { FAKE_MODEL, FakeLlmClient, type FakeResponse } from "../fake";
 import { LruCache } from "../lru";
 import { toExplanationItems } from "./payload";
-import { PROMPT_VERSION } from "./prompt";
+import { type ExplanationLocale, PROMPT_VERSION } from "./prompt";
 import {
   type CachedExplanation,
   explainIssues,
@@ -41,11 +41,19 @@ const answer = (code: string, explanation = `Explains ${code}.`) => ({
 function explainWith(
   responses: FakeResponse[],
   cache?: LruCache<CachedExplanation>,
+  locale: ExplanationLocale = "en",
 ) {
   const client = FakeLlmClient.scripted(responses);
   return {
     client,
-    run: () => explainIssues(issues, { templateId, client, model, cache }),
+    run: (runLocale: ExplanationLocale = locale) =>
+      explainIssues(issues, {
+        templateId,
+        locale: runLocale,
+        client,
+        model,
+        cache,
+      }),
   };
 }
 
@@ -71,6 +79,7 @@ describe("explainIssues", () => {
     const result = await run();
 
     expect(result).toMatchObject({
+      locale: "en",
       model: FAKE_MODEL,
       promptVersion: PROMPT_VERSION,
       failure: null,
@@ -86,8 +95,33 @@ describe("explainIssues", () => {
     );
   });
 
+  it.each([
+    ["de", /Write both fields in German/, /"Sie"/],
+    ["en", /Write both fields in plain English/, /25,000 €/],
+  ] as const)(
+    "asks for the answer in the UI language %s",
+    async (locale, language, detail) => {
+      const { run, client } = explainWith(
+        [{ kind: "error", error: "refused" }],
+        undefined,
+        locale,
+      );
+      const result = await run();
+
+      const sent = client.requests[0]!;
+      expect(sent.system).toMatch(language);
+      expect(sent.system).toMatch(detail);
+      expect(sent.user).toContain(`"language": "${locale}"`);
+      expect(result.locale).toBe(locale);
+    },
+  );
+
   it("sends only rule facts and non-personal params", async () => {
-    const { run, client } = explainWith([{ kind: "error", error: "refused" }]);
+    const { run, client } = explainWith(
+      [{ kind: "error", error: "refused" }],
+      undefined,
+      "de",
+    );
     await run();
 
     const sent = client.requests[0]!;
@@ -212,6 +246,7 @@ describe("explainIssues", () => {
   it("falls back without calling anything when AI is disabled", async () => {
     const result = await explainIssues(issues, {
       templateId,
+      locale: "de",
       client: null,
       model,
     });
@@ -237,9 +272,26 @@ describe("explainIssues", () => {
     expect(second.model).toBe(FAKE_MODEL);
   });
 
+  it("caches each language separately", async () => {
+    const cache = new LruCache<CachedExplanation>(10);
+    const output: FakeResponse = {
+      kind: "output",
+      output: { explanations: issues.map((issue) => answer(issue.code)) },
+    };
+    const { run, client } = explainWith([output, output], cache);
+
+    await run("en");
+    await run("de");
+    await run("en");
+
+    expect(client.requests).toHaveLength(2);
+    expect(client.requests[1]?.system).toMatch(/in German/);
+  });
+
   it("works with the scripted responder used in end-to-end tests", async () => {
     const result = await explainIssues(issues, {
       templateId,
+      locale: "en",
       client: new FakeLlmClient(fakeExplanationResponder),
       model,
     });
@@ -247,6 +299,20 @@ describe("explainIssues", () => {
     expect(result.explanations[0]?.explanation).toMatch(
       /^Scripted explanation for local testing\. A GmbH needs/,
     );
+  });
+
+  it("scripts German answers for the German UI", async () => {
+    const result = await explainIssues(issues, {
+      templateId,
+      locale: "de",
+      client: new FakeLlmClient(fakeExplanationResponder),
+      model,
+    });
+    expect(result.explanations[0]).toMatchObject({
+      explanation: "Skriptgesteuerte Erläuterung für lokale Tests.",
+      suggestedFix: "Korrigieren Sie das markierte Feld im Formular.",
+      source: "model",
+    });
   });
 });
 

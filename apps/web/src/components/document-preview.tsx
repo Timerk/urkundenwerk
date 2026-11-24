@@ -3,8 +3,17 @@ import type {
   DocumentModel,
   InlineRun,
 } from "@urkundenwerk/core";
+import { useLocale, useTranslations } from "next-intl";
 import type { CSSProperties, KeyboardEvent, ReactNode } from "react";
-import { blankLabel, fieldLabel } from "../lib/builder/fields";
+import { type FieldLabels, useFieldLabels } from "../lib/builder/fields";
+
+type RunText = {
+  labels: FieldLabels;
+  edit: (value: string, field: string) => string;
+  missing: (field: string) => string;
+  /** The UI language, for blanks: they label the form, not the deed. */
+  locale: string;
+};
 
 type PreviewProps = {
   model: DocumentModel;
@@ -22,11 +31,13 @@ function Run({
   onSelect,
   activePath,
   index,
+  text,
 }: {
   run: InlineRun;
   onSelect?: (path: string) => void;
   activePath?: string;
   index: number;
+  text: RunText;
 }): ReactNode {
   if (run.kind === "text") return run.text;
 
@@ -55,7 +66,7 @@ function Run({
         style={style}
         {...(interactive && {
           ...interactive,
-          "aria-label": `${run.text.trim()}, edit ${fieldLabel(run.path)}`,
+          "aria-label": text.edit(run.text.trim(), text.labels.label(run.path)),
         })}
       >
         {run.text}
@@ -63,15 +74,16 @@ function Run({
     );
   }
 
-  const label = blankLabel(run.path);
+  const label = text.labels.blank(run.path);
   return (
     <span
       className="deed-blank"
+      lang={text.locale}
       data-path={run.path}
       data-active={active}
       {...(interactive && {
         ...interactive,
-        "aria-label": `Missing: ${fieldLabel(run.path)}`,
+        "aria-label": text.missing(text.labels.label(run.path)),
       })}
     >
       {label}
@@ -90,6 +102,13 @@ export function DocumentPreview({
   className = "",
   blockFilter,
 }: PreviewProps) {
+  const t = useTranslations("preview");
+  const text: RunText = {
+    labels: useFieldLabels(),
+    edit: (value, field) => t("edit", { value, field }),
+    missing: (field) => t("missing", { field }),
+    locale: useLocale(),
+  };
   let fieldIndex = 0;
   const renderRuns = (runs: readonly InlineRun[]) =>
     runs.map((run, index) => (
@@ -99,6 +118,7 @@ export function DocumentPreview({
         onSelect={onSelect}
         activePath={activePath}
         index={run.kind === "field" ? fieldIndex++ : 0}
+        text={text}
       />
     ));
 

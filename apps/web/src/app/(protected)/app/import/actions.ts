@@ -8,6 +8,7 @@ import {
   IngestionError,
   type SourceDocument,
 } from "@urkundenwerk/extraction";
+import { getLocale, getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
@@ -20,11 +21,11 @@ import {
 import {
   checkUpload,
   MAX_UPLOAD_BYTES,
-  UPLOAD_MESSAGES,
+  MAX_UPLOAD_MEGABYTES,
 } from "../../../../lib/import/limits";
 import { insertDocument } from "../../../../lib/documents/repository";
 import {
-  DEFAULT_DOCUMENT_TITLE,
+  defaultDocumentTitle,
   documentIdSchema,
   draftDataSchema,
 } from "../../../../lib/documents/schemas";
@@ -45,9 +46,6 @@ export type ExtractedContract = {
   promptVersion: string;
 };
 
-const NOT_ALLOWED =
-  "Importing contracts needs the editor or admin role in this firm.";
-
 async function editorOf(tenantId: unknown) {
   const user = await getVerifiedUser();
   if (!user) redirect("/login");
@@ -60,13 +58,8 @@ async function editorOf(tenantId: unknown) {
     : null;
 }
 
-// Ingestion errors already have messages fit to show; a few get advice.
-const INGESTION_ADVICE: Partial<Record<IngestionError["code"], string>> = {
-  FILE_TOO_LARGE: UPLOAD_MESSAGES.size,
-  UNSUPPORTED_FORMAT: UPLOAD_MESSAGES.type,
-  PDF_NO_TEXT:
-    "This PDF has no text layer, which usually means it is a scan. Scanned documents cannot be imported yet; use a PDF exported from a word processor or a DOCX.",
-};
+// Errors are translated here, in the language of the request, from the
+// stable codes of the upload check, ingestion, and extraction.
 
 /**
  * Reads an uploaded contract and asks the configured model for draft
@@ -78,26 +71,28 @@ const INGESTION_ADVICE: Partial<Record<IngestionError["code"], string>> = {
 export async function extractContract(
   formData: FormData,
 ): Promise<ImportActionResult<{ contract: ExtractedContract }>> {
+  const t = await getTranslations("import");
   const access = await editorOf(formData.get("tenantId"));
-  if (!access) return { ok: false, error: NOT_ALLOWED };
+  if (!access) return { ok: false, error: t("errors.notAllowed") };
   if (!isExtractionEnabled()) {
-    return {
-      ok: false,
-      error: "AI extraction is not configured on this server.",
-    };
+    return { ok: false, error: t("errors.disabled") };
   }
 
   const file = formData.get("file");
+  const size = MAX_UPLOAD_MEGABYTES;
   if (!(file instanceof File)) {
-    return { ok: false, error: UPLOAD_MESSAGES.missing };
+    return { ok: false, error: t("upload.missing") };
   }
   const problem = checkUpload(file);
-  if (problem) return { ok: false, error: problem };
+  if (problem) return { ok: false, error: t(`upload.${problem}`, { size }) };
 
   if (!takeExtractionQuota(access.user.id)) {
     return {
       ok: false,
-      error: `You can import ${EXTRACTIONS_PER_WINDOW} contracts every ${EXTRACTION_WINDOW_MS / 60_000} minutes. Try again shortly.`,
+      error: t("errors.rateLimited", {
+        count: EXTRACTIONS_PER_WINDOW,
+        minutes: EXTRACTION_WINDOW_MS / 60_000,
+      }),
     };
   }
 
@@ -109,10 +104,7 @@ export async function extractContract(
     });
   } catch (error) {
     if (error instanceof IngestionError) {
-      return {
-        ok: false,
-        error: INGESTION_ADVICE[error.code] ?? error.message,
-      };
+      return { ok: false, error: t(`ingestion.${error.code}`, { size }) };
     }
     throw error;
   }
@@ -132,7 +124,7 @@ export async function extractContract(
     };
   } catch (error) {
     if (error instanceof ExtractionError) {
-      return { ok: false, error: error.message };
+      return { ok: false, error: t(`extraction.${error.code}`) };
     }
     throw error;
   }
@@ -148,15 +140,11 @@ export async function createDraftFromImport(
   tenantId: unknown,
   data: unknown,
 ): Promise<ImportActionResult> {
+  const t = await getTranslations("import.errors");
   const access = await editorOf(tenantId);
-  if (!access) return { ok: false, error: NOT_ALLOWED };
+  if (!access) return { ok: false, error: t("notAllowed") };
   const draft = draftDataSchema.safeParse(data);
-  if (!draft.success) {
-    return {
-      ok: false,
-      error: "Some accepted values are not valid for the Musterprotokoll.",
-    };
-  }
+  if (!draft.success) return { ok: false, error: t("invalidDraft") };
 
   const firma = draft.data.company?.name?.trim();
   const supabase = await createClient();
@@ -164,11 +152,13 @@ export async function createDraftFromImport(
     tenantId: access.membership.tenantId,
     templateId: musterprotokollMetadata.id,
     templateVersion: musterprotokollMetadata.version,
-    title: firma ? firma.slice(0, 120) : DEFAULT_DOCUMENT_TITLE,
+    title: firma
+      ? firma.slice(0, 120)
+      : defaultDocumentTitle(await getLocale()),
     createdBy: access.user.id,
     data: draft.data,
   });
-  if (!document) return { ok: false, error: NOT_ALLOWED };
+  if (!document) return { ok: false, error: t("notAllowed") };
 
   revalidatePath("/app");
   redirect(`/app/documents/${document.id}?imported=1`);

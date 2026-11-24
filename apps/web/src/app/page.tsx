@@ -3,9 +3,11 @@ import {
   musterprotokollMetadata,
   type MusterprotokollDraft,
 } from "@urkundenwerk/core";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { BrandMark } from "../components/brand";
 import { DocumentPreview } from "../components/document-preview";
+import { LanguageSwitcher } from "../components/language-switcher";
 import { buttonClasses } from "../components/ui/button";
 
 // Fictional case data for the excerpt on this page.
@@ -39,30 +41,16 @@ const exampleDraft: MusterprotokollDraft = {
   managingDirector: { kind: "founder" },
 };
 
-const points = [
-  {
-    title: "Statutory wording, word for word",
-    body: `The deed text of ${musterprotokollMetadata.legalBasis} comes from a versioned template. The app collects data and never writes legal text.`,
-  },
-  {
-    title: "Checked while you type",
-    body: "Missing details and rules such as the GmbH minimum capital or a UG's full payment show up next to the field.",
-  },
-  {
-    title: "PDF and DOCX for signature",
-    body: "Both exports render the same document model, set in A4 with closing and signature lines.",
-  },
-  {
-    title: "Each firm on its own",
-    body: "Drafts are isolated per law firm by row-level security in Postgres. Viewers can read, editors can write.",
-  },
-];
+const POINTS = ["wording", "checks", "exports", "firms"] as const;
 
 export default function Home() {
+  const t = useTranslations("landing");
   const model = buildMusterprotokollPreview(exampleDraft);
 
   return (
-    <main className="grid min-h-[calc(100dvh-2rem)] lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+    <main className="relative grid min-h-[calc(100dvh-2rem)] lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+      {/* Top right, where a language switch is expected; clear of content. */}
+      <LanguageSwitcher className="absolute top-3 right-4 z-10 sm:right-6" />
       <div className="flex flex-col justify-center px-5 py-12 sm:px-10 lg:py-16 xl:px-16">
         <div className="max-w-xl space-y-8">
           <div className="flex items-center gap-3">
@@ -71,16 +59,17 @@ export default function Home() {
               Urkundenwerk
             </h1>
           </div>
-          <p className="text-xl leading-relaxed text-ink">
-            Prepare the Musterprotokoll for a single-founder GmbH or UG from
-            structured case data, and download it ready for signature.
-          </p>
+          <p className="text-xl leading-relaxed text-ink">{t("lede")}</p>
           <dl className="grid gap-x-8 gap-y-5 sm:grid-cols-2">
-            {points.map((point) => (
-              <div key={point.title} className="space-y-1">
-                <dt className="text-sm font-semibold">{point.title}</dt>
+            {POINTS.map((point) => (
+              <div key={point} className="space-y-1">
+                <dt className="text-sm font-semibold">
+                  {t(`points.${point}.title`)}
+                </dt>
                 <dd className="text-sm leading-relaxed text-ink-soft">
-                  {point.body}
+                  {t(`points.${point}.body`, {
+                    legalBasis: musterprotokollMetadata.legalBasis,
+                  })}
                 </dd>
               </div>
             ))}
@@ -90,7 +79,7 @@ export default function Home() {
               href="/login"
               className={buttonClasses({ className: "h-11 px-5 text-base" })}
             >
-              Sign in to the demo
+              {t("signIn")}
             </Link>
             <Link
               href="/signup"
@@ -99,18 +88,17 @@ export default function Home() {
                 className: "h-11 text-base",
               })}
             >
-              Create a firm account
+              {t("signUp")}
             </Link>
           </div>
           <p className="max-w-prose border-t border-rule pt-5 text-sm text-ink-faint">
-            Urkundenwerk is a portfolio project, not a product. It gives no
-            legal advice and works with fictional people and firms only.
+            {t("disclaimer")}
           </p>
         </div>
       </div>
 
       <div
-        aria-label="Excerpt of a generated Musterprotokoll"
+        aria-label={t("excerpt")}
         role="figure"
         className="relative overflow-hidden bg-desk px-5 pt-10 max-lg:max-h-[34rem] sm:px-10 lg:pt-16"
       >

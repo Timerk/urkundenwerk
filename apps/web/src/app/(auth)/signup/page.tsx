@@ -1,28 +1,30 @@
 import type { Metadata } from "next";
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { SignupForm } from "./signup-form";
 
-export const metadata: Metadata = { title: "Create account · Urkundenwerk" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata");
+  return { title: `${t("signup")} · Urkundenwerk` };
+}
 
 export default function SignupPage() {
+  const t = useTranslations("auth.signup");
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Create an account
-        </h1>
-        <p className="text-sm text-ink-soft">
-          You become the admin of a new firm workspace. Use fictional data only.
-        </p>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+        <p className="text-sm text-ink-soft">{t("intro")}</p>
       </div>
       <SignupForm />
       <p className="text-sm text-ink-soft">
-        Already registered?{" "}
+        {t("registered")}{" "}
         <Link
           href="/login"
           className="font-medium text-ink underline underline-offset-2"
         >
-          Sign in
+          {t("loginLink")}
         </Link>
       </p>
     </section>

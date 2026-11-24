@@ -1,6 +1,6 @@
 "use client";
 
-import { filingMessages as messages } from "../../../../../lib/builder/filing-messages";
+import { useTranslations } from "next-intl";
 import type { FieldIssue } from "../../../../../lib/builder/form-model";
 import { FormSection } from "./builder-form";
 import { CheckboxField, EuroField, TextField } from "./draft-fields";
@@ -10,6 +10,7 @@ export function FilingForm({
 }: {
   issues: ReadonlyMap<string, FieldIssue>;
 }) {
+  const messages = useTranslations("filing");
   const outstanding = (...paths: string[]) =>
     [...issues.values()].filter(
       (issue) =>
@@ -20,17 +21,17 @@ export function FilingForm({
     <div className="space-y-0">
       <FormSection
         id="filing-court"
-        title={messages.courtTitle}
+        title={messages("courtTitle")}
         outstanding={outstanding("filing.registerCourt")}
       >
         <TextField
           path="filing.registerCourt"
-          description={messages.courtDescription}
+          description={messages("courtDescription")}
         />
       </FormSection>
       <FormSection
         id="filing-address"
-        title={messages.addressTitle}
+        title={messages("addressTitle")}
         outstanding={outstanding("filing.businessAddress.")}
       >
         <TextField path="filing.businessAddress.street" />
@@ -41,8 +42,8 @@ export function FilingForm({
       </FormSection>
       <FormSection
         id="filing-payment"
-        title={messages.paymentTitle}
-        description={messages.paymentDescription}
+        title={messages("paymentTitle")}
+        description={messages("paymentDescription")}
         outstanding={outstanding(
           "filing.paidCents",
           "filing.fundsAtFreeDisposal",
@@ -52,19 +53,19 @@ export function FilingForm({
       >
         <EuroField
           path="filing.paidCents"
-          description={messages.amountDescription}
+          description={messages("amountDescription")}
         />
         <CheckboxField
           path="filing.fundsAtFreeDisposal"
-          description={messages.fundsDescription}
+          description={messages("fundsDescription")}
         />
         <CheckboxField
           path="filing.noDisqualification"
-          description={messages.disqualificationDescription}
+          description={messages("disqualificationDescription")}
         />
         <CheckboxField
           path="filing.instructedOnDisclosure"
-          description={messages.disclosureDescription}
+          description={messages("disclosureDescription")}
         />
       </FormSection>
       <section
@@ -76,15 +77,15 @@ export function FilingForm({
             id="filing-attachments"
             className="text-lg font-semibold tracking-tight text-ink"
           >
-            {messages.attachmentsTitle}
+            {messages("attachmentsTitle")}
           </h2>
           <p className="text-sm text-ink-soft">
-            {messages.attachmentsDescription}
+            {messages("attachmentsDescription")}
           </p>
         </div>
         <CheckboxField
           path="filing.paymentEvidenceAttached"
-          description={messages.evidenceDescription}
+          description={messages("evidenceDescription")}
         />
       </section>
     </div>

@@ -18,6 +18,7 @@ const client = createLlmClient(config, {
 }); // null when AI is disabled
 const result = await explainIssues(issues, {
   templateId: "musterprotokoll-einpersonen",
+  locale: "de", // the UI language; the answer is written in it
   client,
   model: config.models.explain,
 });
@@ -36,8 +37,9 @@ const result = await explainIssues(issues, {
   estimate cost.
 - `explainIssues` sends only rule codes, legal references, rule summaries,
   and numeric or boolean params. It validates each answer and falls back to
-  the rule summary on any failure. Results carry the model and
-  `PROMPT_VERSION`.
+  the rule summary on any failure. The model answers in the UI language
+  (`de` or `en`), and the cache keys on it. Results carry the language, the
+  model, and `PROMPT_VERSION`.
 
 | Variable                | Default                                                |
 | ----------------------- | ------------------------------------------------------ |

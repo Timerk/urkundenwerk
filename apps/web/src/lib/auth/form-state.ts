@@ -26,12 +26,25 @@ export function readFields<Key extends string>(
   return fields;
 }
 
+/**
+ * Field errors in the request's language. Schemas carry message keys, and
+ * `translate` turns each key into a sentence.
+ */
 export function invalidFormState(
   error: z.ZodError,
   values: Record<string, string | undefined>,
+  translate: (key: string) => string,
 ): FormState {
+  const fieldErrors = z.flattenError(error).fieldErrors as Partial<
+    Record<string, string[]>
+  >;
   return {
-    fieldErrors: z.flattenError(error).fieldErrors,
+    fieldErrors: Object.fromEntries(
+      Object.entries(fieldErrors).map(([field, keys]) => [
+        field,
+        keys?.map(translate),
+      ]),
+    ),
     values: withoutUndefined(values),
   };
 }

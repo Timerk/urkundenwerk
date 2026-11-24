@@ -9,8 +9,10 @@ import {
   type RuleCode,
   type Severity,
 } from "@urkundenwerk/core";
+import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
-import { fieldLabel } from "../../../../../lib/builder/fields";
+import { useRuleMessages } from "../../../../../i18n/rule-messages";
+import { useFieldLabels } from "../../../../../lib/builder/fields";
 import type { ExportDocument } from "../../../../../lib/documents/schemas";
 import { explainDocumentIssues } from "../actions";
 
@@ -32,19 +34,7 @@ function keyOf({ code, params }: Pick<Issue, "code" | "params">) {
   return JSON.stringify([code, sorted]);
 }
 
-const GROUPS: { severity: Severity; title: string; description: string }[] = [
-  {
-    severity: "error",
-    title: "To correct",
-    description: "These block the download.",
-  },
-  {
-    severity: "warning",
-    title: "Worth checking",
-    description: "Registry courts may object.",
-  },
-  { severity: "info", title: "Notes", description: "No action needed." },
-];
+const GROUPS: readonly Severity[] = ["error", "warning", "info"];
 
 const TONES: Record<Severity, string> = {
   error: "border-alert",
@@ -53,38 +43,39 @@ const TONES: Record<Severity, string> = {
 };
 
 function ExplanationView({ state }: { state: ExplanationState }) {
+  const t = useTranslations("checks");
+  const rules = useRuleMessages();
   if (state.status === "loading") {
-    return <p className="text-sm text-ink-faint">Writing an explanation…</p>;
+    return <p className="text-sm text-ink-faint">{t("loading")}</p>;
   }
   if (state.status === "error") {
     return <p className="text-sm text-alert">{state.message}</p>;
   }
   const { explanation, model, promptVersion } = state;
   if (explanation.source === "rule") {
+    // The fallback is the rule's summary, shown in the UI language.
     return (
       <div className="rounded-sm border border-rule bg-surface px-3 py-2 text-sm text-ink-soft">
-        <p>{explanation.explanation}</p>
-        <p className="mt-1 text-xs text-ink-faint">
-          The rule&apos;s own summary. An AI explanation is not available right
-          now.
-        </p>
+        <p>{rules.summary(explanation.code)}</p>
+        <p className="mt-1 text-xs text-ink-faint">{t("ruleSummary")}</p>
       </div>
     );
   }
   return (
     <div className="rounded-sm border border-stamp/25 bg-stamp-wash px-3 py-2 text-sm text-ink">
-      <p className="text-xs font-medium text-stamp-deep">
-        AI-generated explanation — not legal advice
-      </p>
+      <p className="text-xs font-medium text-stamp-deep">{t("aiLabel")}</p>
       <p className="mt-1">{explanation.explanation}</p>
       {explanation.suggestedFix ? (
         <p className="mt-1">
-          <span className="font-medium">Suggested fix:</span>{" "}
+          <span className="font-medium">{t("suggestedFix")}</span>{" "}
           {explanation.suggestedFix}
         </p>
       ) : null}
       <p className="mt-1.5 text-2xs text-ink-faint">
-        Model {model ?? "unknown"}, prompt {promptVersion}
+        {t("modelInfo", {
+          model: model ?? t("unknownModel"),
+          prompt: promptVersion,
+        })}
       </p>
     </div>
   );
@@ -125,6 +116,10 @@ export function ChecksPanel({
   const [explanations, setExplanations] = useState<
     ReadonlyMap<string, ExplanationState>
   >(new Map());
+  const t = useTranslations("checks");
+  const rules = useRuleMessages();
+  const labels = useFieldLabels();
+  const loadFailed = t("loadFailed");
 
   const request = useCallback(
     async (targets: readonly Issue<RuleCode>[]) => {
@@ -150,17 +145,11 @@ export function ChecksPanel({
         }
       } catch {
         update(
-          keys.map((key) => [
-            key,
-            {
-              status: "error",
-              message: "The explanation could not be loaded. Try again.",
-            },
-          ]),
+          keys.map((key) => [key, { status: "error", message: loadFailed }]),
         );
       }
     },
-    [documentId, target],
+    [documentId, target, loadFailed],
   );
 
   const unexplained = issues.filter((issue) => {
@@ -183,10 +172,10 @@ export function ChecksPanel({
             id="checks-heading"
             className="text-base font-semibold tracking-tight text-ink"
           >
-            Checks
+            {t("title")}
           </h2>
           <p className="text-xs text-ink-faint">
-            Rules for {metadata.legalBasis}, run as you type.
+            {t("intro", { legalBasis: metadata.legalBasis })}
           </p>
         </div>
         {aiEnabled && issues.length > 1 ? (
@@ -196,7 +185,7 @@ export function ChecksPanel({
             disabled={unexplained.length === 0 || loading}
             className="rounded-sm text-sm font-medium text-stamp underline decoration-stamp/30 underline-offset-4 hover:decoration-stamp disabled:text-ink-faint disabled:no-underline"
           >
-            Explain all
+            {t("explainAll")}
           </button>
         ) : null}
       </div>
@@ -213,11 +202,11 @@ export function ChecksPanel({
               strokeLinejoin="round"
             />
           </svg>
-          All checks pass
+          {t("allPass")}
         </p>
       ) : (
         <div className="divide-y divide-rule">
-          {GROUPS.map(({ severity, title, description }) => {
+          {GROUPS.map((severity) => {
             const group = issues.filter((issue) => issue.severity === severity);
             if (group.length === 0) return null;
             const headingId = `checks-${severity}`;
@@ -228,9 +217,9 @@ export function ChecksPanel({
                 className="px-4 py-3"
               >
                 <h3 id={headingId} className="text-sm font-medium text-ink">
-                  {title}{" "}
+                  {t(`groups.${severity}.title`)}{" "}
                   <span className="font-normal text-ink-faint">
-                    ({group.length}) {description}
+                    ({group.length}) {t(`groups.${severity}.description`)}
                   </span>
                 </h3>
                 <ul className="mt-2 space-y-3">
@@ -245,7 +234,9 @@ export function ChecksPanel({
                         className={`space-y-1.5 border-l-[3px] pl-3 ${TONES[severity]}`}
                         data-issue={issue.code}
                       >
-                        <p className="text-sm text-ink">{issue.message}</p>
+                        <p className="text-sm text-ink">
+                          {rules.message(issue)}
+                        </p>
                         <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs">
                           {rule ? (
                             <span className="font-serif text-sm text-ink-soft">
@@ -258,7 +249,7 @@ export function ChecksPanel({
                               onClick={() => onLocate(path)}
                               className="rounded-sm text-ink-soft underline underline-offset-2 hover:text-ink"
                             >
-                              Go to {fieldLabel(path)}
+                              {t("goTo", { field: labels.label(path) })}
                             </button>
                           ) : null}
                           {aiEnabled && (!state || state.status === "error") ? (
@@ -267,7 +258,7 @@ export function ChecksPanel({
                               onClick={() => void request([issue])}
                               className="rounded-sm font-medium text-stamp underline decoration-stamp/30 underline-offset-2 hover:decoration-stamp"
                             >
-                              {state ? "Try again" : "Explain"}
+                              {state ? t("retry") : t("explain")}
                             </button>
                           ) : null}
                         </div>
@@ -286,8 +277,7 @@ export function ChecksPanel({
 
       {!aiEnabled ? (
         <p className="border-t border-rule px-4 py-2 text-xs text-ink-faint">
-          AI explanations are turned off on this server. Each check still names
-          its legal basis.
+          {t("aiOff")}
         </p>
       ) : null}
     </section>

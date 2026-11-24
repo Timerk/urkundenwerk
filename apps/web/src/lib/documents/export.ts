@@ -6,6 +6,7 @@ import {
   musterprotokollMetadata,
   musterprotokollTemplate,
   registerFilingTemplate,
+  type RuleCode,
   type RuleContext,
   validateRegisterFiling,
 } from "@urkundenwerk/core";
@@ -48,14 +49,20 @@ function draftIssues(error: z.ZodError): ExportIssue[] {
   }));
 }
 
+/** Words a rule issue for the client, e.g. in the request's UI language. */
+export type DescribeIssue = (issue: Issue<RuleCode>) => string;
+
 /** Errors from the rule engine: stable rule codes such as `field_required`. */
-function ruleErrors(issues: readonly Issue[]): ExportIssue[] {
+function ruleErrors(
+  issues: readonly Issue<RuleCode>[],
+  describe: DescribeIssue,
+): ExportIssue[] {
   return issues
     .filter((issue) => issue.severity === "error")
     .map((issue) => ({
       path: issue.paths[0] ?? "",
       code: issue.code,
-      message: issue.message,
+      message: describe(issue),
     }));
 }
 
@@ -112,8 +119,11 @@ export async function exportDocument(
     document?: string | null;
     referenceDate: string;
     generatedAt?: string;
+    /** Defaults to core's English diagnostic message. */
+    describe?: DescribeIssue;
   },
 ): Promise<Response> {
+  const describe = params.describe ?? ((issue) => issue.message);
   if (!userId) return problem(401, "unauthenticated");
 
   const format = exportFormatSchema.safeParse(params.format);
@@ -164,6 +174,7 @@ export async function exportDocument(
       context,
       document.title,
       params.generatedAt ?? new Date().toISOString(),
+      describe,
     );
   }
   const template =
@@ -172,7 +183,9 @@ export async function exportDocument(
       : musterprotokollTemplate;
   const result = template.validate(draft.data, context);
   if (!result.success) {
-    return problem(422, "incomplete", { issues: ruleErrors(result.issues) });
+    return problem(422, "incomplete", {
+      issues: ruleErrors(result.issues, describe),
+    });
   }
 
   const model =
@@ -188,10 +201,13 @@ async function exportXml(
   context: RuleContext,
   title: string,
   generatedAt: string,
+  describe: DescribeIssue,
 ) {
   const result = validateRegisterFiling(draft, context);
   if (!result.success) {
-    return problem(422, "incomplete", { issues: ruleErrors(result.issues) });
+    return problem(422, "incomplete", {
+      issues: ruleErrors(result.issues, describe),
+    });
   }
   try {
     const xml = buildRegisterFilingXml(result.data, { generatedAt });

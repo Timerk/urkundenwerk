@@ -7,6 +7,7 @@ import {
   readFields,
 } from "../../../lib/auth/form-state";
 import { signupSchema } from "../../../lib/auth/schemas";
+import { authErrorTranslator } from "../../../lib/auth/translate";
 import { createClient } from "../../../lib/supabase/server";
 
 export async function signUp(
@@ -16,8 +17,9 @@ export async function signUp(
   const fields = readFields(formData, ["firmName", "email", "password"]);
   const parsed = signupSchema.safeParse(fields);
   const values = { firmName: fields.firmName, email: fields.email };
+  const translate = await authErrorTranslator();
   if (!parsed.success) {
-    return invalidFormState(parsed.error, values);
+    return invalidFormState(parsed.error, values, translate);
   }
   const { firmName, email, password } = parsed.data;
 
@@ -25,10 +27,9 @@ export async function signUp(
   const { data, error } = await supabase.auth.signUp({ email, password });
   if (error) {
     return {
-      error:
-        error.code === "weak_password"
-          ? "Choose a stronger password."
-          : "We could not create an account with these details.",
+      error: translate(
+        error.code === "weak_password" ? "weakPassword" : "signUpFailed",
+      ),
       values: { firmName, email },
     };
   }
@@ -37,8 +38,7 @@ export async function signUp(
   // created from the app after the first sign-in.
   if (!data.session) {
     return {
-      notice:
-        "Confirm your email address, then sign in to finish setting up your firm.",
+      notice: translate("confirmEmail"),
     };
   }
 

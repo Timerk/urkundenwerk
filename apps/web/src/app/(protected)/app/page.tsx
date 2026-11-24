@@ -3,9 +3,11 @@ import {
   musterprotokollMetadata,
 } from "@urkundenwerk/core";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { FormError } from "../../../components/form-error";
 import { buttonClasses } from "../../../components/ui/button";
+import { formatDateTime } from "../../../i18n/format";
 import { analyseDraft } from "../../../lib/builder/form-model";
 import { todayInGermany } from "../../../lib/dates";
 import {
@@ -14,45 +16,30 @@ import {
 } from "../../../lib/documents/repository";
 import { createClient } from "../../../lib/supabase/server";
 import { getCurrentMembership } from "../../../lib/tenants/memberships";
-import { canEditDocuments, ROLE_LABELS } from "../../../lib/tenants/selection";
+import { canEditDocuments } from "../../../lib/tenants/selection";
 import { CreateFirmForm } from "./create-firm-form";
 import { DeleteDocumentButton } from "./delete-document-button";
 import { NewDocumentForm } from "./new-document-form";
 
-export const metadata: Metadata = { title: "Documents · Urkundenwerk" };
-
-const TEMPLATE_LABELS: Record<string, string> = {
-  [musterprotokollMetadata.id]: "Musterprotokoll, single founder",
-};
-
-const dateFormat = new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-  timeZone: "Europe/Berlin",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata");
+  return { title: `${t("documents")} · Urkundenwerk` };
+}
 
 /** How far a draft is from export, counted as in the builder. */
 function readiness(
   document: DocumentSummary,
   referenceDate: string,
-): {
-  ready: boolean;
-  label: string;
-} {
+):
+  | { state: "invalid" }
+  | { state: "ready" }
+  | { state: "outstanding"; count: number } {
   const draft = musterprotokollDraftSchema.safeParse(document.data);
-  if (!draft.success) return { ready: false, label: "Needs review" };
+  if (!draft.success) return { state: "invalid" };
   const { complete, outstanding } = analyseDraft(draft.data, referenceDate);
-  if (complete) return { ready: true, label: "Ready to export" };
-  return {
-    ready: false,
-    label:
-      outstanding === 1
-        ? "1 field to complete"
-        : `${outstanding} fields to complete`,
-  };
+  return complete
+    ? { state: "ready" }
+    : { state: "outstanding", count: outstanding };
 }
 
 export default async function AppHome({
@@ -62,20 +49,17 @@ export default async function AppHome({
 }) {
   const membership = await getCurrentMembership();
   const { setup } = await searchParams;
+  const t = await getTranslations("dashboard");
+  const locale = await getLocale();
 
   if (!membership) {
     return (
       <div className="mx-auto w-full max-w-2xl space-y-6 px-4 py-12 sm:px-6">
         <h1 className="text-2xl font-semibold tracking-tight">
-          Set up your firm
+          {t("setupTitle")}
         </h1>
-        {setup === "failed" ? (
-          <FormError message="Your account was created, but setting up your firm failed. Please try again." />
-        ) : null}
-        <p className="max-w-prose text-ink-soft">
-          You are not a member of a firm yet. Create one to start drafting. You
-          become its admin and can invite colleagues later.
-        </p>
+        {setup === "failed" ? <FormError message={t("setupFailed")} /> : null}
+        <p className="max-w-prose text-ink-soft">{t("setupIntro")}</p>
         <CreateFirmForm />
       </div>
     );
@@ -85,6 +69,8 @@ export default async function AppHome({
   const documents = await listDocuments(supabase, membership.tenantId);
   const today = todayInGermany();
   const canEdit = canEditDocuments(membership.role);
+  const tRoles = await getTranslations("roles");
+  const roles = (role: typeof membership.role) => tRoles(role);
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-8 px-4 py-10 sm:px-6">
@@ -94,10 +80,8 @@ export default async function AppHome({
             {membership.name}
           </h1>
           <p className="text-sm text-ink-soft">
-            Your role: {ROLE_LABELS[membership.role]}.{" "}
-            {canEdit
-              ? "You can create, edit, and delete documents."
-              : "You can open and download documents."}
+            {t("yourRole", { role: roles(membership.role) })}{" "}
+            {canEdit ? t("canEdit") : t("canRead")}
           </p>
         </div>
         {canEdit ? (
@@ -116,7 +100,7 @@ export default async function AppHome({
                   strokeLinejoin="round"
                 />
               </svg>
-              Import from contract
+              {t("importContract")}
             </Link>
             <NewDocumentForm tenantId={membership.tenantId} />
           </div>
@@ -128,15 +112,13 @@ export default async function AppHome({
           id="documents-heading"
           className="text-sm font-medium text-ink-soft"
         >
-          Documents
+          {t("heading")}
         </h2>
         {documents.length === 0 ? (
           <div className="rounded-md border border-dashed border-rule-strong bg-paper px-6 py-12 text-center">
-            <p className="font-serif text-xl">No documents yet</p>
+            <p className="font-serif text-xl">{t("emptyTitle")}</p>
             <p className="mx-auto mt-2 max-w-md text-sm text-ink-soft">
-              {canEdit
-                ? "Start a Musterprotokoll for a single-founder GmbH or UG. The deed fills in as you enter the case data."
-                : "Documents that editors in this firm create will be listed here."}
+              {canEdit ? t("emptyEditor") : t("emptyViewer")}
             </p>
           </div>
         ) : (
@@ -145,23 +127,23 @@ export default async function AppHome({
               <thead className="border-b border-rule bg-surface text-ink-soft">
                 <tr>
                   <th scope="col" className="px-4 py-2.5 font-medium">
-                    Title
+                    {t("columns.title")}
                   </th>
                   <th
                     scope="col"
                     className="px-4 py-2.5 font-medium max-md:hidden"
                   >
-                    Status
+                    {t("columns.status")}
                   </th>
                   <th
                     scope="col"
                     className="px-4 py-2.5 font-medium max-sm:hidden"
                   >
-                    Last changed
+                    {t("columns.changed")}
                   </th>
                   {canEdit ? (
                     <th scope="col" className="px-4 py-2.5">
-                      <span className="sr-only">Actions</span>
+                      <span className="sr-only">{t("columns.actions")}</span>
                     </th>
                   ) : null}
                 </tr>
@@ -169,15 +151,22 @@ export default async function AppHome({
               <tbody className="divide-y divide-rule">
                 {documents.map((document) => {
                   const state = readiness(document, today);
+                  const changed = formatDateTime(locale, document.updated_at);
                   const status = (
                     <span className="inline-flex flex-wrap items-center gap-2">
                       <span className="rounded-xs border border-rule-strong px-1.5 py-px text-xs text-ink-soft">
-                        {document.status === "draft" ? "Draft" : "Final"}
+                        {document.status === "draft" ? t("draft") : t("final")}
                       </span>
                       <span
-                        className={state.ready ? "text-ok" : "text-ink-faint"}
+                        className={
+                          state.state === "ready" ? "text-ok" : "text-ink-faint"
+                        }
                       >
-                        {state.label}
+                        {state.state === "ready"
+                          ? t("ready")
+                          : state.state === "invalid"
+                            ? t("needsReview")
+                            : t("outstanding", { count: state.count })}
                       </span>
                     </span>
                   );
@@ -191,23 +180,20 @@ export default async function AppHome({
                           {document.title}
                         </Link>
                         <p className="mt-0.5 text-xs text-ink-faint">
-                          {TEMPLATE_LABELS[document.template_id] ??
-                            document.template_id}
+                          {document.template_id === musterprotokollMetadata.id
+                            ? t("templateLabel")
+                            : document.template_id}
                         </p>
                         <div className="mt-2 space-y-1 text-xs md:hidden">
                           {status}
-                          <p className="text-ink-faint sm:hidden">
-                            {dateFormat.format(new Date(document.updated_at))}
-                          </p>
+                          <p className="text-ink-faint sm:hidden">{changed}</p>
                         </div>
                       </td>
                       <td className="px-4 py-3.5 align-top max-md:hidden">
                         {status}
                       </td>
                       <td className="px-4 py-3.5 align-top whitespace-nowrap text-ink-soft tabular-nums max-sm:hidden">
-                        <time dateTime={document.updated_at}>
-                          {dateFormat.format(new Date(document.updated_at))}
-                        </time>
+                        <time dateTime={document.updated_at}>{changed}</time>
                       </td>
                       {canEdit ? (
                         <td className="px-4 py-2.5 text-right align-top">

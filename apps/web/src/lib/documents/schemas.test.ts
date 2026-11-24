@@ -33,7 +33,7 @@ describe("draftDataSchema", () => {
       padding: "x".repeat(MAX_DRAFT_BYTES),
     });
     expect(result.error?.issues).toEqual([
-      expect.objectContaining({ message: "The draft exceeds 32 KiB." }),
+      expect.objectContaining({ message: "draftTooLarge" }),
     ]);
   });
 

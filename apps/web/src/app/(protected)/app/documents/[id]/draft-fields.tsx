@@ -1,6 +1,7 @@
 "use client";
 
 import type { MusterprotokollDraft } from "@urkundenwerk/core";
+import { useLocale, useTranslations } from "next-intl";
 import {
   type ChangeEvent,
   createContext,
@@ -19,10 +20,12 @@ import {
   SegmentedControl,
   type SegmentedOption,
 } from "../../../../../components/ui/segmented";
+import { formatIsoDate } from "../../../../../i18n/format";
+import { useRuleMessages } from "../../../../../i18n/rule-messages";
 import {
   controlId,
   type FieldPath,
-  fieldLabel,
+  useFieldLabels,
 } from "../../../../../lib/builder/fields";
 import {
   type FieldIssue,
@@ -30,6 +33,11 @@ import {
   getAt,
   parseEuros,
 } from "../../../../../lib/builder/form-model";
+import {
+  dateInputHint,
+  dateInputText,
+  parseDateInput,
+} from "../../../../../lib/date-input";
 
 type DraftContextValue = {
   draft: MusterprotokollDraft;
@@ -62,11 +70,15 @@ function focusHandlers(path: string, context: DraftContextValue) {
 }
 
 /** Errors show as errors; warnings and notes take the place of the hint. */
-function messages(issue: FieldIssue | undefined, hint?: ReactNode) {
-  if (!issue) return { error: undefined, hint };
-  return issue.severity === "error"
-    ? { error: issue.message, hint }
-    : { error: undefined, hint: issue.message };
+function useIssueMessages() {
+  const rules = useRuleMessages();
+  return (issue: FieldIssue | undefined, hint?: ReactNode) => {
+    if (!issue) return { error: undefined, hint };
+    const message = rules.message({ ...issue, paths: [issue.path] });
+    return issue.severity === "error"
+      ? { error: message, hint }
+      : { error: undefined, hint: message };
+  };
 }
 
 // Matches the draft schema's limits in @urkundenwerk/core.
@@ -75,7 +87,7 @@ const LONG_TEXT = 2000;
 
 export function TextField({
   path,
-  label = fieldLabel(path),
+  label,
   description,
   hint,
   optional,
@@ -95,6 +107,8 @@ export function TextField({
   className?: string;
 }) {
   const context = useDraft();
+  const labels = useFieldLabels();
+  const messages = useIssueMessages();
   const value = getAt(context.draft, path);
   const issue = context.visibleIssue(path);
   const shared = {
@@ -111,7 +125,7 @@ export function TextField({
   return (
     <Field
       id={controlId(path)}
-      label={label}
+      label={label ?? labels.label(path)}
       description={description}
       {...messages(issue, hint)}
       optional={optional}
@@ -133,46 +147,102 @@ export function TextField({
   );
 }
 
+/**
+ * A date typed as text in the UI language's order (`TT.MM.JJJJ` in German,
+ * `DD/MM/YYYY` in English) and stored as an ISO date. Native date pickers
+ * show the browser's locale, which made German users read US dates. The
+ * format is the field's description, so it is announced with the label.
+ */
 export function DateField({
   path,
-  label = fieldLabel(path),
+  label,
   description,
   optional,
   className,
+  autoComplete = "off",
 }: {
   path: FieldPath;
   label?: ReactNode;
   description?: ReactNode;
   optional?: boolean;
   className?: string;
+  autoComplete?: string;
 }) {
   const context = useDraft();
-  const value = getAt(context.draft, path);
+  const labels = useFieldLabels();
+  const messages = useIssueMessages();
+  const t = useTranslations("builder");
+  const locale = useLocale();
+  const stored = getAt(context.draft, path);
+  const iso = typeof stored === "string" ? stored : undefined;
+  const [text, setText] = useState(() => dateInputText(locale, iso));
+  const [shownLocale, setShownLocale] = useState(locale);
+  const [blurred, setBlurred] = useState(false);
+  const parsed = parseDateInput(text);
+
+  // A language switch keeps what was typed but rewrites a complete date
+  // in the new language's order.
+  if (shownLocale !== locale) {
+    setShownLocale(locale);
+    if (parsed.kind === "valid") setText(dateInputText(locale, parsed.iso));
+  }
+
+  const pattern = dateInputHint(locale);
   const issue = context.visibleIssue(path);
+  // A format error waits for the user to leave the field, not mid-typing.
+  const shown =
+    parsed.kind === "invalid" && blurred
+      ? {
+          error:
+            parsed.reason === "format"
+              ? t("date.format", {
+                  pattern,
+                  example: formatIsoDate(locale, "1990-03-07"),
+                })
+              : t(`date.${parsed.reason}`),
+          hint: undefined,
+        }
+      : messages(issue);
 
   return (
     <Field
       id={controlId(path)}
-      label={label}
-      description={description}
-      {...messages(issue)}
+      label={label ?? labels.label(path)}
+      description={description ?? t("hints.dateFormat", { pattern })}
+      {...shown}
       optional={optional}
       className={className}
     >
       {(ids) => (
         <TextInput
           ids={ids}
-          type="date"
           name={path}
-          min="1900-01-01"
-          max="2099-12-31"
-          value={typeof value === "string" ? value : ""}
+          inputMode="numeric"
+          autoComplete={autoComplete}
+          placeholder={pattern}
+          maxLength={10}
+          value={text}
           readOnly={context.readOnly}
           data-field={path}
-          onChange={(event) =>
-            context.update(path, event.target.value || undefined)
-          }
-          {...focusHandlers(path, context)}
+          className="max-w-44 tabular-nums"
+          onChange={(event) => {
+            const next = event.target.value;
+            setText(next);
+            const result = parseDateInput(next);
+            context.update(
+              path,
+              result.kind === "valid" ? result.iso : undefined,
+            );
+          }}
+          onFocus={() => context.setActivePath(path)}
+          onBlur={() => {
+            setBlurred(true);
+            context.touch(path);
+            context.setActivePath(undefined);
+            if (parsed.kind === "valid") {
+              setText(dateInputText(locale, parsed.iso));
+            }
+          }}
         />
       )}
     </Field>
@@ -181,7 +251,7 @@ export function DateField({
 
 export function ChoiceField<T extends string>({
   path,
-  legend = fieldLabel(path),
+  legend,
   options,
   description,
   hint,
@@ -200,11 +270,13 @@ export function ChoiceField<T extends string>({
   fromValue?: (value: unknown) => T | undefined;
 }) {
   const context = useDraft();
+  const labels = useFieldLabels();
+  const messages = useIssueMessages();
   const issue = context.visibleIssue(path);
 
   return (
     <SegmentedControl
-      legend={legend}
+      legend={legend ?? labels.label(path)}
       name={path}
       dataField={path}
       value={fromValue(getAt(context.draft, path))}
@@ -221,7 +293,7 @@ export function ChoiceField<T extends string>({
   );
 }
 
-/** German euro input stored as cents. */
+/** A euro amount in the UI language's format, stored as cents. */
 export function EuroField({
   path,
   hint,
@@ -232,22 +304,44 @@ export function EuroField({
   description?: ReactNode;
 }) {
   const context = useDraft();
+  const labels = useFieldLabels();
+  const messages = useIssueMessages();
+  const t = useTranslations("builder.euro");
+  const locale = useLocale();
   const allowCents = path === "filing.paidCents";
   const cents = getAt(context.draft, path);
   const [text, setText] = useState(() =>
-    formatEuros(typeof cents === "number" ? cents : undefined, allowCents),
+    formatEuros(
+      typeof cents === "number" ? cents : undefined,
+      allowCents,
+      locale,
+    ),
   );
-  const parsed = parseEuros(text, allowCents);
+  const [shownLocale, setShownLocale] = useState(locale);
+  const parsed = parseEuros(text, allowCents, shownLocale);
+
+  // As for dates: a language switch rewrites a valid amount in its format.
+  if (shownLocale !== locale) {
+    setShownLocale(locale);
+    if (parsed.kind === "valid") {
+      setText(formatEuros(parsed.cents, allowCents, locale));
+    }
+  }
   const issue = context.visibleIssue(path);
   const shown =
     parsed.kind === "invalid"
-      ? { error: parsed.message, hint }
+      ? {
+          error: allowCents
+            ? t(parsed.reason === "format" ? "centsFormat" : "centsRange")
+            : t(parsed.reason === "format" ? "wholeFormat" : "wholeRange"),
+          hint,
+        }
       : messages(issue, hint);
 
   return (
     <Field
       id={controlId(path)}
-      label={fieldLabel(path)}
+      label={labels.label(path)}
       description={description}
       {...shown}
     >
@@ -265,7 +359,7 @@ export function EuroField({
             onChange={(event) => {
               const next = event.target.value;
               setText(next);
-              const result = parseEuros(next, allowCents);
+              const result = parseEuros(next, allowCents, locale);
               context.update(
                 path,
                 result.kind === "valid" ? result.cents : undefined,
@@ -276,7 +370,7 @@ export function EuroField({
               context.touch(path);
               context.setActivePath(undefined);
               if (parsed.kind === "valid")
-                setText(formatEuros(parsed.cents, allowCents));
+                setText(formatEuros(parsed.cents, allowCents, locale));
             }}
           />
           <span
@@ -299,10 +393,13 @@ export function CheckboxField({
   description: string;
 }) {
   const context = useDraft();
+  const labels = useFieldLabels();
+  const messages = useIssueMessages();
   const id = controlId(path);
   const issue = context.visibleIssue(path);
+  const error = messages(issue).error;
   const descriptionId = `${id}-description`;
-  const errorId = issue ? `${id}-error` : undefined;
+  const errorId = error ? `${id}-error` : undefined;
   return (
     <div className="space-y-1.5">
       <label className="flex items-start gap-2.5 text-sm font-medium text-ink">
@@ -312,7 +409,7 @@ export function CheckboxField({
           checked={getAt(context.draft, path) === true}
           disabled={context.readOnly}
           data-field={path}
-          aria-invalid={Boolean(issue) || undefined}
+          aria-invalid={Boolean(error) || undefined}
           aria-describedby={
             errorId ? `${errorId} ${descriptionId}` : descriptionId
           }
@@ -320,13 +417,13 @@ export function CheckboxField({
           onChange={(event) => context.update(path, event.target.checked)}
           {...focusHandlers(path, context)}
         />
-        {fieldLabel(path)}
+        {labels.label(path)}
       </label>
       <div className="pl-6">
         <FieldMessages
           description={description}
           descriptionId={descriptionId}
-          error={issue?.message}
+          error={error}
           errorId={errorId}
         />
       </div>

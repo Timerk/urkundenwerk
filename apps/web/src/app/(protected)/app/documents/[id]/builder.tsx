@@ -7,6 +7,7 @@ import {
   type MusterprotokollDraft,
   registerFilingMetadata,
 } from "@urkundenwerk/core";
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import {
   useCallback,
@@ -19,12 +20,12 @@ import {
 import { DocumentPreview } from "../../../../../components/document-preview";
 import { Button } from "../../../../../components/ui/button";
 import { Notice } from "../../../../../components/ui/notice";
-import { fieldLabel } from "../../../../../lib/builder/fields";
-import { filingMessages } from "../../../../../lib/builder/filing-messages";
+import { formatTime } from "../../../../../i18n/format";
+import { useFieldLabels } from "../../../../../lib/builder/fields";
 import {
-  DEFAULT_DOCUMENT_TITLE,
   type ExportDocument,
   type ExportFormat,
+  isDefaultDocumentTitle,
 } from "../../../../../lib/documents/schemas";
 import {
   analyseDraft,
@@ -50,6 +51,7 @@ export type BuilderProps = {
   updatedAt: string;
   canEdit: boolean;
   firmName: string;
+  /** What the document is, e.g. "Musterprotokoll, single founder". */
   templateLabel: string;
   /** Today's date in Germany, from the server, for date rules. */
   referenceDate: string;
@@ -59,15 +61,7 @@ export type BuilderProps = {
   imported?: boolean;
 };
 
-const timeFormat = new Intl.DateTimeFormat("en-GB", {
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
-const DOCUMENT_LABELS = {
-  musterprotokoll: "Musterprotokoll",
-  anmeldung: filingMessages.title,
-} as const satisfies Record<ExportDocument, string>;
+const DOCUMENTS: readonly ExportDocument[] = ["musterprotokoll", "anmeldung"];
 
 function SaveStatus({
   state,
@@ -76,29 +70,31 @@ function SaveStatus({
   state: SaveState;
   onRetry: () => void;
 }) {
+  const t = useTranslations("builder.save");
+  const locale = useLocale();
   let content;
   switch (state.status) {
     case "saved":
       content = state.savedAt
-        ? `Saved at ${timeFormat.format(new Date(state.savedAt))}`
-        : "All changes saved";
+        ? t("savedAt", { time: formatTime(locale, state.savedAt) })
+        : t("saved");
       break;
     case "unsaved":
-      content = "Unsaved changes";
+      content = t("unsaved");
       break;
     case "saving":
-      content = "Saving…";
+      content = t("saving");
       break;
     case "error":
       content = (
         <span className="text-alert">
-          Not saved. {state.message}{" "}
+          {t("failed")} {state.message ?? t("connection")}{" "}
           <button
             type="button"
             onClick={onRetry}
             className="font-medium underline underline-offset-2"
           >
-            Retry
+            {t("retry")}
           </button>
         </span>
       );
@@ -163,6 +159,9 @@ export function Builder({
   aiEnabled,
   imported = false,
 }: BuilderProps) {
+  const t = useTranslations("builder");
+  const common = useTranslations("common");
+  const labels = useFieldLabels();
   const [draft, setDraft] = useState(() =>
     canEdit ? withDefaults(initialDraft) : initialDraft,
   );
@@ -259,7 +258,7 @@ export function Builder({
   // A new document takes the Firma as its title until it is renamed.
   const companyName = draft.company?.name?.trim();
   useEffect(() => {
-    if (!canEdit || title !== DEFAULT_DOCUMENT_TITLE || !companyName) return;
+    if (!canEdit || !isDefaultDocumentTitle(title) || !companyName) return;
     const timeout = setTimeout(
       () => void commitTitle(companyName.slice(0, 120)),
       1500,
@@ -306,7 +305,7 @@ export function Builder({
       }
       // The export reads the stored draft, so pending edits are saved first.
       if (canEdit && !(await autosave.flush())) {
-        setDownloadError("Save the latest changes before downloading.");
+        setDownloadError(t("save.flushFirst"));
         return;
       }
       const link = document.createElement("a");
@@ -316,7 +315,15 @@ export function Builder({
       link.click();
       link.remove();
     },
-    [analysis.complete, autosave, canEdit, documentId, revealMissing, target],
+    [
+      analysis.complete,
+      autosave,
+      canEdit,
+      documentId,
+      revealMissing,
+      target,
+      t,
+    ],
   );
 
   const context = useMemo(
@@ -372,14 +379,14 @@ export function Builder({
                     strokeLinejoin="round"
                   />
                 </svg>
-                Documents
+                {common("documents")}
               </Link>
               <span aria-hidden="true" className="h-6 w-px bg-rule" />
               <div className="min-w-0 flex-1">
                 {canEdit ? (
                   <>
                     <label htmlFor="document-title" className="sr-only">
-                      Document title
+                      {t("documentTitle")}
                     </label>
                     <input
                       id="document-title"
@@ -407,7 +414,7 @@ export function Builder({
                   </h1>
                 )}
                 <p className="truncate px-1.5 text-xs text-ink-faint">
-                  {templateLabel} in {firmName}
+                  {t("templateIn", { template: templateLabel, firm: firmName })}
                 </p>
                 {titleError ? (
                   <p
@@ -444,7 +451,7 @@ export function Builder({
                         strokeLinejoin="round"
                       />
                     </svg>
-                    Ready to export
+                    {t("ready")}
                   </span>
                 ) : (
                   <button
@@ -452,13 +459,11 @@ export function Builder({
                     onClick={revealMissing}
                     className="rounded-sm font-medium text-ink underline decoration-hint-rule decoration-2 underline-offset-4 hover:decoration-ink"
                   >
-                    {outstanding === 1
-                      ? "1 field to complete"
-                      : `${outstanding} fields to complete`}
+                    {t("outstanding", { count: outstanding })}
                   </button>
                 )}
               </p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {formats.map((format) => (
                   <Button
                     key={format}
@@ -482,7 +487,7 @@ export function Builder({
                         strokeLinejoin="round"
                       />
                     </svg>
-                    Download {format.toUpperCase()}
+                    {t("download", { format: format.toUpperCase() })}
                   </Button>
                 ))}
               </div>
@@ -490,26 +495,24 @@ export function Builder({
           </div>
           <div
             role="group"
-            aria-label={filingMessages.documentSelector}
+            aria-label={t("documentSelector")}
             className="flex flex-wrap gap-x-5 gap-y-1 px-4 sm:px-6"
           >
-            {(Object.keys(DOCUMENT_LABELS) as ExportDocument[]).map(
-              (document) => (
-                <button
-                  key={document}
-                  type="button"
-                  aria-pressed={target === document}
-                  onClick={() => {
-                    setTarget(document);
-                    setDownloadError(undefined);
-                    setShowAll(false);
-                  }}
-                  className="min-h-10 border-b-2 border-transparent px-1 text-sm text-ink-soft hover:text-ink aria-pressed:border-stamp aria-pressed:font-semibold aria-pressed:text-stamp"
-                >
-                  {DOCUMENT_LABELS[document]}
-                </button>
-              ),
-            )}
+            {DOCUMENTS.map((document) => (
+              <button
+                key={document}
+                type="button"
+                aria-pressed={target === document}
+                onClick={() => {
+                  setTarget(document);
+                  setDownloadError(undefined);
+                  setShowAll(false);
+                }}
+                className="min-h-10 border-b-2 border-transparent px-1 text-sm text-ink-soft hover:text-ink aria-pressed:border-stamp aria-pressed:font-semibold aria-pressed:text-stamp"
+              >
+                {t(`documents.${document}`)}
+              </button>
+            ))}
           </div>
         </header>
         <div
@@ -518,7 +521,7 @@ export function Builder({
         >
           <div
             role="group"
-            aria-label="Show"
+            aria-label={common("show")}
             className="grid grid-cols-2 rounded-sm border border-rule-strong bg-paper p-0.5 text-sm"
           >
             {(["form", "preview"] as const).map((value) => (
@@ -533,7 +536,7 @@ export function Builder({
                     : "text-ink-soft"
                 }`}
               >
-                {value === "form" ? "Form" : "Preview"}
+                {t(`panes.${value}`)}
               </button>
             ))}
           </div>
@@ -547,25 +550,20 @@ export function Builder({
           >
             <div className="mx-auto max-w-xl space-y-4">
               {imported ? (
-                <Notice
-                  tone="success"
-                  title="Created from an imported contract"
-                >
-                  The values you accepted are filled in. Complete the rest here;
-                  the checks below apply to imported values like any others.
+                <Notice tone="success" title={t("imported.title")}>
+                  {t("imported.body")}
                 </Notice>
               ) : null}
               {!canEdit ? (
-                <Notice title="Read only">
-                  You can read and download this document. Editing needs the
-                  editor or admin role in {firmName}.
+                <Notice title={t("readOnly.title")}>
+                  {t("readOnly.body", { firm: firmName })}
                 </Notice>
               ) : null}
               {downloadError ? (
                 <Notice tone="error">{downloadError}</Notice>
               ) : null}
               {showAll && !analysis.complete ? (
-                <Notice tone="hint" title="Still missing">
+                <Notice tone="hint" title={t("stillMissing")}>
                   <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
                     {[...analysis.issues.keys()].map((path) => (
                       <li key={path}>
@@ -574,7 +572,7 @@ export function Builder({
                           onClick={() => selectFromPreview(path)}
                           className="underline underline-offset-2 hover:text-ink"
                         >
-                          {fieldLabel(path)}
+                          {labels.label(path)}
                         </button>
                       </li>
                     ))}
@@ -590,7 +588,7 @@ export function Builder({
                 onLocate={selectFromPreview}
               />
               <form
-                aria-label="Musterprotokoll data"
+                aria-label={t("musterprotokollForm")}
                 hidden={filing}
                 onSubmit={(event) => event.preventDefault()}
                 noValidate
@@ -602,7 +600,7 @@ export function Builder({
                 />
               </form>
               <form
-                aria-label={filingMessages.formLabel}
+                aria-label={t("anmeldungForm")}
                 hidden={!filing}
                 onSubmit={(event) => event.preventDefault()}
                 noValidate
@@ -618,7 +616,7 @@ export function Builder({
             }`}
           >
             <section
-              aria-label="Preview"
+              aria-label={t("preview")}
               className="lg:sticky lg:top-[var(--builder-sticky,5.5rem)] lg:max-h-[calc(100dvh-var(--builder-sticky,5.5rem))] lg:overflow-y-auto px-3 py-6 sm:px-8 lg:py-10"
             >
               <div className="deed-sheet mx-auto max-w-[52rem]">
@@ -630,10 +628,15 @@ export function Builder({
               </div>
               <p className="mx-auto mt-4 max-w-[52rem] text-xs text-ink-soft">
                 {filing
-                  ? `${filingMessages.previewCredit} ${registerFilingMetadata.legalBasis}`
-                  : `Wording of ${musterprotokollMetadata.legalBasis}`}
-                , version {model.templateVersion}. Values in blue come from the
-                form; select one to edit it. Page breaks are set in the PDF.
+                  ? t("previewNote.anmeldung", {
+                      legalBasis: registerFilingMetadata.legalBasis,
+                      version: model.templateVersion,
+                    })
+                  : t("previewNote.musterprotokoll", {
+                      legalBasis: musterprotokollMetadata.legalBasis,
+                      version: model.templateVersion,
+                    })}{" "}
+                {t("previewNote.values")}
               </p>
             </section>
           </div>

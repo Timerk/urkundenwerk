@@ -11,6 +11,7 @@ import type { MusterprotokollDraft } from "@urkundenwerk/core";
 import type { AnchorHTMLAttributes } from "react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { Builder, type BuilderProps } from "./builder";
+import { EnglishUi } from "../../../../../test/i18n";
 
 const actions = vi.hoisted(() => ({
   saveDraft: vi.fn(async (...args: unknown[]) => ({
@@ -94,6 +95,7 @@ function renderBuilder(
       aiEnabled={false}
       {...overrides}
     />,
+    { wrapper: EnglishUi },
   );
 }
 
@@ -108,7 +110,7 @@ describe("Builder", () => {
       target: { value: "Hafenmuster Analytics GmbH" },
     });
     fireEvent.change(textbox("Stammkapital (share capital)"), {
-      target: { value: "25.000" },
+      target: { value: "25,000" },
     });
 
     const article = preview();
@@ -257,7 +259,7 @@ describe("Checks panel", () => {
       target: { value: "Hafenmuster UG (haftungsbeschränkt)" },
     });
     fireEvent.change(textbox("Stammkapital (share capital)"), {
-      target: { value: "25.000" },
+      target: { value: "25,000" },
     });
   };
 

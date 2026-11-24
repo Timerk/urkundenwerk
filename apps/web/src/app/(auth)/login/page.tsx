@@ -1,21 +1,27 @@
 import type { Metadata } from "next";
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { LoginForm } from "./login-form";
 
-export const metadata: Metadata = { title: "Sign in · Urkundenwerk" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata");
+  return { title: `${t("login")} · Urkundenwerk` };
+}
 
 export default function LoginPage() {
+  const t = useTranslations("auth.login");
   return (
     <section className="space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
       <LoginForm />
       <p className="text-sm text-ink-soft">
-        New here?{" "}
+        {t("newHere")}{" "}
         <Link
           href="/signup"
           className="font-medium text-ink underline underline-offset-2"
         >
-          Create an account for your firm
+          {t("signupLink")}
         </Link>
       </p>
     </section>

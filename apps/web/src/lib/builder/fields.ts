@@ -1,87 +1,77 @@
-/**
- * Names for every draft path, in the English UI with the German term of art
- * where it is the precise one. `blank` labels a missing value in the preview.
- */
-export const FIELD_LABELS = {
-  "notarisation.mode": { label: "Form of notarisation", blank: "form" },
-  "notarisation.deedNumber": {
-    label: "Deed number (UR. Nr.)",
-    blank: "deed no.",
-  },
-  "notarisation.date": { label: "Date of notarisation", blank: "date" },
-  "notarisation.notaryName": { label: "Notary", blank: "notary" },
-  "notarisation.notarySeat": {
-    label: "Official seat (Amtssitz)",
-    blank: "Amtssitz",
-  },
-  "founder.kind": { label: "The founder is", blank: "founder" },
-  "founder.salutation": { label: "Salutation", blank: "salutation" },
-  "founder.firstName": { label: "First name", blank: "first name" },
-  "founder.lastName": { label: "Last name", blank: "last name" },
-  "founder.birthDate": { label: "Date of birth", blank: "date of birth" },
-  "founder.address.street": { label: "Street and number", blank: "street" },
-  "founder.address.postalCode": { label: "Postcode", blank: "postcode" },
-  "founder.address.city": { label: "Town or city", blank: "town" },
-  "founder.name": { label: "Name of the entity", blank: "entity" },
-  "founder.registerCourt": {
-    label: "Register court",
-    blank: "register court",
-  },
-  "founder.registerNumber": {
-    label: "Register number",
-    blank: "register no.",
-  },
-  "founder.seat": { label: "Seat of the entity", blank: "seat" },
-  "founder.identificationDetails": {
-    label: "Identification details",
-    blank: "identification",
-  },
-  "company.name": { label: "Firma (company name)", blank: "Firma" },
-  "company.seat": { label: "Sitz (registered seat)", blank: "Sitz" },
-  "company.purpose": {
-    label: "Unternehmensgegenstand (business purpose)",
-    blank: "Unternehmensgegenstand",
-  },
-  shareCapitalCents: {
-    label: "Stammkapital (share capital)",
-    blank: "Stammkapital",
-  },
-  contribution: { label: "Payment of the contribution", blank: "payment" },
-  "managingDirector.kind": {
-    label: "Geschäftsführer (managing director)",
-    blank: "Geschäftsführer",
-  },
-  "managingDirector.salutation": { label: "Salutation", blank: "salutation" },
-  "managingDirector.firstName": { label: "First name", blank: "first name" },
-  "managingDirector.lastName": { label: "Last name", blank: "last name" },
-  "managingDirector.birthDate": {
-    label: "Date of birth",
-    blank: "date of birth",
-  },
-  "managingDirector.residence": {
-    label: "Place of residence",
-    blank: "residence",
-  },
-  notaryNotes: { label: "Notary's notes (Hinweise)", blank: "notes" },
-  ...filingMessages.fields,
-} as const satisfies Record<string, { label: string; blank: string }>;
+import { useTranslations } from "next-intl";
 
-export type FieldPath = keyof typeof FIELD_LABELS;
+/**
+ * Every draft path the builder edits. Its label and the `blank` that marks
+ * a missing value in the preview live in the catalogues under `fields`,
+ * nested by the path's segments (`fields.founder.address.city.label`).
+ */
+export const FIELD_PATHS = [
+  "notarisation.mode",
+  "notarisation.deedNumber",
+  "notarisation.date",
+  "notarisation.notaryName",
+  "notarisation.notarySeat",
+  "founder.kind",
+  "founder.salutation",
+  "founder.firstName",
+  "founder.lastName",
+  "founder.birthDate",
+  "founder.address.street",
+  "founder.address.postalCode",
+  "founder.address.city",
+  "founder.name",
+  "founder.registerCourt",
+  "founder.registerNumber",
+  "founder.seat",
+  "founder.identificationDetails",
+  "company.name",
+  "company.seat",
+  "company.purpose",
+  "shareCapitalCents",
+  "contribution",
+  "managingDirector.kind",
+  "managingDirector.salutation",
+  "managingDirector.firstName",
+  "managingDirector.lastName",
+  "managingDirector.birthDate",
+  "managingDirector.residence",
+  "notaryNotes",
+  "filing.registerCourt",
+  "filing.businessAddress.street",
+  "filing.businessAddress.postalCode",
+  "filing.businessAddress.city",
+  "filing.paidCents",
+  "filing.fundsAtFreeDisposal",
+  "filing.noDisqualification",
+  "filing.instructedOnDisclosure",
+  "filing.paymentEvidenceAttached",
+] as const;
+
+export type FieldPath = (typeof FIELD_PATHS)[number];
+
+const FIELD_PATH_SET: ReadonlySet<string> = new Set(FIELD_PATHS);
 
 export function isFieldPath(path: string): path is FieldPath {
-  return Object.hasOwn(FIELD_LABELS, path);
+  return FIELD_PATH_SET.has(path);
 }
 
-export function fieldLabel(path: string): string {
-  return isFieldPath(path) ? FIELD_LABELS[path].label : path;
-}
+export type FieldLabels = {
+  /** The field's label, e.g. "Firma" or "Firma (company name)". */
+  label: (path: string) => string;
+  /** The placeholder for a missing value on the sheet. */
+  blank: (path: string) => string;
+};
 
-export function blankLabel(path: string): string {
-  return isFieldPath(path) ? FIELD_LABELS[path].blank : "…";
+/** Field names in the UI language, for client and server components. */
+export function useFieldLabels(): FieldLabels {
+  const t = useTranslations("fields");
+  return {
+    label: (path) => (isFieldPath(path) ? t(`${path}.label`) : path),
+    blank: (path) => (isFieldPath(path) ? t(`${path}.blank`) : "…"),
+  };
 }
 
 /** The DOM id of the control for a path. */
 export function controlId(path: string): string {
   return `field-${path.replaceAll(".", "-")}`;
 }
-import { filingMessages } from "./filing-messages";

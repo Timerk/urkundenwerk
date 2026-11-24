@@ -1,3 +1,5 @@
+import { getLocale, getTranslations } from "next-intl/server";
+import { ruleMessage } from "../../../../../../i18n/rule-messages";
 import { todayInGermany } from "../../../../../../lib/dates";
 import { exportDocument } from "../../../../../../lib/documents/export";
 import {
@@ -18,10 +20,14 @@ export async function GET(
   const user = await getVerifiedUser();
   const supabase = await createClient();
   const { searchParams } = new URL(request.url);
+  // Error codes stay stable; their messages follow the UI language.
+  const t = await getTranslations("rules");
+  const locale = await getLocale();
   return exportDocument(supabase, user?.id ?? null, {
     id,
     format: searchParams.get("format"),
     document: searchParams.get("document"),
     referenceDate: todayInGermany(),
+    describe: (issue) => ruleMessage(t, locale, issue),
   });
 }

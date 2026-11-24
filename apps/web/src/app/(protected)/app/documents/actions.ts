@@ -8,6 +8,7 @@ import {
   musterprotokollMetadata,
   registerFilingMetadata,
 } from "@urkundenwerk/core";
+import { getLocale, getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -25,22 +26,22 @@ import {
   updateDocument,
 } from "../../../../lib/documents/repository";
 import {
-  DEFAULT_DOCUMENT_TITLE,
+  defaultDocumentTitle,
   documentIdSchema,
   documentTitleSchema,
   draftDataSchema,
   exportDocumentSchema,
+  MAX_DRAFT_BYTES,
+  MAX_TITLE_LENGTH,
 } from "../../../../lib/documents/schemas";
 import { createClient, getVerifiedUser } from "../../../../lib/supabase/server";
 
 // Every action verifies the user with the Auth server and then writes through
 // the per-request client, so row-level security authorizes each change.
+// Errors are translated here, in the language of the request.
 
 export type ActionResult<T = object> =
   ({ ok: true } & T) | { ok: false; error: string };
-
-const NOT_ALLOWED =
-  "This document was not found, or you do not have permission to change it.";
 
 async function signedInClient() {
   const user = await getVerifiedUser();
@@ -48,8 +49,29 @@ async function signedInClient() {
   return { user, supabase: await createClient() };
 }
 
-function firstMessage(error: z.ZodError): string {
-  return error.issues[0]?.message ?? "The request is invalid.";
+async function errors() {
+  return getTranslations("documents.errors");
+}
+
+/** The first schema error in words. Unknown messages come from the draft schema. */
+async function firstMessage(error: z.ZodError): Promise<string> {
+  const t = await errors();
+  switch (error.issues[0]?.message) {
+    case "titleRequired":
+      return t("titleRequired");
+    case "titleLong":
+      return t("titleLong", { max: MAX_TITLE_LENGTH });
+    case "draftTooLarge":
+      return t("draftTooLarge", { size: MAX_DRAFT_BYTES / 1024 });
+    case undefined:
+      return t("invalid");
+    default:
+      return t("draftInvalid");
+  }
+}
+
+async function notAllowed() {
+  return { ok: false as const, error: (await errors())("notAllowed") };
 }
 
 /** Creates a Musterprotokoll draft with the default choices in the given firm and opens it. */
@@ -58,22 +80,21 @@ export async function createDocument(
   formData: FormData,
 ): Promise<ActionResult> {
   const tenantId = documentIdSchema.safeParse(formData.get("tenantId"));
-  if (!tenantId.success) return { ok: false, error: "Choose a firm first." };
+  if (!tenantId.success) {
+    return { ok: false, error: (await errors())("chooseFirm") };
+  }
 
   const { user, supabase } = await signedInClient();
   const document = await insertDocument(supabase, {
     tenantId: tenantId.data,
     templateId: musterprotokollMetadata.id,
     templateVersion: musterprotokollMetadata.version,
-    title: DEFAULT_DOCUMENT_TITLE,
+    title: defaultDocumentTitle(await getLocale()),
     createdBy: user.id,
     data: withDefaults({}),
   });
   if (!document) {
-    return {
-      ok: false,
-      error: "Your role in this firm does not allow creating documents.",
-    };
+    return { ok: false, error: (await errors())("cannotCreate") };
   }
 
   revalidatePath("/app");
@@ -86,15 +107,17 @@ export async function saveDraft(
   data: unknown,
 ): Promise<ActionResult<{ updatedAt: string }>> {
   const documentId = documentIdSchema.safeParse(id);
-  if (!documentId.success) return { ok: false, error: NOT_ALLOWED };
+  if (!documentId.success) return notAllowed();
   const draft = draftDataSchema.safeParse(data);
-  if (!draft.success) return { ok: false, error: firstMessage(draft.error) };
+  if (!draft.success) {
+    return { ok: false, error: await firstMessage(draft.error) };
+  }
 
   const { supabase } = await signedInClient();
   const saved = await updateDocument(supabase, documentId.data, {
     data: draft.data,
   });
-  if (!saved) return { ok: false, error: NOT_ALLOWED };
+  if (!saved) return notAllowed();
   return { ok: true, updatedAt: saved.updated_at };
 }
 
@@ -103,17 +126,17 @@ export async function renameDocument(
   title: unknown,
 ): Promise<ActionResult<{ title: string; updatedAt: string }>> {
   const documentId = documentIdSchema.safeParse(id);
-  if (!documentId.success) return { ok: false, error: NOT_ALLOWED };
+  if (!documentId.success) return notAllowed();
   const parsedTitle = documentTitleSchema.safeParse(title);
   if (!parsedTitle.success) {
-    return { ok: false, error: firstMessage(parsedTitle.error) };
+    return { ok: false, error: await firstMessage(parsedTitle.error) };
   }
 
   const { supabase } = await signedInClient();
   const saved = await updateDocument(supabase, documentId.data, {
     title: parsedTitle.data,
   });
-  if (!saved) return { ok: false, error: NOT_ALLOWED };
+  if (!saved) return notAllowed();
 
   revalidatePath("/app");
   return { ok: true, title: parsedTitle.data, updatedAt: saved.updated_at };
@@ -125,11 +148,11 @@ export async function deleteDocument(
   formData: FormData,
 ): Promise<ActionResult> {
   const documentId = documentIdSchema.safeParse(formData.get("documentId"));
-  if (!documentId.success) return { ok: false, error: NOT_ALLOWED };
+  if (!documentId.success) return notAllowed();
 
   const { supabase } = await signedInClient();
   if (!(await deleteDocumentRow(supabase, documentId.data))) {
-    return { ok: false, error: NOT_ALLOWED };
+    return notAllowed();
   }
 
   revalidatePath("/app");
@@ -139,7 +162,8 @@ export async function deleteDocument(
 const explainRequestSchema = z.array(explainableIssueSchema).min(1).max(20);
 
 /**
- * Explains rule issues of a document in plain English with an LLM. Members
+ * Explains rule issues of a document with an LLM, in the request's UI
+ * language. Members
  * of the document's firm may call it, viewers included; row-level security
  * decides whether the document exists for the caller. Only rule codes and
  * numeric params are accepted, so no draft text can reach the model.
@@ -149,28 +173,25 @@ export async function explainDocumentIssues(
   issues: unknown,
   target?: unknown,
 ): Promise<ActionResult<{ result: ExplanationResult }>> {
+  const t = await errors();
   const documentId = documentIdSchema.safeParse(id);
-  if (!documentId.success) {
-    return { ok: false, error: "This document was not found." };
-  }
+  if (!documentId.success) return { ok: false, error: t("notFound") };
   const request = explainRequestSchema.safeParse(issues);
   const requestedDocument = exportDocumentSchema.safeParse(
     target ?? "musterprotokoll",
   );
   if (!request.success || !requestedDocument.success) {
-    return { ok: false, error: "These issues cannot be explained." };
+    return { ok: false, error: t("notExplainable") };
   }
 
   const { user, supabase } = await signedInClient();
   const document = await getDocument(supabase, documentId.data);
-  if (!document) return { ok: false, error: "This document was not found." };
-  if (!isExplanationEnabled()) {
-    return { ok: false, error: "AI explanations are turned off." };
-  }
+  if (!document) return { ok: false, error: t("notFound") };
+  if (!isExplanationEnabled()) return { ok: false, error: t("aiOff") };
   if (!takeExplanationQuota(user.id)) {
     return {
       ok: false,
-      error: `You can ask for ${EXPLANATIONS_PER_MINUTE} explanations a minute. Try again shortly.`,
+      error: t("rateLimited", { count: EXPLANATIONS_PER_MINUTE }),
     };
   }
 
@@ -179,6 +200,6 @@ export async function explainDocumentIssues(
     document.template_id === musterprotokollMetadata.id
       ? registerFilingMetadata.id
       : document.template_id;
-  const result = await explain(templateId, request.data);
+  const result = await explain(templateId, request.data, await getLocale());
   return { ok: true, result };
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 import { FormError, FormNotice } from "../../../components/form-error";
 import { FormField } from "../../../components/form-field";
@@ -9,6 +10,7 @@ import { signUp } from "./actions";
 
 export function SignupForm() {
   const [state, formAction] = useActionState(signUp, initialFormState);
+  const t = useTranslations("auth");
 
   return (
     <form action={formAction} noValidate className="space-y-4">
@@ -16,7 +18,7 @@ export function SignupForm() {
       <FormNotice message={state.notice} />
       <FormField
         name="firmName"
-        label="Firm name"
+        label={t("firmName")}
         autoComplete="organization"
         defaultValue={state.values?.firmName}
         errors={state.fieldErrors?.firmName}
@@ -25,7 +27,7 @@ export function SignupForm() {
       />
       <FormField
         name="email"
-        label="Email address"
+        label={t("email")}
         type="email"
         autoComplete="email"
         defaultValue={state.values?.email}
@@ -33,15 +35,15 @@ export function SignupForm() {
       />
       <FormField
         name="password"
-        label="Password"
+        label={t("password")}
         type="password"
         autoComplete="new-password"
         errors={state.fieldErrors?.password}
         minLength={8}
         maxLength={72}
       />
-      <SubmitButton pendingLabel="Creating account…" className="w-full">
-        Create account
+      <SubmitButton pendingLabel={t("signup.pending")} className="w-full">
+        {t("signup.submit")}
       </SubmitButton>
     </form>
   );

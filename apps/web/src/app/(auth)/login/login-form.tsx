@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useRef } from "react";
 import { FormError } from "../../../components/form-error";
 import { FormField } from "../../../components/form-field";
@@ -10,21 +11,16 @@ import { signIn } from "./actions";
 // Fictional users from supabase/seed.sql. The password exists only there.
 const DEMO_PASSWORD = "demo-password-123";
 const DEMO_ACCOUNTS = [
-  { email: "erik.editor@demo.test", description: "Editor, Demo-Kanzlei Nord" },
-  {
-    email: "victor.viewer@demo.test",
-    description: "Viewer, Demo-Kanzlei Nord",
-  },
-  { email: "sara.admin@demo.test", description: "Admin, Demo-Kanzlei Süd" },
-  {
-    email: "mia.multi@demo.test",
-    description: "Editor in Nord and viewer in Süd",
-  },
+  { email: "erik.editor@demo.test", description: "erik" },
+  { email: "victor.viewer@demo.test", description: "victor" },
+  { email: "sara.admin@demo.test", description: "sara" },
+  { email: "mia.multi@demo.test", description: "mia" },
 ] as const;
 
 export function LoginForm() {
   const [state, formAction] = useActionState(signIn, initialFormState);
   const form = useRef<HTMLFormElement>(null);
+  const t = useTranslations("auth");
 
   const signInAs = (email: string) => {
     const fields = form.current?.elements;
@@ -46,7 +42,7 @@ export function LoginForm() {
         <FormError message={state.error} />
         <FormField
           name="email"
-          label="Email address"
+          label={t("email")}
           type="email"
           autoComplete="email"
           defaultValue={state.values?.email}
@@ -54,13 +50,13 @@ export function LoginForm() {
         />
         <FormField
           name="password"
-          label="Password"
+          label={t("password")}
           type="password"
           autoComplete="current-password"
           errors={state.fieldErrors?.password}
         />
-        <SubmitButton pendingLabel="Signing in…" className="w-full">
-          Sign in
+        <SubmitButton pendingLabel={t("login.pending")} className="w-full">
+          {t("login.submit")}
         </SubmitButton>
       </form>
       <section
@@ -68,7 +64,7 @@ export function LoginForm() {
         className="space-y-3 border-t border-rule pt-6"
       >
         <h2 id="demo-accounts" className="text-sm font-medium">
-          Fictional demo accounts
+          {t("login.demoAccounts")}
         </h2>
         <ul className="divide-y divide-rule rounded-sm border border-rule">
           {DEMO_ACCOUNTS.map((account) => (
@@ -83,18 +79,18 @@ export function LoginForm() {
                     {account.email}
                   </span>
                   <span className="block text-xs text-ink-faint">
-                    {account.description}
+                    {t(`login.accounts.${account.description}`)}
                   </span>
                 </span>
                 <span className="shrink-0 text-xs font-medium text-stamp">
-                  Sign in as this user
+                  {t("login.signInAs")}
                 </span>
               </button>
             </li>
           ))}
         </ul>
         <p className="text-xs text-ink-faint">
-          Password for all demo accounts: <code>{DEMO_PASSWORD}</code>
+          {t("login.demoPassword")} <code>{DEMO_PASSWORD}</code>
         </p>
       </section>
     </div>

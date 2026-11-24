@@ -1,9 +1,12 @@
+import { useTranslations } from "next-intl";
+
 /** Shown at the top of every page by the root layout. */
 export function DemoNotice() {
+  const t = useTranslations("common");
   return (
     <div
       role="note"
-      aria-label="Demonstration notice"
+      aria-label={t("demoNoticeLabel")}
       className="border-b border-hint-rule bg-hint-wash px-4 py-1.5 text-center text-xs text-hint"
     >
       <p>
@@ -27,7 +30,7 @@ export function DemoNotice() {
             strokeLinecap="round"
           />
         </svg>
-        Demonstration project. Not legal advice. Uses fictional data only.
+        {t("demoNotice")}
       </p>
     </div>
   );

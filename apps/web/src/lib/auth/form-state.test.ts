@@ -17,18 +17,22 @@ describe("readFields", () => {
 });
 
 describe("invalidFormState", () => {
-  it("returns field errors and drops missing values", () => {
+  it("translates field errors and drops missing values", () => {
     const result = loginSchema.safeParse({ email: "anna" });
     if (result.success) {
       throw new Error("expected validation to fail");
     }
 
     expect(
-      invalidFormState(result.error, { email: "anna", other: undefined }),
+      invalidFormState(
+        result.error,
+        { email: "anna", other: undefined },
+        (key) => `<${key}>`,
+      ),
     ).toEqual({
       fieldErrors: {
-        email: ["Enter a valid email address."],
-        password: ["Enter your password."],
+        email: ["<emailInvalid>"],
+        password: ["<passwordRequired>"],
       },
       values: { email: "anna" },
     });

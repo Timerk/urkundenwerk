@@ -7,8 +7,9 @@ import type {
   SourceDocument,
   SourceSegment,
 } from "@urkundenwerk/extraction/contract";
+import { useTranslations } from "next-intl";
 import { type KeyboardEvent, type ReactNode, useMemo } from "react";
-import { fieldLabel } from "../../../../lib/builder/fields";
+import { useFieldLabels } from "../../../../lib/builder/fields";
 
 export type SourceCitation = {
   path: ExtractionFieldPath;
@@ -73,6 +74,8 @@ export function SourceSheet({
   suspiciousSegments: readonly string[];
   onSelect: (path: ExtractionFieldPath) => void;
 }) {
+  const t = useTranslations("review.sheet");
+  const fieldLabels = useFieldLabels();
   const suspicious = useMemo(
     () => new Set(suspiciousSegments),
     [suspiciousSegments],
@@ -106,14 +109,19 @@ export function SourceSheet({
         );
       }
       const own = primary(starting, activePath);
-      const labels = starting.map(({ path }) => fieldLabel(path)).join(", ");
+      const labels = starting
+        .map(({ path }) => fieldLabels.label(path))
+        .join(", ");
       return (
         <mark
           key={start}
           {...shared}
           role="button"
           tabIndex={0}
-          aria-label={`Passage for ${labels}: ${own.citation.quote}`}
+          aria-label={t("passage", {
+            fields: labels,
+            quote: own.citation.quote,
+          })}
           onKeyDown={(event: KeyboardEvent<HTMLElement>) => {
             if (event.key === "Enter" || event.key === " ") {
               event.preventDefault();
@@ -135,14 +143,14 @@ export function SourceSheet({
 
   return (
     <article
-      aria-label="Document text"
+      aria-label={t("label")}
       className="deed-sheet mx-auto max-w-[52rem]"
     >
       <div className="source-text">
         {[...pages].map(([page, segments]) => (
           <div key={page} className="source-page">
             {source.format === "pdf" ? (
-              <p className="source-page-number">Page {page}</p>
+              <p className="source-page-number">{t("page", { page })}</p>
             ) : null}
             {segments.map((segment) => (
               <p
@@ -153,9 +161,7 @@ export function SourceSheet({
                 className="source-segment"
               >
                 {suspicious.has(segment.id) ? (
-                  <span className="source-warning">
-                    Reads like an instruction to an AI
-                  </span>
+                  <span className="source-warning">{t("warning")}</span>
                 ) : null}
                 {renderSegment(segment)}
               </p>

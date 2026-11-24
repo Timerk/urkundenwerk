@@ -9,7 +9,12 @@ import {
   issueKey,
   toExplanationItems,
 } from "./payload";
-import { PROMPT_VERSION, SYSTEM_PROMPT, userMessage } from "./prompt";
+import {
+  type ExplanationLocale,
+  explanationSystemPrompt,
+  PROMPT_VERSION,
+  userMessage,
+} from "./prompt";
 
 /** The JSON the model must return; checked again entry by entry below. */
 export const explanationOutputSchema = z.object({
@@ -36,6 +41,8 @@ export interface Explanation {
 
 export interface ExplanationResult {
   explanations: Explanation[];
+  /** The language the model was asked to write in. */
+  locale: ExplanationLocale;
   /** The model that wrote the explanations, or `null` if none did. */
   model: string | null;
   promptVersion: string;
@@ -58,6 +65,8 @@ export interface ExplanationCache {
 
 export interface ExplainOptions {
   templateId: string;
+  /** The UI language; the model answers in it. */
+  locale: ExplanationLocale;
   /** `null` when AI is disabled; every entry then falls back. */
   client: LlmClient | null;
   model: string;
@@ -93,12 +102,13 @@ function acceptable(entry: ExplanationOutput["explanations"][number]) {
   );
 }
 
-/** Explanations are cached per issue, model, and prompt version. */
+/** Explanations are cached per issue, language, model, and prompt version. */
 export function explanationCacheKey(
   item: ExplainableIssue,
+  locale: ExplanationLocale,
   model: string,
 ): string {
-  return JSON.stringify([issueKey(item), model, PROMPT_VERSION]);
+  return JSON.stringify([issueKey(item), locale, model, PROMPT_VERSION]);
 }
 
 function fallback(item: ExplanationItem): Explanation {
@@ -120,7 +130,7 @@ function fallback(item: ExplanationItem): Explanation {
  */
 export async function explainIssues(
   issues: readonly ExplainableIssue[],
-  { templateId, client, model, cache, signal }: ExplainOptions,
+  { templateId, locale, client, model, cache, signal }: ExplainOptions,
 ): Promise<ExplanationResult> {
   const items = toExplanationItems(templateId, issues);
   const answers = new Map<string, Explanation>();
@@ -129,7 +139,7 @@ export async function explainIssues(
 
   if (client) {
     for (const item of items) {
-      const cached = cache?.get(explanationCacheKey(item, model));
+      const cached = cache?.get(explanationCacheKey(item, locale, model));
       if (!cached) continue;
       answers.set(issueKey(item), {
         ...fallback(item),
@@ -156,8 +166,8 @@ export async function explainIssues(
     try {
       const result = await client.generateStructured({
         task: "explain",
-        system: SYSTEM_PROMPT,
-        user: userMessage(templateId, [...pending.values()]),
+        system: explanationSystemPrompt(locale),
+        user: userMessage(templateId, locale, [...pending.values()]),
         schema: explanationOutputSchema,
         model,
         maxOutputTokens: MAX_OUTPUT_TOKENS,
@@ -177,7 +187,7 @@ export async function explainIssues(
           explanation: entry.explanation.trim(),
           suggestedFix: entry.suggestedFix.trim(),
         };
-        cache?.set(explanationCacheKey(item, model), {
+        cache?.set(explanationCacheKey(item, locale, model), {
           ...answer,
           model: result.model,
         });
@@ -199,6 +209,7 @@ export async function explainIssues(
     explanations: items.map(
       (item) => answers.get(issueKey(item)) ?? fallback(item),
     ),
+    locale,
     model: usedModel,
     promptVersion: PROMPT_VERSION,
     failure,
@@ -207,12 +218,26 @@ export async function explainIssues(
 
 const fakePayloadSchema = z.object({
   templateId: z.string(),
+  language: z.enum(["de", "en"]),
   issues: z.array(z.object({ code: z.string() })),
 });
 
+const FAKE_TEXT = {
+  de: {
+    explanation: "Skriptgesteuerte Erläuterung für lokale Tests.",
+    fix: "Korrigieren Sie das markierte Feld im Formular.",
+  },
+  en: {
+    explanation: "Scripted explanation for local testing.",
+    fix: "Correct the highlighted field in the form.",
+  },
+} as const;
+
 /**
  * Answers explanation requests without a model, for end-to-end tests and
- * local development without a key. The text says that it is scripted.
+ * local development without a key. The text says that it is scripted and
+ * is written in the requested language. English answers quote the rule
+ * summary, which exists only in English.
  */
 export const fakeExplanationResponder: FakeResponder = (request) => {
   const match = /<issues>\n([\s\S]*)\n<\/issues>/.exec(request.user);
@@ -222,14 +247,17 @@ export const fakeExplanationResponder: FakeResponder = (request) => {
   } catch {
     return { kind: "error", error: "rejected" };
   }
+  const text = FAKE_TEXT[payload.language];
   return {
     kind: "output",
     output: {
       explanations: payload.issues.map(({ code }) => ({
         code,
         explanation:
-          `Scripted explanation for local testing. ${getRule(payload.templateId, code)?.summary ?? ""}`.trim(),
-        suggestedFix: "Correct the highlighted field in the form.",
+          payload.language === "en"
+            ? `${text.explanation} ${getRule(payload.templateId, code)?.summary ?? ""}`.trim()
+            : text.explanation,
+        suggestedFix: text.fix,
       })),
     },
   };

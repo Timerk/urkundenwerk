@@ -3,6 +3,7 @@ import {
   musterprotokollMetadata,
 } from "@urkundenwerk/core";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { isExplanationEnabled } from "../../../../../lib/ai/explanations";
 import { todayInGermany } from "../../../../../lib/dates";
@@ -13,7 +14,10 @@ import { getMemberships } from "../../../../../lib/tenants/memberships";
 import { canEditDocuments } from "../../../../../lib/tenants/selection";
 import { Builder } from "./builder";
 
-export const metadata: Metadata = { title: "Musterprotokoll · Urkundenwerk" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata");
+  return { title: `${t("document")} · Urkundenwerk` };
+}
 
 export default async function DocumentPage({
   params,
@@ -35,6 +39,7 @@ export default async function DocumentPage({
   if (document.template_id !== musterprotokollMetadata.id) notFound();
 
   const draft = musterprotokollDraftSchema.safeParse(document.data);
+  const t = await getTranslations("dashboard");
 
   return (
     <Builder
@@ -44,7 +49,7 @@ export default async function DocumentPage({
       updatedAt={document.updated_at}
       canEdit={canEditDocuments(membership.role)}
       firmName={membership.name}
-      templateLabel="Musterprotokoll, single founder"
+      templateLabel={t("templateLabel")}
       referenceDate={todayInGermany()}
       aiEnabled={isExplanationEnabled()}
       imported={imported === "1"}

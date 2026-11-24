@@ -1,13 +1,14 @@
+import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { BrandMark } from "../../components/brand";
+import { LanguageSwitcher } from "../../components/language-switcher";
 import { Button } from "../../components/ui/button";
 import { getVerifiedUser } from "../../lib/supabase/server";
 import {
   getCurrentMembership,
   getMemberships,
 } from "../../lib/tenants/memberships";
-import { ROLE_LABELS } from "../../lib/tenants/selection";
 import { signOut } from "./actions";
 import { TenantSwitcher } from "./tenant-switcher";
 import Link from "next/link";
@@ -27,12 +28,13 @@ export default async function ProtectedLayout({
   }
   const memberships = await getMemberships();
   const current = await getCurrentMembership();
+  const t = await getTranslations();
 
   return (
     <div className="flex min-h-[calc(100dvh-2rem)] flex-col">
       <header className="border-b border-rule bg-paper">
-        <div className="flex items-center justify-between gap-x-4 px-4 py-2.5 sm:gap-x-6 sm:px-6">
-          <div className="flex min-w-0 items-center gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2.5 sm:flex-nowrap sm:gap-x-6 sm:px-6">
+          <div className="flex min-w-0 items-center gap-4 max-sm:basis-full">
             <Link
               href="/app"
               className="inline-flex items-center gap-2.5 rounded-sm font-semibold tracking-tight text-ink"
@@ -48,27 +50,28 @@ export default async function ProtectedLayout({
                     currentTenantId={current.tenantId}
                     tenants={memberships.map((membership) => ({
                       ...membership,
-                      role: ROLE_LABELS[membership.role],
+                      role: t(`roles.${membership.role}`),
                     }))}
                   />
                 ) : (
                   <p className="truncate text-sm">
                     <span className="font-medium">{current.name}</span>{" "}
                     <span className="text-ink-faint">
-                      ({ROLE_LABELS[current.role]})
+                      ({t(`roles.${current.role}`)})
                     </span>
                   </p>
                 )}
               </>
             ) : null}
           </div>
-          <div className="flex shrink-0 items-center gap-3 text-sm">
-            <span className="truncate text-ink-soft max-sm:hidden">
+          <div className="flex shrink-0 items-center gap-3 text-sm max-sm:ml-auto">
+            <span className="truncate text-ink-soft max-md:hidden">
               {user.email}
             </span>
+            <LanguageSwitcher />
             <form action={signOut}>
               <Button type="submit" variant="quiet" size="sm">
-                Sign out
+                {t("common.signOut")}
               </Button>
             </form>
           </div>
