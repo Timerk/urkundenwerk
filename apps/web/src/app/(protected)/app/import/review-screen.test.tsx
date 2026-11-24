@@ -271,6 +271,15 @@ describe("ReviewScreen", () => {
           notarisation: { date: "2025-01-21" },
           company: { name: "Schieferwabe Prüfstände GmbH", seat: "Wollquell" },
         },
+        {
+          model: "fake-model",
+          promptVersion: "extract-test",
+          counts: {
+            verified: { accepted: 2, edited: 0, cleared: 0 },
+            unverified: { accepted: 0, edited: 1, cleared: 2 },
+            absent: { accepted: 0, edited: 0, cleared: 0 },
+          },
+        },
       ),
     );
   });

@@ -24,6 +24,10 @@ import {
   MAX_UPLOAD_BYTES,
   MAX_UPLOAD_MEGABYTES,
 } from "../../../../lib/import/limits";
+import {
+  importProvenanceSchema,
+  recordImport,
+} from "../../../../lib/audit/record";
 import { insertDocument } from "../../../../lib/documents/repository";
 import {
   defaultDocumentTitle,
@@ -133,18 +137,24 @@ export async function extractContract(
 /**
  * Creates a draft from the values the user accepted on the review screen and
  * opens it in the builder. The draft is validated like any other, and row-
- * level security decides whether the user may create it. No quotes, document
- * text, or extraction metadata are stored.
+ * level security decides whether the user may create it. No quotes or
+ * document text are stored. The audit log records the model, the prompt
+ * version, and how many values of each status were accepted, edited, or
+ * cleared.
  */
 export async function createDraftFromImport(
   tenantId: unknown,
   data: unknown,
+  provenance: unknown,
 ): Promise<ImportActionResult> {
   const t = await getTranslations("import.errors");
   const access = await editorOf(tenantId);
   if (!access) return { ok: false, error: t("notAllowed") };
   const draft = draftDataSchema.safeParse(data);
-  if (!draft.success) return { ok: false, error: t("invalidDraft") };
+  const origin = importProvenanceSchema.safeParse(provenance);
+  if (!draft.success || !origin.success) {
+    return { ok: false, error: t("invalidDraft") };
+  }
 
   const firma = draft.data.company?.name?.trim();
   const supabase = await createClient();
@@ -159,6 +169,10 @@ export async function createDraftFromImport(
     data: draft.data,
   });
   if (!document) return { ok: false, error: t("notAllowed") };
+  // The creation itself is in the log through the documents trigger, so a
+  // failure here loses the provenance, not the fact. It is logged and the
+  // draft opens anyway.
+  await recordImport(supabase, document.id, origin.data);
 
   revalidatePath("/app");
   redirect(`/app/documents/${document.id}?imported=1`);

@@ -28,6 +28,7 @@ import {
   acceptAllVerified,
   type Decision,
   type Decisions,
+  decisionCounts,
   draftFromDecisions,
   editText,
   fieldOptions,
@@ -514,6 +515,11 @@ export function ReviewScreen({
       const result = await createDraftFromImport(
         tenantId,
         draftFromDecisions(fields, decisions),
+        {
+          model: contract.model,
+          promptVersion: contract.promptVersion,
+          counts: decisionCounts(fields, decisions),
+        },
       );
       // On success the action navigates to the new draft.
       if (!result.ok) setError(result.error);

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { checkUpload, MAX_UPLOAD_BYTES } from "./limits";
 import {
   acceptAllVerified,
+  decisionCounts,
   draftFromDecisions,
   editText,
   formatValue,
@@ -37,6 +38,22 @@ const fields = [
 ];
 
 describe("review decisions", () => {
+  it("counts the decisions per extraction status, without values", () => {
+    expect(
+      decisionCounts(fields, {
+        "company.name": { kind: "accepted" },
+        "company.seat": { kind: "edited", value: "Blaustadt" },
+        shareCapitalCents: { kind: "cleared" },
+        "founder.birthDate": { kind: "pending" },
+        notaryNotes: { kind: "edited", value: "Belehrt." },
+      }),
+    ).toEqual({
+      verified: { accepted: 1, edited: 0, cleared: 1 },
+      unverified: { accepted: 0, edited: 1, cleared: 0 },
+      absent: { accepted: 0, edited: 1, cleared: 0 },
+    });
+  });
+
   it("starts with every found value undecided and absent ones ignored", () => {
     const decisions = initialDecisions(fields);
     expect(Object.keys(decisions)).toEqual([

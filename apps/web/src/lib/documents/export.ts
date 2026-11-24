@@ -16,6 +16,7 @@ import {
 } from "@urkundenwerk/core/register-filing-xml";
 import { renderDocx, renderPdf } from "@urkundenwerk/render";
 import type { z } from "zod";
+import { recordExport } from "../audit/record";
 import { type AppSupabaseClient, getDocument } from "./repository";
 import {
   documentIdSchema,
@@ -108,7 +109,9 @@ export function exportFilename(
 
 /**
  * Exports a deed or a filing. The document is loaded with the caller's
- * client, so row-level security decides whether it exists for them.
+ * client, so row-level security decides whether it exists for them, and
+ * every successful export is recorded in the audit log before it is
+ * returned.
  */
 export async function exportDocument(
   supabase: AppSupabaseClient,
@@ -166,22 +169,44 @@ export async function exportDocument(
     });
   }
 
+  const response = await render(
+    draft.data,
+    document.title,
+    format.data,
+    target.data,
+    params,
+    describe,
+  );
+  if (response.status !== 200) return response;
+  // An export that cannot be accounted for is not handed out.
+  if (!(await recordExport(supabase, document.id, format.data, target.data))) {
+    return problem(500, "audit_failed");
+  }
+  return response;
+}
+
+async function render(
+  draft: MusterprotokollDraft,
+  title: string,
+  format: ExportFormat,
+  target: ExportDocument,
+  params: { referenceDate: string; generatedAt?: string },
+  describe: DescribeIssue,
+): Promise<Response> {
   // The same rules as in the builder decide; warnings do not block.
   const context = { referenceDate: params.referenceDate };
-  if (format.data === "xml") {
+  if (format === "xml") {
     return exportXml(
-      draft.data,
+      draft,
       context,
-      document.title,
+      title,
       params.generatedAt ?? new Date().toISOString(),
       describe,
     );
   }
   const template =
-    target.data === "anmeldung"
-      ? registerFilingTemplate
-      : musterprotokollTemplate;
-  const result = template.validate(draft.data, context);
+    target === "anmeldung" ? registerFilingTemplate : musterprotokollTemplate;
+  const result = template.validate(draft, context);
   if (!result.success) {
     return problem(422, "incomplete", {
       issues: ruleErrors(result.issues, describe),
@@ -189,11 +214,11 @@ export async function exportDocument(
   }
 
   const model =
-    target.data === "anmeldung"
-      ? registerFilingTemplate.build(draft.data, context)
+    target === "anmeldung"
+      ? registerFilingTemplate.build(draft, context)
       : musterprotokollTemplate.build(result.data, context);
-  const bytes = await RENDERERS[format.data](model);
-  return download(bytes, document.title, target.data, format.data);
+  const bytes = await RENDERERS[format](model);
+  return download(bytes, title, target, format);
 }
 
 async function exportXml(

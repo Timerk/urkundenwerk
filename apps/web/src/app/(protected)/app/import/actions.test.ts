@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   getMemberships: vi.fn(),
   createClient: vi.fn(async () => ({})),
   insertDocument: vi.fn(),
+  recordImport: vi.fn(async () => true),
   isExtractionEnabled: vi.fn(() => true),
   extract: vi.fn(),
   redirect: vi.fn((path: string) => {
@@ -32,6 +33,10 @@ vi.mock("../../../../lib/tenants/memberships", () => ({
 }));
 vi.mock("../../../../lib/documents/repository", () => ({
   insertDocument: mocks.insertDocument,
+}));
+vi.mock("../../../../lib/audit/record", async (original) => ({
+  ...(await original<typeof import("../../../../lib/audit/record")>()),
+  recordImport: mocks.recordImport,
 }));
 vi.mock("../../../../lib/import/extraction", () => ({
   extract: mocks.extract,
@@ -191,9 +196,21 @@ describe("createDraftFromImport", () => {
     company: { name: "Schieferwabe Prüfstände GmbH" },
     shareCapitalCents: 3_500_000,
   };
+  const none = { accepted: 0, edited: 0, cleared: 0 };
+  const provenance = {
+    model: "fake-model",
+    promptVersion: "extract-test",
+    counts: {
+      verified: { accepted: 2, edited: 0, cleared: 0 },
+      unverified: none,
+      absent: none,
+    },
+  };
 
   it("creates a draft titled with the Firma and opens it", async () => {
-    await expect(createDraftFromImport(TENANT, draft)).rejects.toThrow(
+    await expect(
+      createDraftFromImport(TENANT, draft, provenance),
+    ).rejects.toThrow(
       "redirect /app/documents/doc-1?imported=1",
     );
     expect(mocks.insertDocument).toHaveBeenCalledWith(
@@ -205,17 +222,34 @@ describe("createDraftFromImport", () => {
         data: draft,
       }),
     );
+    expect(mocks.recordImport).toHaveBeenCalledWith({}, "doc-1", provenance);
+  });
+
+  it("rejects provenance with values or unknown keys", async () => {
+    expect(
+      await createDraftFromImport(TENANT, draft, {
+        ...provenance,
+        quotes: ["Schieferwabe"],
+      }),
+    ).toMatchObject({ ok: false });
+    expect(mocks.insertDocument).not.toHaveBeenCalled();
   });
 
   it("rejects data that is not a valid draft", async () => {
     expect(
-      await createDraftFromImport(TENANT, { company: { motto: "x" } }),
+      await createDraftFromImport(
+        TENANT,
+        { company: { motto: "x" } },
+        provenance,
+      ),
     ).toMatchObject({ ok: false });
     expect(mocks.insertDocument).not.toHaveBeenCalled();
   });
 
   it("refuses viewers", async () => {
-    expect(await createDraftFromImport(OTHER_TENANT, draft)).toMatchObject({
+    expect(
+      await createDraftFromImport(OTHER_TENANT, draft, provenance),
+    ).toMatchObject({
       ok: false,
     });
     expect(mocks.insertDocument).not.toHaveBeenCalled();

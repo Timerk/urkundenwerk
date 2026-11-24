@@ -176,6 +176,29 @@ export function decidedValue(
   return undefined;
 }
 
+type DecisionCounts = { accepted: number; edited: number; cleared: number };
+
+/**
+ * How many values of each extraction status the reviewer accepted, edited,
+ * or cleared. Recorded as the import's provenance in the audit log, without
+ * the values themselves.
+ */
+export function decisionCounts(
+  fields: readonly FieldReview[],
+  decisions: Decisions,
+): Record<FieldReview["status"], DecisionCounts> {
+  const counts = {
+    verified: { accepted: 0, edited: 0, cleared: 0 },
+    unverified: { accepted: 0, edited: 0, cleared: 0 },
+    absent: { accepted: 0, edited: 0, cleared: 0 },
+  };
+  for (const field of fields) {
+    const kind = decisions[field.path]?.kind;
+    if (kind && kind !== "pending") counts[field.status][kind] += 1;
+  }
+  return counts;
+}
+
 /** The draft that confirming creates: accepted and edited values only. */
 export function draftFromDecisions(
   fields: readonly FieldReview[],
