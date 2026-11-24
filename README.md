@@ -65,6 +65,55 @@ Demo video: <VIDEO_URL>
 
 ## Architecture
 
+```mermaid
+flowchart LR
+  browser["Browser<br/>React UI, live preview"]
+  agent["Claude Code / Claude Desktop"]
+
+  subgraph vercel["Vercel · fra1"]
+    web["apps/web · Next.js App Router<br/>server components, server actions,<br/>export route handlers, CSP proxy"]
+  end
+
+  subgraph packages["Workspace packages"]
+    core["packages/core<br/>schemas, rules, templates,<br/>XML + XSD"]
+    render["packages/render<br/>DOCX + PDF"]
+    extraction["packages/extraction<br/>ingestion, citations, eval"]
+    ai["packages/ai<br/>LLM port"]
+  end
+
+  subgraph supabase["Supabase · eu-central-1"]
+    auth["Supabase Auth"]
+    db[("Postgres<br/>RLS on every table,<br/>security definer RPCs,<br/>audit triggers, quotas")]
+  end
+
+  subgraph llm["LLM providers"]
+    openai["OpenAI"]
+    anthropic["Anthropic"]
+    fake["Scripted fake<br/>tests and CI"]
+  end
+
+  mcp["apps/mcp<br/>stdio MCP server,<br/>user session"]
+
+  subgraph gha["GitHub Actions"]
+    ci["CI: lint, typecheck, unit,<br/>build, e2e, db, secret scan"]
+    deploy["Migration deploy<br/>approval-gated"]
+    reset["Nightly demo reset"]
+  end
+
+  browser --> web
+  web --> core & render & extraction & ai
+  extraction --> ai
+  ai --> openai & anthropic & fake
+  web -- "user JWT" --> auth
+  web -- "user JWT, publishable key" --> db
+  agent -- stdio --> mcp
+  mcp --> core & render
+  mcp -- "user JWT" --> auth
+  mcp -- "user JWT" --> db
+  deploy --> db
+  reset --> db
+```
+
 Every request reaches Postgres with the signed-in user's JWT and the
 publishable key, so RLS decides what any client sees: the browser, the
 server actions, the export route, and the MCP server. The web app holds no
@@ -73,8 +122,14 @@ web app and the MCP server.
 
 ### AI extraction pipeline
 
-An upload is ingested, sent to the LLM for structured output, grounded in
-code, and reviewed by a person before it becomes a draft.
+```mermaid
+flowchart LR
+  upload["Upload<br/>PDF or DOCX, ≤ 4 MB"] --> ingest["Ingest<br/>bounded parse, normalised text,<br/>segments with UTF-16 spans"]
+  ingest --> llmcall["LLM structured output<br/>value + verbatim quote + segment id<br/>per field, schema-validated"]
+  llmcall --> ground["Grounding in code<br/>anchor quote, verify slice,<br/>check quote states value,<br/>flag instruction-like text"]
+  ground --> review["Human review<br/>verified / unverified / absent,<br/>side by side with the source"]
+  review --> draft["Draft<br/>only accepted values;<br/>rule checks run again"]
+```
 
 Nothing is stored before the user creates the draft. The uploaded file,
 its text, and the raw model response are never persisted
