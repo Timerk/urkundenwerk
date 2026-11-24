@@ -1,6 +1,7 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ComponentPropsWithRef, ReactNode } from "react";
 
-export type ButtonVariant = "primary" | "secondary" | "quiet" | "danger";
+export type ButtonVariant =
+  "primary" | "secondary" | "quiet" | "danger" | "destructive";
 export type ButtonSize = "sm" | "md";
 
 const base =
@@ -15,6 +16,9 @@ const variants: Record<ButtonVariant, string> = {
     "text-ink-soft hover:bg-desk hover:text-ink disabled:text-ink-faint aria-disabled:text-ink-faint",
   danger:
     "border border-transparent text-alert hover:border-alert hover:bg-alert-wash",
+  /** The final, confirming step of a destructive action. */
+  destructive:
+    "bg-alert text-white hover:bg-[#8f1e18] disabled:bg-rule-strong aria-disabled:bg-rule-strong",
 };
 
 const sizes: Record<ButtonSize, string> = {
@@ -42,7 +46,7 @@ export function Button({
   type = "button",
   children,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
+}: ComponentPropsWithRef<"button"> & {
   variant?: ButtonVariant;
   size?: ButtonSize;
   children: ReactNode;
