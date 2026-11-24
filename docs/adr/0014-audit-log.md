@@ -37,8 +37,8 @@ An operator can schedule `select private.prune_audit_events();` and configure
 ten years. It is an operational default, not a statutory retention period for
 this log. A real firm should document how long it needs an audit trail and
 distinguish it from its obligations for notarial records. Shorter periods
-reduce how long the log identifies staff. The approval-gated demo reset
-prunes events older than 90 days.
+reduce how long the log identifies staff. The nightly demo reset
+prunes events older than 90 days ([ADR-0016](0016-database-demo-reset.md)).
 
 ## Consequences
 

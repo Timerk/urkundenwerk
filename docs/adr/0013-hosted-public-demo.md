@@ -10,20 +10,24 @@ also includes a local stdio MCP server and a fictional evaluation corpus.
 
 Vercel runs the Next.js app from `apps/web` in `fra1`, with Node 24 and the
 committed pnpm workspace. Supabase Auth and Postgres run in Frankfurt.
-GitHub Actions pushes reviewed migrations and schedules the draft reset
-using the protected `production` environment. The operator deploys a
+GitHub Actions pushes reviewed migrations using the protected `production`
+environment. The database runs the nightly reset with pg_cron
+([ADR-0016](0016-database-demo-reset.md)). The operator deploys a
 reviewed `master` revision after database changes succeed. PR previews
 are disabled. A future preview deployment needs a separate database and
 scripted AI. The MCP server remains local.
 
 Disable public sign-up in the app and Supabase Auth. Offer one-click login
-to three pre-provisioned editor or viewer accounts. The server action
+to four pre-provisioned accounts: an editor, a viewer, a member of two
+firms, and the admin of a sandbox firm. The server action
 checks an email allow-list and reads the password from server env, so the
 shared password need not be delivered to browsers. An operator-only user
-administers both hosted firms. The reset restores two fictional sample
-drafts and deletes other drafts in those two firms. It preserves other
-firms, users, memberships and quotas. Required reviewers gate each run
-of the reset, including scheduled runs.
+administers the Nord and Süd firms. The nightly reset restores the fictional
+sample drafts and deletes other drafts in the demo firms. It restores the
+sandbox firm's memberships and invitations. It preserves other firms,
+users, quotas, and the memberships of Nord and Süd. ADR-0016 records why
+the reset moved from a GitHub Actions schedule to pg_cron. It also records
+the sandbox design.
 
 `create_tenant` serializes creation per user and caps firms created by the
 same user at three. A private ledger records creators from this migration
@@ -56,7 +60,7 @@ liveness and the deployment SHA.
 
 ## Consequences
 
-Visitors see each other's edits in the same firm until the next approved
+Visitors see each other's edits in the same firm until the next nightly
 reset. The two roles demonstrate isolation and authorization using
 fictional data. A busy shared account can hit its rate limit, and spending
 the daily budget blocks import and returns deterministic rule summaries

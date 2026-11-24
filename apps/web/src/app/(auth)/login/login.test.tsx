@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { type DemoAccounts, demoLogin } from "../../../lib/auth/demo";
 import { initialFormState } from "../../../lib/auth/form-state";
 import { withIntl } from "../../../test/i18n";
 import { signIn } from "./actions";
@@ -50,6 +51,16 @@ it("only accepts listed accounts for hosted one-click login", async () => {
   });
 });
 
+it("signs the sandbox admin in with the shared hosted password", async () => {
+  const form = new FormData();
+  form.set("demo", "sara.admin@demo.test");
+  await expect(signIn(initialFormState, form)).rejects.toThrow("redirect /app");
+  expect(signInWithPassword).toHaveBeenCalledExactlyOnceWith({
+    email: "sara.admin@demo.test",
+    password: hostedPassword,
+  });
+});
+
 it("passes only public account details from the hosted page to the client component", async () => {
   const markup = renderToStaticMarkup(
     withIntl(
@@ -64,9 +75,22 @@ it("passes only public account details from the hosted page to the client compon
     accounts: [
       { email: "erik.editor@demo.test", description: "erik" },
       { email: "victor.viewer@demo.test", description: "victor" },
+      { email: "sara.admin@demo.test", description: "saraSandbox" },
       { email: "mia.multi@demo.test", description: "mia" },
     ],
     passwordHint: undefined,
     invite: false,
   });
+});
+
+it("describes Sara by the firm each environment seeds", () => {
+  const hosted = demoLogin();
+  vi.stubEnv("DEMO_LOGIN_PASSWORD", "");
+  vi.stubEnv("VERCEL", "");
+  vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "http://127.0.0.1:54321");
+  const local = demoLogin();
+  const sara = (accounts: DemoAccounts = []) =>
+    accounts.find(({ email }) => email === "sara.admin@demo.test")?.description;
+  expect(sara(hosted?.accounts)).toBe("saraSandbox");
+  expect(sara(local?.accounts)).toBe("sara");
 });

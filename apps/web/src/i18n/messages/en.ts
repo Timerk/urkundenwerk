@@ -141,6 +141,8 @@ export const en = {
     duplicate: "This person is already a member or has a pending invitation.",
     lastAdmin:
       "Assign another admin before removing or changing the role of the last admin.",
+    protectedAdmin:
+      "The shared demo admin keeps the admin role in the sandbox firm. The nightly reset restores all other changes.",
     failed: "The change could not be saved. Refresh the page and try again.",
   },
   invite: {
@@ -334,6 +336,7 @@ export const en = {
         erik: "Editor, Demo-Kanzlei Nord",
         victor: "Viewer, Demo-Kanzlei Nord",
         sara: "Admin, Demo-Kanzlei Süd",
+        saraSandbox: "Admin, Demo-Kanzlei West sandbox, reset nightly",
         mia: "Editor in Nord and viewer in Süd",
       },
     },

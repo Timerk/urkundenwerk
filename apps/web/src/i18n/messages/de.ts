@@ -147,6 +147,8 @@ export const de: Messages = {
       "Für diese Person besteht bereits eine Mitgliedschaft oder eine offene Einladung.",
     lastAdmin:
       "Weisen Sie zuerst einem weiteren Mitglied die Rolle Administration zu.",
+    protectedAdmin:
+      "Das gemeinsame Demo-Konto behält die Rolle Administration in der Sandbox-Kanzlei. Alle anderen Änderungen setzt die nächtliche Zurücksetzung zurück.",
     failed:
       "Die Änderung konnte nicht gespeichert werden. Laden Sie die Seite neu und versuchen Sie es erneut.",
   },
@@ -341,6 +343,8 @@ export const de: Messages = {
         erik: "Bearbeitung, Demo-Kanzlei Nord",
         victor: "Lesezugriff, Demo-Kanzlei Nord",
         sara: "Administration, Demo-Kanzlei Süd",
+        saraSandbox:
+          "Administration, Sandbox Demo-Kanzlei West, nächtlich zurückgesetzt",
         mia: "Bearbeitung in Nord, Lesezugriff in Süd",
       },
     },

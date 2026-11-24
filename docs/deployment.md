@@ -41,7 +41,7 @@ and [API keys](https://supabase.com/docs/guides/api/api-keys).
 3. Set the minimum password length to at least 12 and require upper- and
    lowercase letters, digits, and a symbol. Use two unique, random
    passwords of at least 24 characters, one for the operator and one
-   shared by the three visitor accounts. The app's password form supports
+   shared by the four visitor accounts. The app's password form supports
    up to 72 characters. Use ASCII to stay within bcrypt's byte limit.
 
 [Supabase redirect configuration](https://supabase.com/docs/guides/auth/redirect-urls)
@@ -65,8 +65,9 @@ and [password security](https://supabase.com/docs/guides/auth/password-security)
    Settings: Read-write**, **Database: Read-write**, **Connection Pooling:
    Read**, **API Keys: Read**, **API Key Secrets: Read**, **Auth Config:
    Read-write**, and **Production Branches: Read**. Give it an expiry (for
-   example 30 days) and put a reminder in your calendar: the migration and
-   reset workflows fail once it expires. Replace the GitHub secret before
+   example 30 days) and put a reminder in your calendar: the migration
+   deploy and the manual reset workflow fail once it expires. The nightly
+   reset runs in the database and does not use the token. Replace the GitHub secret before
    the old token expires or is revoked.
 
 3. Open **Actions → Deploy database migrations → Run workflow** and choose
@@ -91,40 +92,75 @@ and [password security](https://supabase.com/docs/guides/auth/password-security)
 [GitHub environment protection](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments)
 and [Supabase CLI commands](https://supabase.com/docs/reference/cli/supabase-db-remote).
 
-## 4. Provision the demo users and restore the sample drafts
+## 4. Provision the demo users and restore the demo firms
+
+Deploy the migrations first (step 3). They install `pg_cron` and schedule
+the nightly reset.
 
 1. In **Authentication → Users → Add user → Create new user**, create the
    following fictional accounts with **Auto Confirm User** enabled. Use
    the password chosen in step 2 for the appropriate account. The
    addresses use the reserved `.test` domain, so no inbox is required.
+   On an existing demo, add only the accounts that are missing.
 
-   | Email                     | Role                          | Credential                 |
-   | ------------------------- | ----------------------------- | -------------------------- |
-   | `anna.admin@demo.test`    | Operator admin in both firms  | Separate operator password |
-   | `erik.editor@demo.test`   | Editor in Nord                | Shared demo password       |
-   | `victor.viewer@demo.test` | Viewer in Nord                | Shared demo password       |
-   | `mia.multi@demo.test`     | Editor in Nord, viewer in Süd | Shared demo password       |
+   | Email                     | Role                              | Credential                 |
+   | ------------------------- | --------------------------------- | -------------------------- |
+   | `anna.admin@demo.test`    | Operator admin in Nord and Süd    | Separate operator password |
+   | `sara.admin@demo.test`    | Visitor admin of the West sandbox | Shared demo password       |
+   | `erik.editor@demo.test`   | Editor in Nord and West           | Shared demo password       |
+   | `victor.viewer@demo.test` | Viewer in Nord and West           | Shared demo password       |
+   | `mia.multi@demo.test`     | Editor in Nord, viewer in Süd     | Shared demo password       |
+
+   Give Sara's account exactly the value of `DEMO_LOGIN_PASSWORD` from
+   step 5. The hosted login uses it for all four visitor accounts.
 
 2. With the access token from step 3 in your shell, run the hosted seed
-   and initial reset. Each command targets the specified project ref.
+   and an immediate reset. Each command targets the specified project ref.
    You can also execute each file separately in that project's SQL Editor.
+   The seed is idempotent. Run it again after adding a missing account,
+   for example to add Sara and the West sandbox to an existing demo.
+   It stops with an error if any of the five accounts is missing or
+   unconfirmed.
 
    ```sh
    pnpm exec supabase db query --remote='<SUPABASE_PROJECT_REF>' --file supabase/demo/seed.sql --yes
    pnpm exec supabase db query --remote='<SUPABASE_PROJECT_REF>' --file supabase/demo/reset.sql --yes
    ```
 
-3. **Actions → Reset hosted demo drafts** runs at 02:17 UTC nightly and
-   supports manual dispatch from `master`. With required reviewers on
-   `production`, each scheduled and manual run waits for approval.
-   Assign someone to approve the nightly job and check that it succeeded.
-   The reset replaces drafts in the two seeded firms. It preserves Auth
-   users, memberships, quota counters, and drafts in all other firms.
-   It prunes audit events older than 90 days. For other deployments, set
+   The seed marks the four visitor accounts as demo accounts, which cannot
+   create firms. It creates Demo-Kanzlei Nord, Süd, and West and their
+   memberships, and sets the display names. The migrations protect all five
+   accounts from deletion.
+
+3. The database resets the demo at 02:17 UTC every night with the pg_cron
+   job `reset-hosted-demo`. The job runs `private.reset_hosted_demo()` and
+   needs no approval or access token. In a database without the seeded
+   demo firms, it changes nothing. In Nord, Süd, and West, the reset:
+
+   - restores the sample drafts and deletes other drafts;
+   - restores the firm names and the five demo display names;
+   - restores West's memberships and roles and deletes its invitations.
+
+   It preserves Auth users, quota counters, Nord and Süd memberships, and
+   other firms. It prunes audit events older than 90 days. It removes
+   invitation records 90 days after expiry. For other deployments, set
    `private.app_settings.audit_retention` and schedule
-   `select private.prune_audit_events();` as a database operator.
-   It also removes invitation records 90 days after expiry once the
-   invitations migration is installed. See [ADR-0014](adr/0014-audit-log.md).
+   `select private.prune_audit_events();` as a database operator. See
+   [ADR-0014](adr/0014-audit-log.md) and
+   [ADR-0016](adr/0016-database-demo-reset.md).
+
+   Check the most recent runs in the SQL Editor:
+
+   ```sql
+   select status, return_message, start_time
+   from cron.job_run_details
+   where jobid = (select jobid from cron.job where jobname = 'reset-hosted-demo')
+   order by start_time desc limit 5;
+   ```
+
+   **Actions → Reset hosted demo now** runs the same reset on demand from
+   `master`. Like the migration deploy, it waits for approval on
+   `production` and uses the access token from step 3.
 
 ## 5. Configure and deploy the Vercel project
 
@@ -239,13 +275,16 @@ and [Functions limits](https://vercel.com/docs/functions/limitations).
    Verify the configured model and prompt version appear.
 4. Sign out and try Victor. Confirm that editing and importing are
    unavailable. Try Mia to verify the firm switcher and the viewer role in
-   Süd. To confirm the budget behavior, set the database limit to zero
+   Süd. Try Sara: open **Members** and **Audit log** for Demo-Kanzlei West
+   and confirm that Nord and Süd are absent from the firm switcher. To confirm the budget behavior, set the database limit to zero
    and leave AI configured. Verify that import shows the daily limit
    message and that an uncached explanation displays it with the rule summary. Repeat
    after switching between German and English. Restore the chosen limit
    with the same SQL.
-5. Run the reset workflow manually. Verify that the scratch draft is gone
-   and both sample drafts and the same demo logins are present.
+5. Run the reset workflow manually, or wait for the nightly job and check
+   `cron.job_run_details` (step 4). Verify that the scratch draft is gone,
+   the sample drafts in Nord, Süd, and West are back, and West again has
+   Sara as admin, Erik as editor, Victor as viewer, and no invitations.
 
 ## 7. Rotate credentials
 
@@ -254,23 +293,23 @@ and [Functions limits](https://vercel.com/docs/functions/limitations).
    checks. Revoke the old key after verification. Replace the GitHub
    environment secret before revoking a Supabase access token. If you
    change the project database password, update `SUPABASE_DB_PASSWORD`.
-2. Rotate the web demo password by updating all three shared accounts
+2. Rotate the web demo password by updating all four shared accounts
    through the Supabase Auth admin API using their user IDs, then update
    `DEMO_LOGIN_PASSWORD` and redeploy. Preserve the user IDs so firm
    memberships continue to work. Rotate the operator's password
    separately. The hosted seed and reset never store passwords.
 
    Use `supabase.auth.admin.updateUserById` from a trusted server-side
-   environment with a Supabase secret key. To update all three from the
+   environment with a Supabase secret key. To update all four from the
    repo root, load a Supabase admin key into your shell as
    `SUPABASE_ADMIN_API_KEY` and the new password as `DEMO_LOGIN_PASSWORD`.
    These shell values are for the rotation command. Then
-   substitute the project ref and three IDs copied from **Auth → Users**.
+   substitute the project ref and four IDs copied from **Auth → Users**.
 
    ```sh
    NEXT_PUBLIC_SUPABASE_URL='https://<SUPABASE_PROJECT_REF>.supabase.co' \
    pnpm --filter @urkundenwerk/web exec node --input-type=module - \
-     '<EDITOR_USER_ID>' '<VIEWER_USER_ID>' '<MULTI_USER_ID>' <<'JS'
+     '<EDITOR_USER_ID>' '<VIEWER_USER_ID>' '<MULTI_USER_ID>' '<SANDBOX_ADMIN_USER_ID>' <<'JS'
    import { createClient } from "@supabase/supabase-js";
    const { NEXT_PUBLIC_SUPABASE_URL, SUPABASE_ADMIN_API_KEY, DEMO_LOGIN_PASSWORD } = process.env;
    if (!NEXT_PUBLIC_SUPABASE_URL || !SUPABASE_ADMIN_API_KEY || !DEMO_LOGIN_PASSWORD) {
@@ -288,7 +327,7 @@ and [Functions limits](https://vercel.com/docs/functions/limitations).
    JS
    ```
 
-   If a rotation stops partway through, finish updating the three accounts
+   If a rotation stops partway through, finish updating the four accounts
    with the same new password before redeploying. Check the current Auth
    sessions separately if you are responding to a suspected compromise.
    [Supabase Auth admin update](https://supabase.com/docs/reference/javascript/auth-admin-updateuserbyid).
