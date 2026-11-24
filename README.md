@@ -22,7 +22,9 @@ choose a fictional demo account (editor, viewer, a member of two firms, or
 the admin of a sandbox firm) and sign in with one click. The demo firms are
 reset nightly.
 
-Demo video: <VIDEO_URL>
+![Animated walkthrough of editor sign-in, live document editing and capital checks, verified contract import, the register filing, and the firm audit log](docs/screenshots/walkthrough.webp)
+
+_A short, silent walkthrough of a fictional case in Urkundenwerk._
 
 ![The Musterprotokoll builder with the form on the left and the live deed preview on the right](docs/screenshots/builder.png)
 
@@ -363,6 +365,20 @@ Install Chromium for e2e with
 refresh the screenshots, run `pnpm db:reset`, then
 `SCREENSHOTS=1 pnpm test:e2e e2e/screenshots.spec.ts`.
 
+To refresh the walkthrough, put FFmpeg with `libwebp_anim` on your `PATH`.
+With the local Supabase stack running and Chromium installed, run:
+
+```sh
+pnpm db:env
+pnpm db:reset
+pnpm build
+pnpm record:walkthrough
+```
+
+The recorder opts in with `WALKTHROUGH=1` and uses the same standalone
+server as the e2e suite, with scripted AI extraction (`AI_PROVIDER=fake`).
+It writes `docs/screenshots/walkthrough.webp` and removes the temporary recording.
+
 ### Repository layout
 
 | Path                                                   | Purpose                                                                                                                                              |
@@ -392,17 +408,17 @@ refresh the screenshots, run `pnpm db:reset`, then
 
 ## Roadmap
 
-| Milestone                                                                      | Scope                                                     | Status                     |
-| ------------------------------------------------------------------------------ | --------------------------------------------------------- | -------------------------- |
-| [M1 · Foundation](https://github.com/Timerk/urkundenwerk/issues/1)             | Monorepo, CI, Supabase Auth, and RLS                      | Done                       |
-| [M2 · Template engine](https://github.com/Timerk/urkundenwerk/issues/2)        | Deterministic DOCX and PDF rendering, builder UI          | Done                       |
-| [M3 · Rule checks](https://github.com/Timerk/urkundenwerk/issues/3)            | Rule engine and AI explanations                           | Done                       |
-| [M4 · AI extraction](https://github.com/Timerk/urkundenwerk/issues/4)          | Extraction with verified citations, review UI, evaluation | Done                       |
-| [M5 · XML export](https://github.com/Timerk/urkundenwerk/issues/5)             | Handelsregisteranmeldung and XSD-validated XML            | Done                       |
-| [M6 · MCP server](https://github.com/Timerk/urkundenwerk/issues/6)             | Draft, validate, and export over MCP                      | Done                       |
-| [German UI](https://github.com/Timerk/urkundenwerk/issues/23)                  | DE/EN language switch                                     | Done                       |
-| [M7 · Audit, roles, and GDPR](https://github.com/Timerk/urkundenwerk/issues/7) | Audit log, invitations, data download and erasure         | Done                       |
-| [M8 · Deployment](https://github.com/Timerk/urkundenwerk/issues/8)             | Hosted demo, README, demo video                           | Done except the demo video |
+| Milestone                                                                      | Scope                                                     | Status |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------- | ------ |
+| [M1 · Foundation](https://github.com/Timerk/urkundenwerk/issues/1)             | Monorepo, CI, Supabase Auth, and RLS                      | Done   |
+| [M2 · Template engine](https://github.com/Timerk/urkundenwerk/issues/2)        | Deterministic DOCX and PDF rendering, builder UI          | Done   |
+| [M3 · Rule checks](https://github.com/Timerk/urkundenwerk/issues/3)            | Rule engine and AI explanations                           | Done   |
+| [M4 · AI extraction](https://github.com/Timerk/urkundenwerk/issues/4)          | Extraction with verified citations, review UI, evaluation | Done   |
+| [M5 · XML export](https://github.com/Timerk/urkundenwerk/issues/5)             | Handelsregisteranmeldung and XSD-validated XML            | Done   |
+| [M6 · MCP server](https://github.com/Timerk/urkundenwerk/issues/6)             | Draft, validate, and export over MCP                      | Done   |
+| [German UI](https://github.com/Timerk/urkundenwerk/issues/23)                  | DE/EN language switch                                     | Done   |
+| [M7 · Audit, roles, and GDPR](https://github.com/Timerk/urkundenwerk/issues/7) | Audit log, invitations, data download and erasure         | Done   |
+| [M8 · Deployment](https://github.com/Timerk/urkundenwerk/issues/8)             | Hosted demo, README, animated walkthrough                 | Done   |
 
 **Possible next steps:** a multi-founder protocol with individual articles,
 an XJustiz adapter for electronic filing, invitation emails, OCR for
