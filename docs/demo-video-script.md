@@ -1,8 +1,10 @@
 # Demo video script
 
-A two-minute screen recording of Urkundenwerk for the README. It shows the
+A script for a future two-minute narrated video about Urkundenwerk. It shows the
 hosted demo, one terminal clip of Claude Code using the MCP server, and the
 repository. Every name, firm, and document in it is fictional.
+
+The [README](../README.md) includes a separate silent walkthrough recorded with Playwright.
 
 ## Before recording
 
@@ -53,5 +55,4 @@ repository. Every name, firm, and document in it is fictional.
 - Watch it once for anything that must not be public: keys, passwords,
   email addresses other than the fictional `demo.test` ones, or browser
   history.
-- Upload it (for example unlisted on YouTube, or as a GitHub release
-  asset) and replace `<VIDEO_URL>` in the [README](../README.md).
+- Publish it as a standalone companion to the README walkthrough.

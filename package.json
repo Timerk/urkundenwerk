@@ -13,6 +13,7 @@
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "test:e2e": "pnpm --filter @urkundenwerk/web test:e2e",
+    "record:walkthrough": "node scripts/record-walkthrough.mjs",
     "build": "pnpm --filter @urkundenwerk/web build",
     "start": "pnpm --filter @urkundenwerk/web start",
     "db:start": "supabase start",
