@@ -21,7 +21,7 @@
     "pdfkit": "^0.21.0"
   },
   "devDependencies": {
-    "@types/node": "^24.19.2",
+    "@types/node": "^26.6.6",
     "@types/pdfkit": "^0.17.7",
     "fast-xml-parser": "^5.12.1",
     "jszip": "^3.10.2",
