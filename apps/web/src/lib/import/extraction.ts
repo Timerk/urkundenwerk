@@ -1,27 +1,17 @@
 import "server-only";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@urkundenwerk/core/db";
 import {
   extractDraftFields,
   type ExtractionReview,
   type SourceDocument,
 } from "@urkundenwerk/extraction";
-import { RateLimiter } from "../ai/rate-limit";
-import { aiState } from "../ai/state";
-
-/** Extractions per user within `EXTRACTION_WINDOW_MS`. */
-export const EXTRACTIONS_PER_WINDOW = 6;
-export const EXTRACTION_WINDOW_MS = 10 * 60_000;
-
-const limiter = new RateLimiter(EXTRACTIONS_PER_WINDOW, EXTRACTION_WINDOW_MS);
+import { configuredAi, createRequestClient } from "../ai/state";
 
 /** Whether this server can extract contract data with an LLM. */
 export function isExtractionEnabled(): boolean {
-  const current = aiState();
-  return current.ok && current.extractClient !== null;
-}
-
-/** Counts an extraction against the user's limit. */
-export function takeExtractionQuota(userId: string): boolean {
-  return limiter.take(userId);
+  const config = configuredAi();
+  return config !== null && config.provider !== "disabled";
 }
 
 /**
@@ -29,15 +19,21 @@ export function takeExtractionQuota(userId: string): boolean {
  * model. Throws an `ExtractionError` on failure. Logs only the failure kind,
  * never document text, prompts, or answers.
  */
-export async function extract(doc: SourceDocument): Promise<ExtractionReview> {
-  const current = aiState();
-  if (!current.ok || !current.extractClient) {
+export async function extract(
+  supabase: SupabaseClient<Database>,
+  doc: SourceDocument,
+): Promise<ExtractionReview> {
+  const config = configuredAi();
+  const client = config
+    ? createRequestClient(config, supabase, "extract")
+    : null;
+  if (!config || !client) {
     throw new Error("AI extraction is not configured.");
   }
-  const model = current.config.models.extract;
+  const model = config.models.extract;
   try {
     return await extractDraftFields(doc, {
-      client: current.extractClient,
+      client,
       model,
     });
   } catch (error) {

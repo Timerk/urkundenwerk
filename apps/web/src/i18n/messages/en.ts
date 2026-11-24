@@ -16,6 +16,7 @@ export const en = {
     notFound: "Page not found",
   },
   common: {
+    serviceUnavailable: "The server is missing valid Supabase configuration.",
     demoNotice:
       "Demonstration project. Not legal advice. Uses fictional data only.",
     demoNoticeLabel: "Demonstration notice",
@@ -110,6 +111,8 @@ export const en = {
       confirmEmail:
         "Confirm your email address, then sign in to finish setting up your firm.",
       firmFailed: "The firm could not be created. Please try again.",
+      firmLimit: "You can create up to three firms.",
+      demoFirmDisabled: "Shared demo accounts cannot create firms.",
     },
   },
   roles: {
@@ -423,6 +426,8 @@ export const en = {
     retry: "Try again",
     loading: "Writing an explanation…",
     loadFailed: "The explanation could not be loaded. Try again.",
+    dailyBudget:
+      "The demo has reached its daily AI limit. Try again after midnight UTC.",
     ruleSummary:
       "The rule's own summary. An AI explanation is not available right now.",
     aiLabel: "AI-generated explanation — not legal advice",
@@ -641,6 +646,8 @@ export const en = {
         "The document is too long for AI extraction. Upload the formation deed or the articles on their own.",
       timeout: "The AI took too long to answer. Try again in a moment.",
       rate_limited: "The AI service is busy. Try again in a minute.",
+      daily_budget:
+        "The demo has reached its daily AI limit. Try again after midnight UTC.",
       unavailable: "The AI service is unavailable. Try again later.",
       unauthorized: "The AI service is not set up correctly on this server.",
       rejected: "The AI service rejected the request.",

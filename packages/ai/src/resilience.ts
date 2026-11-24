@@ -12,6 +12,8 @@ export interface ResilienceOptions {
   retries?: number;
   /** Pause before a retry. */
   retryDelayMs?: number;
+  /** Reserve capacity before each provider attempt, including retries. */
+  beforeAttempt?: () => Promise<void>;
   /** Injected for tests. */
   sleep?: (ms: number, signal?: AbortSignal) => Promise<void>;
 }
@@ -42,6 +44,7 @@ export function withResilience(
     timeoutMs,
     retries = 1,
     retryDelayMs = 500,
+    beforeAttempt,
     sleep = defaultSleep,
   }: ResilienceOptions,
 ): LlmClient {
@@ -73,6 +76,7 @@ export function withResilience(
     provider: client.provider,
     async generateStructured<T>(request: GenerateStructuredRequest<T>) {
       for (let failures = 0; ; failures++) {
+        await beforeAttempt?.();
         try {
           return await attempt(request);
         } catch (error) {

@@ -1,3 +1,4 @@
+import type { ExplanationResult } from "@urkundenwerk/ai";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // The action is tested with its collaborators mocked: Supabase decides
@@ -7,8 +8,8 @@ const mocks = vi.hoisted(() => ({
   createClient: vi.fn(async () => ({})),
   getDocument: vi.fn(),
   isExplanationEnabled: vi.fn(() => true),
-  takeExplanationQuota: vi.fn(() => true),
-  explain: vi.fn(async () => ({
+  explain: vi.fn(async (): Promise<ExplanationResult> => ({
+    locale: "en",
     explanations: [],
     model: "fake-model",
     promptVersion: "explain-test",
@@ -33,10 +34,8 @@ vi.mock("../../../../lib/documents/repository", () => ({
   getDocument: mocks.getDocument,
 }));
 vi.mock("../../../../lib/ai/explanations", () => ({
-  EXPLANATIONS_PER_MINUTE: 10,
   explain: mocks.explain,
   isExplanationEnabled: mocks.isExplanationEnabled,
-  takeExplanationQuota: mocks.takeExplanationQuota,
 }));
 
 const { explainDocumentIssues } = await import("./actions");
@@ -65,11 +64,11 @@ describe("explainDocumentIssues", () => {
     });
     // The UI language of the request, so the model answers in it.
     expect(mocks.explain).toHaveBeenCalledWith(
+      {},
       "musterprotokoll-einpersonen",
       issues,
       "en",
     );
-    expect(mocks.takeExplanationQuota).toHaveBeenCalledWith("user-1");
   });
 
   it("sends signed-out users to the login page", async () => {
@@ -100,13 +99,18 @@ describe("explainDocumentIssues", () => {
     expect(mocks.getDocument).not.toHaveBeenCalled();
   });
 
-  it("enforces the per-user rate limit", async () => {
-    mocks.takeExplanationQuota.mockReturnValue(false);
+  it("reports the per-user rate limit", async () => {
+    mocks.explain.mockResolvedValueOnce({
+      locale: "en",
+      explanations: [],
+      model: null,
+      promptVersion: "test",
+      failure: "user_quota",
+    });
     expect(await explainDocumentIssues(DOCUMENT_ID, issues)).toMatchObject({
       ok: false,
       error: expect.stringContaining("10 explanations a minute"),
     });
-    expect(mocks.explain).not.toHaveBeenCalled();
   });
 
   it("reports that AI is off without calling it", async () => {

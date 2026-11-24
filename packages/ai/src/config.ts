@@ -128,7 +128,12 @@ export function createLlmClient(
   {
     fakeResponder,
     timeoutMs = config.timeoutMs,
-  }: { fakeResponder: FakeResponder; timeoutMs?: number },
+    beforePaidAttempt,
+  }: {
+    fakeResponder: FakeResponder;
+    timeoutMs?: number;
+    beforePaidAttempt?: () => Promise<void>;
+  },
 ): LlmClient | null {
   switch (config.provider) {
     case "disabled":
@@ -138,10 +143,12 @@ export function createLlmClient(
     case "anthropic":
       return withResilience(AnthropicLlmClient.fromApiKey(config.apiKey!), {
         timeoutMs,
+        beforeAttempt: beforePaidAttempt,
       });
     case "openai":
       return withResilience(OpenAiLlmClient.fromApiKey(config.apiKey!), {
         timeoutMs,
+        beforeAttempt: beforePaidAttempt,
       });
   }
 }

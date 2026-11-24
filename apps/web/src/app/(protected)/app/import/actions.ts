@@ -12,11 +12,12 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
-  EXTRACTION_WINDOW_MS,
   EXTRACTIONS_PER_WINDOW,
+  EXTRACTION_WINDOW_MINUTES,
+} from "../../../../lib/ai/quota";
+import {
   extract,
   isExtractionEnabled,
-  takeExtractionQuota,
 } from "../../../../lib/import/extraction";
 import {
   checkUpload,
@@ -86,16 +87,6 @@ export async function extractContract(
   const problem = checkUpload(file);
   if (problem) return { ok: false, error: t(`upload.${problem}`, { size }) };
 
-  if (!takeExtractionQuota(access.user.id)) {
-    return {
-      ok: false,
-      error: t("errors.rateLimited", {
-        count: EXTRACTIONS_PER_WINDOW,
-        minutes: EXTRACTION_WINDOW_MS / 60_000,
-      }),
-    };
-  }
-
   let source: SourceDocument;
   try {
     source = await ingestDocument(new Uint8Array(await file.arrayBuffer()), {
@@ -110,7 +101,7 @@ export async function extractContract(
   }
 
   try {
-    const review = await extract(source);
+    const review = await extract(await createClient(), source);
     return {
       ok: true,
       contract: {
@@ -124,6 +115,15 @@ export async function extractContract(
     };
   } catch (error) {
     if (error instanceof ExtractionError) {
+      if (error.code === "user_quota") {
+        return {
+          ok: false,
+          error: t("errors.rateLimited", {
+            count: EXTRACTIONS_PER_WINDOW,
+            minutes: EXTRACTION_WINDOW_MINUTES,
+          }),
+        };
+      }
       return { ok: false, error: t(`extraction.${error.code}`) };
     }
     throw error;

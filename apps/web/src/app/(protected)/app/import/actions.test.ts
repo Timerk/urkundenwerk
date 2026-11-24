@@ -11,7 +11,6 @@ const mocks = vi.hoisted(() => ({
   createClient: vi.fn(async () => ({})),
   insertDocument: vi.fn(),
   isExtractionEnabled: vi.fn(() => true),
-  takeExtractionQuota: vi.fn(() => true),
   extract: vi.fn(),
   redirect: vi.fn((path: string) => {
     throw new Error(`redirect ${path}`);
@@ -35,11 +34,8 @@ vi.mock("../../../../lib/documents/repository", () => ({
   insertDocument: mocks.insertDocument,
 }));
 vi.mock("../../../../lib/import/extraction", () => ({
-  EXTRACTIONS_PER_WINDOW: 6,
-  EXTRACTION_WINDOW_MS: 600_000,
   extract: mocks.extract,
   isExtractionEnabled: mocks.isExtractionEnabled,
-  takeExtractionQuota: mocks.takeExtractionQuota,
 }));
 
 const { extractContract, createDraftFromImport } = await import("./actions");
@@ -67,7 +63,6 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.getVerifiedUser.mockResolvedValue({ id: "user-1" });
   mocks.isExtractionEnabled.mockReturnValue(true);
-  mocks.takeExtractionQuota.mockReturnValue(true);
   mocks.getMemberships.mockResolvedValue([
     { tenantId: TENANT, name: "Demo-Kanzlei Nord", role: "editor" },
     { tenantId: OTHER_TENANT, name: "Demo-Kanzlei Süd", role: "viewer" },
@@ -97,8 +92,10 @@ describe("extractContract", () => {
         promptVersion: "extract-test",
       },
     });
-    expect(mocks.extract).toHaveBeenCalledTimes(1);
-    expect(mocks.takeExtractionQuota).toHaveBeenCalledWith("user-1");
+    expect(mocks.extract).toHaveBeenCalledWith(
+      {},
+      expect.objectContaining({ format: "pdf" }),
+    );
     expect(mocks.insertDocument).not.toHaveBeenCalled();
   });
 
@@ -117,7 +114,6 @@ describe("extractContract", () => {
       ok: false,
       error: "Importing contracts needs the editor or admin role in this firm.",
     });
-    expect(mocks.takeExtractionQuota).not.toHaveBeenCalled();
     expect(mocks.extract).not.toHaveBeenCalled();
   });
 
@@ -148,7 +144,6 @@ describe("extractContract", () => {
       ok: false,
       error: expect.stringMatching(message),
     });
-    expect(mocks.takeExtractionQuota).not.toHaveBeenCalled();
   });
 
   it("maps ingestion errors to friendly messages", async () => {
@@ -164,13 +159,12 @@ describe("extractContract", () => {
     expect(mocks.extract).not.toHaveBeenCalled();
   });
 
-  it("enforces the per-user rate limit before reading the file", async () => {
-    mocks.takeExtractionQuota.mockReturnValue(false);
+  it("reports the per-user rate limit", async () => {
+    mocks.extract.mockRejectedValueOnce(new ExtractionError("user_quota"));
     expect(await upload(contractFile())).toEqual({
       ok: false,
       error: "You can import 6 contracts every 10 minutes. Try again shortly.",
     });
-    expect(mocks.extract).not.toHaveBeenCalled();
   });
 
   it("shows the extraction error's message", async () => {
@@ -179,6 +173,16 @@ describe("extractContract", () => {
       ok: false,
       error: "The AI took too long to answer. Try again in a moment.",
     });
+  });
+
+  it("refuses import with the daily budget message when no paid attempt is available", async () => {
+    mocks.extract.mockRejectedValue(new ExtractionError("daily_budget"));
+    expect(await upload(contractFile())).toEqual({
+      ok: false,
+      error:
+        "The demo has reached its daily AI limit. Try again after midnight UTC.",
+    });
+    expect(mocks.insertDocument).not.toHaveBeenCalled();
   });
 });
 
