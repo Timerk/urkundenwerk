@@ -23,6 +23,7 @@ import {
   memberRole,
   type FormResult,
 } from "../../../../lib/tenants/invitations";
+import { submitKeepingValues } from "../../../../lib/forms";
 import type { TenantRole } from "../../../../lib/tenants/memberships";
 import {
   changeMembership,
@@ -115,7 +116,7 @@ export function MemberRow({
 
   return (
     <li className="px-4 py-3.5 sm:px-5">
-      <form action={action} className="space-y-3">
+      <form onSubmit={submitKeepingValues(action)} className="space-y-3">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
           <PersonLabel name={name} email={email} isSelf={isSelf} />
           <div className="flex flex-wrap items-center gap-2">
@@ -235,16 +236,26 @@ export function InvitationForm({ tenantId }: { tenantId: string }) {
   const t = useTranslations("members");
   const roles = useTranslations("roles");
   const [role, setRole] = useState<TenantRole>("viewer");
+  const formRef = useRef<HTMLFormElement>(null);
   const [state, action, pending] = useActionState(
     async (previous: InvitationState, form: FormData) => {
       const result = await createInvitation(tenantId, previous, form);
+      // Start the next invitation afresh; keep the input after an error.
+      if (result.token) {
+        formRef.current?.reset();
+        setRole("viewer");
+      }
       return { ...result, email: String(form.get("email") ?? "") };
     },
     {} as InvitationState,
   );
   return (
     <div className="space-y-5">
-      <form action={action} className="space-y-4">
+      <form
+        ref={formRef}
+        onSubmit={submitKeepingValues(action)}
+        className="space-y-4"
+      >
         <Field label={t("email")}>
           {(ids) => (
             <TextInput

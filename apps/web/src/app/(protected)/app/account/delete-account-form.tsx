@@ -5,6 +5,7 @@ import { useActionState, useRef, useState } from "react";
 import { FormError } from "../../../../components/form-error";
 import { Button } from "../../../../components/ui/button";
 import { ConfirmPanel } from "../../../../components/ui/confirm";
+import { submitKeepingValues } from "../../../../lib/forms";
 import { deleteAccount } from "./actions";
 
 export function DeleteAccountForm({
@@ -18,7 +19,7 @@ export function DeleteAccountForm({
   const trigger = useRef<HTMLButtonElement>(null);
 
   return (
-    <form action={action} className="space-y-4">
+    <form onSubmit={submitKeepingValues(action)} className="space-y-4">
       {firms.length ? (
         <div className="rounded-sm border-y border-r border-l-[3px] border-hint-rule bg-hint-wash px-4 py-3 text-sm text-hint">
           <p className="font-medium">{t("soleFirmsTitle")}</p>
