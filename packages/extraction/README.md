@@ -145,6 +145,12 @@ so results measure performance on these cases. In particular, the corpus
 contains clean exports and supplies no evidence about scanned or real-world
 notarial files.
 
+The web import page offers two fictional samples, the Musterprotokoll PDF
+at `eval/dev/11-musterprotokoll/document.pdf` and the articles of association
+DOCX at `eval/dev/03-zedernrain/document.docx`. Both remain part of the full
+DEV evaluation. The app serves the committed files and uses the regular
+upload ingestion, extraction limits, and citation review when importing them.
+
 ```sh
 pnpm --filter @urkundenwerk/extraction eval:build
 pnpm --filter @urkundenwerk/extraction eval -- --predictor oracle --split test

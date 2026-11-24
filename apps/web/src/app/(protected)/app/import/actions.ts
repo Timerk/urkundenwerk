@@ -23,6 +23,7 @@ import {
   MAX_UPLOAD_BYTES,
   MAX_UPLOAD_MEGABYTES,
 } from "../../../../lib/import/limits";
+import { readImportSample } from "../../../../lib/import/samples";
 import { importProvenanceSchema } from "../../../../lib/audit/record";
 import {
   defaultDocumentTitle,
@@ -62,7 +63,7 @@ async function editorOf(tenantId: unknown) {
 // stable codes of the upload check, ingestion, and extraction.
 
 /**
- * Reads an uploaded contract and asks the configured model for draft
+ * Reads an uploaded or sample contract and asks the configured model for draft
  * values. Only editors and admins of the firm may call it, a few times per
  * user and ten minutes. The upload and the result are not stored: they go
  * back to the browser for review, and only values the user confirms are
@@ -78,7 +79,12 @@ export async function extractContract(
     return { ok: false, error: t("errors.disabled") };
   }
 
-  const file = formData.get("file");
+  const sampleId = formData.get("sampleId");
+  const file =
+    sampleId === null ? formData.get("file") : await readImportSample(sampleId);
+  if (sampleId !== null && !file) {
+    return { ok: false, error: t("errors.unknownSample") };
+  }
   const size = MAX_UPLOAD_MEGABYTES;
   if (!(file instanceof File)) {
     return { ok: false, error: t("upload.missing") };

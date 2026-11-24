@@ -850,6 +850,12 @@ export const en = {
     drop: "Drop a PDF or DOCX here, or <choose>choose a file</choose>",
     dropHint:
       "A text-based PDF or a DOCX, up to {size, number} MB. Scans cannot be read yet.",
+    samples: {
+      title: "Try it with a fictional sample",
+      musterprotokoll: "Use sample Musterprotokoll ({format})",
+      articles: "Use sample articles of association ({format})",
+      download: "Download sample ({format})",
+    },
     privacy: {
       title: "What happens to the document",
       fake: "This server uses scripted extraction for testing. The document text does not leave the server, and no AI model reads it.",
@@ -866,6 +872,7 @@ export const en = {
       notAllowed:
         "Importing contracts needs the editor or admin role in this firm.",
       disabled: "AI extraction is not configured on this server.",
+      unknownSample: "This fictional sample is unavailable.",
       rateLimited:
         "You can import {count, number} contracts every {minutes, number} minutes. Try again shortly.",
       invalidDraft:

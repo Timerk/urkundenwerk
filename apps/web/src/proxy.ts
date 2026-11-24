@@ -64,6 +64,6 @@ function contentSecurityPolicy(env: SupabaseEnv) {
 
 export const config = {
   matcher: [
-    "/((?!api/health$|_next/static/|_next/image$|favicon.ico$|icon.svg$).*)",
+    "/((?!api/health$|_next/static/|_next/image$|favicon.ico$|icon.svg$|opengraph-image$|robots.txt$).*)",
   ],
 };

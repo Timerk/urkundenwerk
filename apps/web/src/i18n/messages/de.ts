@@ -878,6 +878,12 @@ export const de: Messages = {
     drop: "PDF oder DOCX hier ablegen oder <choose>Datei auswählen</choose>",
     dropHint:
       "Ein PDF mit Textebene oder eine DOCX-Datei, bis {size, number} MB. Scans können noch nicht gelesen werden.",
+    samples: {
+      title: "Mit einem fiktiven Beispiel ausprobieren",
+      musterprotokoll: "Musterprotokoll verwenden ({format})",
+      articles: "Beispielsatzung verwenden ({format})",
+      download: "Beispiel herunterladen ({format})",
+    },
     privacy: {
       title: "Was mit dem Dokument geschieht",
       fake: "Dieser Server verwendet zu Testzwecken eine skriptgesteuerte Extraktion. Der Text verlässt den Server nicht, und kein KI-Modell liest ihn.",
@@ -894,6 +900,7 @@ export const de: Messages = {
       notAllowed:
         "Der Import von Verträgen erfordert in dieser Kanzlei die Rolle Bearbeitung oder Administration.",
       disabled: "Die KI-Extraktion ist auf diesem Server nicht eingerichtet.",
+      unknownSample: "Dieses fiktive Beispiel ist nicht verfügbar.",
       rateLimited:
         "Sie können {count, number} Verträge alle {minutes, number} Minuten importieren. Versuchen Sie es gleich noch einmal.",
       invalidDraft:
