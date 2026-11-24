@@ -5,7 +5,26 @@ import createNextIntlPlugin from "next-intl/plugin";
 const workspaceRoot = resolve(__dirname, "../..");
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  poweredByHeader: false,
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          // The proxy supplies the full nonce policy on production pages.
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+          { key: "Strict-Transport-Security", value: "max-age=31536000" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+        ],
+      },
+    ];
+  },
+  output: process.env.VERCEL === "1" ? undefined : "standalone",
   outputFileTracingRoot: workspaceRoot,
   // The renderer reads its font with `new URL("…", import.meta.url)`, which
   // the bundler emits as a server asset that the standalone output includes.

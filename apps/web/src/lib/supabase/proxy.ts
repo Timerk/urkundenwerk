@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import type { Database } from "@urkundenwerk/core/db";
 import { NextResponse, type NextRequest } from "next/server";
-import { getServerSupabaseEnv } from "../../env";
+import type { SupabaseEnv } from "../../env";
 
 const PROTECTED_PREFIX = "/app";
 const AUTH_PAGES = new Set(["/login", "/signup"]);
@@ -11,9 +11,22 @@ const AUTH_PAGES = new Set(["/login", "/signup"]);
  * the JWT claims. Pages still verify the user with the Auth server before
  * showing protected data.
  */
-export async function updateSession(request: NextRequest) {
-  const env = getServerSupabaseEnv();
-  let response = NextResponse.next({ request });
+export function usesSession(pathname: string) {
+  return isProtectedPath(pathname) || AUTH_PAGES.has(pathname);
+}
+
+function isProtectedPath(pathname: string) {
+  return (
+    pathname === PROTECTED_PREFIX || pathname.startsWith(`${PROTECTED_PREFIX}/`)
+  );
+}
+
+export async function updateSession(
+  request: NextRequest,
+  requestHeaders: Headers,
+  env: SupabaseEnv,
+) {
+  let response = NextResponse.next({ request: { headers: requestHeaders } });
 
   const supabase = createServerClient<Database>(
     env.NEXT_PUBLIC_SUPABASE_URL,
@@ -27,7 +40,10 @@ export async function updateSession(request: NextRequest) {
           for (const { name, value } of cookiesToSet) {
             request.cookies.set(name, value);
           }
-          response = NextResponse.next({ request });
+          requestHeaders.set("cookie", request.cookies.toString());
+          response = NextResponse.next({
+            request: { headers: requestHeaders },
+          });
           for (const { name, value, options } of cookiesToSet) {
             response.cookies.set(name, value, options);
           }
@@ -44,11 +60,7 @@ export async function updateSession(request: NextRequest) {
   const isSignedIn = typeof data?.claims.sub === "string";
   const { pathname } = request.nextUrl;
 
-  const isProtected =
-    pathname === PROTECTED_PREFIX ||
-    pathname.startsWith(`${PROTECTED_PREFIX}/`);
-
-  if (!isSignedIn && isProtected) {
+  if (!isSignedIn && isProtectedPath(pathname)) {
     return redirectKeepingCookies(request, response, "/login");
   }
   if (isSignedIn && AUTH_PAGES.has(pathname)) {

@@ -3,6 +3,25 @@ import { expect, test } from "@playwright/test";
 // Uses the fictional demo users from supabase/seed.sql.
 const DEMO_PASSWORD = "demo-password-123";
 
+test("a visitor can use the one-click demo account on the nonce-protected login page", async ({
+  page,
+}) => {
+  const response = await page.goto("/login");
+  const policy = response?.headers()["content-security-policy"];
+  const nonce = policy?.match(/'nonce-([^']+)'/)?.[1];
+  expect(nonce).toBeTruthy();
+  expect(policy).toContain("frame-ancestors 'none'");
+  expect(policy).not.toContain("unsafe-eval");
+  const scriptNonce = await page
+    .locator("script:not([src])")
+    .first()
+    .evaluate((script: HTMLScriptElement) => script.nonce);
+  expect(scriptNonce).toBe(nonce);
+  await page.getByRole("button", { name: /erik.editor@demo.test/ }).click();
+  await expect(page).toHaveURL(/\/app$/);
+  await expect(page.getByText("Your role: Editor.")).toBeVisible();
+});
+
 test("an unauthenticated visit to /app redirects to the login page", async ({
   page,
 }) => {
