@@ -1,6 +1,5 @@
 "use server";
 
-import { musterprotokollMetadata } from "@urkundenwerk/core";
 import {
   ExtractionError,
   type FieldReview,
@@ -24,7 +23,7 @@ import {
   MAX_UPLOAD_BYTES,
   MAX_UPLOAD_MEGABYTES,
 } from "../../../../lib/import/limits";
-import { insertDocument } from "../../../../lib/documents/repository";
+import { importProvenanceSchema } from "../../../../lib/audit/record";
 import {
   defaultDocumentTitle,
   documentIdSchema,
@@ -133,33 +132,43 @@ export async function extractContract(
 /**
  * Creates a draft from the values the user accepted on the review screen and
  * opens it in the builder. The draft is validated like any other, and row-
- * level security decides whether the user may create it. No quotes, document
- * text, or extraction metadata are stored.
+ * level security decides whether the user may create it. No quotes or
+ * document text are stored. The audit log records the model, the prompt
+ * version, and how many values of each status were accepted, edited, or
+ * cleared.
  */
 export async function createDraftFromImport(
   tenantId: unknown,
   data: unknown,
+  provenance: unknown,
 ): Promise<ImportActionResult> {
   const t = await getTranslations("import.errors");
   const access = await editorOf(tenantId);
   if (!access) return { ok: false, error: t("notAllowed") };
   const draft = draftDataSchema.safeParse(data);
-  if (!draft.success) return { ok: false, error: t("invalidDraft") };
+  const origin = importProvenanceSchema.safeParse(provenance);
+  if (!draft.success || !origin.success) {
+    return { ok: false, error: t("invalidDraft") };
+  }
 
   const firma = draft.data.company?.name?.trim();
   const supabase = await createClient();
-  const document = await insertDocument(supabase, {
-    tenantId: access.membership.tenantId,
-    templateId: musterprotokollMetadata.id,
-    templateVersion: musterprotokollMetadata.version,
-    title: firma
-      ? firma.slice(0, 120)
-      : defaultDocumentTitle(await getLocale()),
-    createdBy: access.user.id,
-    data: draft.data,
-  });
-  if (!document) return { ok: false, error: t("notAllowed") };
+  const { data: documentId, error } = await supabase.rpc(
+    "create_imported_document",
+    {
+      target_tenant_id: access.membership.tenantId,
+      draft_title: firma
+        ? firma.slice(0, 120)
+        : defaultDocumentTitle(await getLocale()),
+      draft_data: draft.data,
+      provenance: origin.data,
+    },
+  );
+  if (error || !documentId) {
+    if (error) console.error(`[audit] import failed (${error.code})`);
+    return { ok: false, error: t("notAllowed") };
+  }
 
   revalidatePath("/app");
-  redirect(`/app/documents/${document.id}?imported=1`);
+  redirect(`/app/documents/${documentId}?imported=1`);
 }

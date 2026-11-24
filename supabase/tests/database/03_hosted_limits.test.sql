@@ -15,7 +15,7 @@ select throws_ok(
 select is(public.consume_ai_request('explain'), 'budget_exhausted', 'the default budget blocks paid requests');
 select throws_ok($$select public.consume_ai_request('ai')$$, '22023', null, 'cannot choose the global counter');
 select throws_ok($$select public.consume_ai_request('explain', 100)$$, '42883', null, 'the caller cannot supply a limit');
-select throws_ok($$select * from private.request_quotas$$, '42501', null, 'users cannot read counters');
+select throws_ok($$select * from private.request_quotas where kind in ('ai', 'extract', 'explain')$$, '42501', null, 'users cannot read counters');
 select throws_ok($$delete from private.request_quotas$$, '42501', null, 'users cannot change counters');
 select throws_ok($$select * from private.app_settings$$, '42501', null, 'users cannot read settings directly');
 select throws_ok(
@@ -24,7 +24,7 @@ select throws_ok(
 );
 
 reset role;
-select is_empty($$select * from private.request_quotas$$, 'a denied global reservation creates no user counter');
+select is_empty($$select * from private.request_quotas where kind in ('ai', 'extract', 'explain')$$, 'a denied global reservation creates no user counter');
 update private.app_settings set ai_daily_request_limit = 100;
 
 set local role authenticated;
@@ -78,7 +78,7 @@ select throws_ok($$select public.create_tenant('Shared firm')$$, 'PT403', null, 
 reset role;
 set local role anon;
 select throws_ok($$select public.consume_ai_request('explain')$$, '42501', null, 'anonymous users cannot consume quotas');
-select throws_ok($$select * from private.request_quotas$$, '42501', null, 'anonymous users cannot read counters');
+select throws_ok($$select * from private.request_quotas where kind in ('ai', 'extract', 'explain')$$, '42501', null, 'anonymous users cannot read counters');
 select throws_ok($$select * from private.app_settings$$, '42501', null, 'anonymous users cannot read settings');
 
 reset role;

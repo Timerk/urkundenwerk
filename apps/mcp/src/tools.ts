@@ -408,6 +408,9 @@ export async function exportDocument(
     );
   }
 
+  // Recorded before the file leaves the server, as in the web app: an export
+  // that cannot be accounted for is not handed out.
+  await ctx.store.recordExport(document.id, format, target);
   const filename = exportFilename(document.title, format, target);
   const savedTo =
     args.saveTo === undefined

@@ -5,6 +5,44 @@
  * Messages use ICU syntax (`{count, plural, …}`).
  */
 export const en = {
+  audit: {
+    title: "Firm audit log",
+    activity: "Activity",
+    openAudit: "View all activity for this document",
+    empty: "No activity to show.",
+    former: "Former member",
+    none: "System or deleted account",
+    titleField: "Document title",
+    member: "Member: {name}",
+    change: "{from} → {to}",
+    importDetails:
+      "{model} · Prompt {version} · {accepted, number} accepted, {edited, number} edited, {cleared, number} cleared",
+    onlyDocument: "Filter by document",
+    actionFilter: "Action",
+    allActions: "All actions",
+    documentFilter: "Document ID",
+    invalidDocument: "Enter a valid document ID.",
+    filter: "Apply filters",
+    pages: "Audit log pages",
+    previous: "Previous",
+    next: "Next",
+    page: "Page {page, number}",
+    statuses: {
+      draft: "Draft",
+      final: "Final",
+    },
+    actions: {
+      document_created: "Document created",
+      document_updated: "Document edited",
+      document_deleted: "Document deleted",
+      document_exported: "Document exported",
+      document_imported: "Document imported",
+      membership_added: "Member added",
+      membership_role_changed: "Role changed",
+      membership_removed: "Member removed",
+      tenant_renamed: "Firm renamed",
+    },
+  },
   metadata: {
     description:
       "A document builder for German law firms that assembles the statutory Musterprotokoll from structured case data.",

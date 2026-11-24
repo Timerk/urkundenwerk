@@ -47,12 +47,21 @@ function documentRow(overrides: Partial<DocumentRow> = {}): DocumentRow {
 }
 
 /** A client whose document lookup resolves to `row`, as RLS would return it. */
-function fakeClient(row: DocumentRow | null) {
+function fakeClient(
+  row: DocumentRow | null,
+  auditError: { code: string } | null = null,
+) {
   const maybeSingle = vi.fn(async () => ({ data: row, error: null }));
   const eq = vi.fn(() => ({ maybeSingle }));
   const select = vi.fn(() => ({ eq }));
   const from = vi.fn(() => ({ select }));
-  return { client: { from } as unknown as AppSupabaseClient, from, eq };
+  const rpc = vi.fn(async () => ({ data: "event-id", error: auditError }));
+  return {
+    client: { from, rpc } as unknown as AppSupabaseClient,
+    from,
+    eq,
+    rpc,
+  };
 }
 
 describe("exportDocument", () => {
@@ -80,6 +89,48 @@ describe("exportDocument", () => {
     expect(response.headers.get("content-length")).toBe(
       String(body.byteLength),
     );
+  });
+
+  it("records the export in the audit log", async () => {
+    const { client, rpc } = fakeClient(documentRow());
+
+    const response = await exportDocument(client, USER_ID, {
+      id: DOCUMENT_ID,
+      format: "docx",
+      document: "anmeldung",
+      referenceDate: REFERENCE_DATE,
+    });
+
+    expect(response.status).toBe(422);
+    expect(rpc).not.toHaveBeenCalled();
+
+    const pdf = await exportDocument(client, USER_ID, {
+      id: DOCUMENT_ID,
+      format: "pdf",
+      referenceDate: REFERENCE_DATE,
+    });
+    expect(pdf.status).toBe(200);
+    expect(rpc).toHaveBeenCalledExactlyOnceWith("record_document_event", {
+      document_id: DOCUMENT_ID,
+      action: "document.exported",
+      metadata: { format: "pdf", document: "musterprotokoll" },
+    });
+  });
+
+  it("withholds the file when the export cannot be recorded", async () => {
+    const { client } = fakeClient(documentRow(), { code: "PT429" });
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const response = await exportDocument(client, USER_ID, {
+      id: DOCUMENT_ID,
+      format: "pdf",
+      referenceDate: REFERENCE_DATE,
+    });
+
+    expect(response.status).toBe(500);
+    expect(await response.json()).toEqual({ error: "audit_failed" });
+    expect(error).toHaveBeenCalledWith("[audit] export event failed (PT429)");
+    error.mockRestore();
   });
 
   it("renders DOCX", async () => {

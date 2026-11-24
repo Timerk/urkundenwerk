@@ -76,6 +76,16 @@ export default async function ProtectedLayout({
             </form>
           </div>
         </div>
+        {current?.role === "admin" ? (
+          <nav className="px-4 pb-2 sm:px-6">
+            <Link
+              className="text-sm text-stamp underline underline-offset-2"
+              href="/app/audit"
+            >
+              {t("audit.title")}
+            </Link>
+          </nav>
+        ) : null}
       </header>
       <main className="flex flex-1 flex-col">{children}</main>
     </div>

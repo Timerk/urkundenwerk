@@ -63,6 +63,15 @@ export interface DocumentStore {
   ): Promise<StoredDocument | null>;
   /** `false` if nothing was deleted. */
   deleteDocument(id: string): Promise<boolean>;
+  /**
+   * Records an export in the audit log as the signed-in user. Triggers
+   * record every other change; exports happen outside the database.
+   */
+  recordExport(
+    id: string,
+    format: "pdf" | "docx" | "xml",
+    document: "musterprotokoll" | "anmeldung",
+  ): Promise<void>;
 }
 
 /** Raised for failures other than "not found" or "not permitted". */
@@ -187,6 +196,15 @@ export function createSupabaseStore(
         .select("id");
       if (error) throw new StoreError("delete the document", error.code);
       return data.length > 0;
+    },
+
+    async recordExport(id, format, document) {
+      const { error } = await client.rpc("record_document_event", {
+        document_id: id,
+        action: "document.exported",
+        metadata: { format, document },
+      });
+      if (error) throw new StoreError("record the export", error.code);
     },
   };
 }

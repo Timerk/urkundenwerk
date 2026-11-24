@@ -10,8 +10,13 @@ import { todayInGermany } from "../../../../../lib/dates";
 import { getDocument } from "../../../../../lib/documents/repository";
 import { documentIdSchema } from "../../../../../lib/documents/schemas";
 import { createClient } from "../../../../../lib/supabase/server";
-import { getMemberships } from "../../../../../lib/tenants/memberships";
+import {
+  getCurrentMembership,
+  getMemberships,
+} from "../../../../../lib/tenants/memberships";
 import { canEditDocuments } from "../../../../../lib/tenants/selection";
+import { Activity } from "./activity";
+import { listAudit } from "../../../../../lib/audit/repository";
 import { Builder } from "./builder";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -41,8 +46,19 @@ export default async function DocumentPage({
   const draft = musterprotokollDraftSchema.safeParse(document.data);
   const t = await getTranslations("dashboard");
 
+  const { entries } = await listAudit(supabase, {
+    tenantId: membership.tenantId,
+    documentId: document.id,
+    limit: 10,
+  });
+  const current = await getCurrentMembership();
+  const auditHref =
+    current?.tenantId === membership.tenantId && membership.role === "admin"
+      ? `/app/audit?document=${document.id}`
+      : undefined;
   return (
     <Builder
+      activity={<Activity entries={entries} auditHref={auditHref} />}
       documentId={document.id}
       title={document.title}
       initialDraft={draft.success ? draft.data : {}}

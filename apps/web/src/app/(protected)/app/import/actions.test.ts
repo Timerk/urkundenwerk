@@ -8,8 +8,8 @@ import { MAX_UPLOAD_BYTES } from "../../../../lib/import/limits";
 const mocks = vi.hoisted(() => ({
   getVerifiedUser: vi.fn(),
   getMemberships: vi.fn(),
-  createClient: vi.fn(async () => ({})),
-  insertDocument: vi.fn(),
+  createClient: vi.fn(async () => ({ rpc: mocks.rpc })),
+  rpc: vi.fn(),
   isExtractionEnabled: vi.fn(() => true),
   extract: vi.fn(),
   redirect: vi.fn((path: string) => {
@@ -29,9 +29,6 @@ vi.mock("../../../../lib/supabase/server", () => ({
 }));
 vi.mock("../../../../lib/tenants/memberships", () => ({
   getMemberships: mocks.getMemberships,
-}));
-vi.mock("../../../../lib/documents/repository", () => ({
-  insertDocument: mocks.insertDocument,
 }));
 vi.mock("../../../../lib/import/extraction", () => ({
   extract: mocks.extract,
@@ -73,7 +70,7 @@ beforeEach(() => {
     model: "fake-model",
     promptVersion: "extract-test",
   });
-  mocks.insertDocument.mockResolvedValue({ id: "doc-1" });
+  mocks.rpc.mockResolvedValue({ data: "doc-1", error: null });
 });
 
 describe("extractContract", () => {
@@ -93,10 +90,10 @@ describe("extractContract", () => {
       },
     });
     expect(mocks.extract).toHaveBeenCalledWith(
-      {},
+      { rpc: mocks.rpc },
       expect.objectContaining({ format: "pdf" }),
     );
-    expect(mocks.insertDocument).not.toHaveBeenCalled();
+    expect(mocks.rpc).not.toHaveBeenCalled();
   });
 
   it("sends signed-out users to the login page", async () => {
@@ -182,7 +179,7 @@ describe("extractContract", () => {
       error:
         "The demo has reached its daily AI limit. Try again after midnight UTC.",
     });
-    expect(mocks.insertDocument).not.toHaveBeenCalled();
+    expect(mocks.rpc).not.toHaveBeenCalled();
   });
 });
 
@@ -191,33 +188,56 @@ describe("createDraftFromImport", () => {
     company: { name: "Schieferwabe Prüfstände GmbH" },
     shareCapitalCents: 3_500_000,
   };
+  const none = { accepted: 0, edited: 0, cleared: 0 };
+  const provenance = {
+    model: "fake-model",
+    promptVersion: "extract-test",
+    counts: {
+      verified: { accepted: 2, edited: 0, cleared: 0 },
+      unverified: none,
+      absent: none,
+    },
+  };
 
   it("creates a draft titled with the Firma and opens it", async () => {
-    await expect(createDraftFromImport(TENANT, draft)).rejects.toThrow(
-      "redirect /app/documents/doc-1?imported=1",
-    );
-    expect(mocks.insertDocument).toHaveBeenCalledWith(
-      {},
-      expect.objectContaining({
-        tenantId: TENANT,
-        title: "Schieferwabe Prüfstände GmbH",
-        createdBy: "user-1",
-        data: draft,
+    await expect(
+      createDraftFromImport(TENANT, draft, provenance),
+    ).rejects.toThrow("redirect /app/documents/doc-1?imported=1");
+    expect(mocks.rpc).toHaveBeenCalledWith("create_imported_document", {
+      target_tenant_id: TENANT,
+      draft_title: draft.company.name,
+      draft_data: draft,
+      provenance,
+    });
+  });
+
+  it("rejects provenance with values or unknown keys", async () => {
+    expect(
+      await createDraftFromImport(TENANT, draft, {
+        ...provenance,
+        quotes: ["Schieferwabe"],
       }),
-    );
+    ).toMatchObject({ ok: false });
+    expect(mocks.rpc).not.toHaveBeenCalled();
   });
 
   it("rejects data that is not a valid draft", async () => {
     expect(
-      await createDraftFromImport(TENANT, { company: { motto: "x" } }),
+      await createDraftFromImport(
+        TENANT,
+        { company: { motto: "x" } },
+        provenance,
+      ),
     ).toMatchObject({ ok: false });
-    expect(mocks.insertDocument).not.toHaveBeenCalled();
+    expect(mocks.rpc).not.toHaveBeenCalled();
   });
 
   it("refuses viewers", async () => {
-    expect(await createDraftFromImport(OTHER_TENANT, draft)).toMatchObject({
+    expect(
+      await createDraftFromImport(OTHER_TENANT, draft, provenance),
+    ).toMatchObject({
       ok: false,
     });
-    expect(mocks.insertDocument).not.toHaveBeenCalled();
+    expect(mocks.rpc).not.toHaveBeenCalled();
   });
 });

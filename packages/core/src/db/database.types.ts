@@ -11,6 +11,51 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      audit_events: {
+        Row: {
+          action: string;
+          actor_id: string | null;
+          entity_id: string | null;
+          entity_type: string;
+          id: string;
+          metadata: NonNullable<Json>;
+          occurred_at: string;
+          subject_user_id: string | null;
+          tenant_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          action: string;
+          actor_id?: string | null;
+          entity_id?: string | null;
+          entity_type: string;
+          id?: string;
+          metadata?: NonNullable<Json>;
+          occurred_at?: string;
+          subject_user_id?: string | null;
+          tenant_id: string;
+        };
+        Update: {
+          action?: string;
+          actor_id?: string | null;
+          entity_id?: string | null;
+          entity_type?: string;
+          id?: string;
+          metadata?: NonNullable<Json>;
+          occurred_at?: string;
+          subject_user_id?: string | null;
+          tenant_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "audit_events_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       documents: {
         Row: {
           created_at: string;
@@ -139,7 +184,30 @@ export type Database = {
     };
     Functions: {
       consume_ai_request: { Args: { kind: string }; Returns: string };
+      create_imported_document: {
+        Args: {
+          draft_data: Json;
+          draft_title: string;
+          provenance: Json;
+          target_tenant_id: string;
+        };
+        Returns: string;
+      };
       create_tenant: { Args: { name: string }; Returns: string };
+      list_tenant_members: {
+        Args: { target_tenant_id: string };
+        Returns: {
+          display_name: string;
+          email: string;
+          joined_at: string;
+          role: Database["public"]["Enums"]["tenant_role"];
+          user_id: string;
+        }[];
+      };
+      record_document_event: {
+        Args: { action: string; document_id: string; metadata?: Json };
+        Returns: string;
+      };
     };
     Enums: {
       document_status: "draft" | "final";

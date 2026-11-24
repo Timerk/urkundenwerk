@@ -45,6 +45,7 @@ import { DraftProvider } from "./draft-fields";
 import { FilingForm } from "./filing-form";
 
 export type BuilderProps = {
+  activity?: import("react").ReactNode;
   documentId: string;
   title: string;
   initialDraft: MusterprotokollDraft;
@@ -148,6 +149,7 @@ function focusControl(path: string): boolean {
 }
 
 export function Builder({
+  activity,
   documentId,
   title: initialTitle,
   initialDraft,
@@ -579,6 +581,7 @@ export function Builder({
                   </ul>
                 </Notice>
               ) : null}
+              {activity}
               <ChecksPanel
                 key={target}
                 documentId={documentId}

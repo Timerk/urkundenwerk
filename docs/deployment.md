@@ -120,6 +120,10 @@ and [Supabase CLI commands](https://supabase.com/docs/reference/cli/supabase-db-
    Assign someone to approve the nightly job and check that it succeeded.
    The reset replaces drafts in the two seeded firms. It preserves Auth
    users, memberships, quota counters, and drafts in all other firms.
+   It prunes audit events older than 90 days. For other deployments, set
+   `private.app_settings.audit_retention` and schedule
+   `select private.prune_audit_events();` as a database operator.
+   See [ADR-0014](adr/0014-audit-log.md).
 
 ## 5. Configure and deploy the Vercel project
 
@@ -164,6 +168,9 @@ allows 200 attempts per UTC day across both features and all users.
 ```sql
 update private.app_settings set ai_daily_request_limit = 200;
 ```
+
+If you override the extraction model, add its trusted identifier to
+`private.app_settings.audit_import_models` before using it.
 
 Set it to zero to pause paid calls. Changes apply to new reservations
 without a web redeploy. The signed-in user's RPC checks both quotas before

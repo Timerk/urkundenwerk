@@ -1,5 +1,6 @@
 -- Hosted demo only. This statement replaces all drafts in the two seeded
--- firms atomically. It never resets quota counters, Auth users, or memberships.
+-- firms atomically and prunes audit events older than the demo's 90-day
+-- retention. It never resets quota counters, Auth users, or memberships.
 do $$
 declare
   north constant uuid := '6b14210c-97db-41c4-80ae-0366e8f23aa1';
@@ -23,6 +24,10 @@ begin
   ) then
     raise exception 'Hosted demo firms are missing or unexpected. Run the hosted seed first.';
   end if;
+
+  -- The demo keeps its history for 90 days in every firm; a real deployment
+  -- uses private.app_settings.audit_retention (docs/privacy.md).
+  perform private.prune_audit_events(interval '90 days');
 
   delete from public.documents where tenant_id in (north, south);
 
