@@ -17,7 +17,6 @@ create table public.audit_events (
   action text not null
     constraint audit_events_action_known check (
       action in (
-        'tenant.created',
         'tenant.renamed',
         'membership.added',
         'membership.role_changed',
@@ -120,10 +119,13 @@ set search_path = ''
 as $$
 begin
   if tg_op = 'UPDATE' then
-    if (to_jsonb(new) - 'actor_id' - 'subject_user_id')
+    if pg_trigger_depth() > 1
+       and (to_jsonb(new) - 'actor_id' - 'subject_user_id')
          = (to_jsonb(old) - 'actor_id' - 'subject_user_id')
-       and (new.actor_id is null or new.actor_id = old.actor_id)
-       and (new.subject_user_id is null or new.subject_user_id = old.subject_user_id) then
+       and (new.actor_id is not distinct from old.actor_id or
+            (new.actor_id is null and not exists (select 1 from auth.users where id = old.actor_id)))
+       and (new.subject_user_id is not distinct from old.subject_user_id or
+            (new.subject_user_id is null and not exists (select 1 from auth.users where id = old.subject_user_id))) then
       return new;
     end if;
   elsif tg_op = 'DELETE' then
@@ -166,12 +168,11 @@ create trigger audit_events_no_truncate
 -- ---------------------------------------------------------------------------
 
 -- The retention period is a deployment decision (docs/privacy.md). The
--- default of ten years covers the longest limitation period for liability
--- claims (§ 199 (3) BGB); a firm whose deletion concept needs less sets it
--- lower. The hosted demo prunes after 90 days.
+-- default is ten years. The hosted demo prunes after 90 days.
 alter table private.app_settings
   add column audit_retention interval not null default interval '10 years'
-    constraint app_settings_audit_retention_positive check (audit_retention >= interval '1 day');
+    constraint app_settings_audit_retention_positive check (audit_retention >= interval '1 day'),
+  add column audit_import_models text[] not null default '{gpt-6.1-terra,claude-opus-5-5,fake-model}';
 
 create function private.prune_audit_events(older_than interval default null)
 returns integer
@@ -212,43 +213,76 @@ revoke all on function private.prune_audit_events(interval) from public, anon, a
 -- Helpers
 -- ---------------------------------------------------------------------------
 
--- The leaf paths in which two JSON objects differ, such as
--- `founder.address.city`. Arrays and scalars are leaves. Only paths are
--- returned, never values.
-create function private.jsonb_changed_paths(old_value jsonb, new_value jsonb, prefix text default '')
+-- Draft keys are user-controlled through the Data API. Only known field
+-- paths can reach the log, even for a malformed draft.
+create function private.document_changed_paths(old_value jsonb, new_value jsonb)
 returns setof text
-language plpgsql
+language sql
 immutable
 set search_path = ''
 as $$
-declare
-  key text;
-  old_object boolean := jsonb_typeof(old_value) = 'object';
-  new_object boolean := jsonb_typeof(new_value) = 'object';
-begin
-  if old_value is not distinct from new_value then
-    return;
-  end if;
-  if (old_object or old_value is null) and (new_object or new_value is null) then
-    for key in
-      select keys.name from (
-        select jsonb_object_keys(coalesce(old_value, '{}')) as name
-        union
-        select jsonb_object_keys(coalesce(new_value, '{}'))
-      ) as keys
-      order by 1
-    loop
-      return query select private.jsonb_changed_paths(
-        old_value -> key, new_value -> key, prefix || key || '.'
-      );
-    end loop;
-    return;
-  end if;
-  return next rtrim(prefix, '.');
-end;
+  select path from (values
+      ('notarisation.mode'),
+      ('notarisation.deedNumber'),
+      ('notarisation.date'),
+      ('notarisation.notaryName'),
+      ('notarisation.notarySeat'),
+      ('founder.kind'),
+      ('founder.salutation'),
+      ('founder.firstName'),
+      ('founder.lastName'),
+      ('founder.birthDate'),
+      ('founder.address.street'),
+      ('founder.address.postalCode'),
+      ('founder.address.city'),
+      ('founder.name'),
+      ('founder.registerCourt'),
+      ('founder.registerNumber'),
+      ('founder.seat'),
+      ('founder.identificationDetails'),
+      ('company.name'),
+      ('company.seat'),
+      ('company.purpose'),
+      ('shareCapitalCents'),
+      ('contribution'),
+      ('managingDirector.kind'),
+      ('managingDirector.salutation'),
+      ('managingDirector.firstName'),
+      ('managingDirector.lastName'),
+      ('managingDirector.birthDate'),
+      ('managingDirector.residence'),
+      ('notaryNotes'),
+      ('filing.registerCourt'),
+      ('filing.businessAddress.street'),
+      ('filing.businessAddress.postalCode'),
+      ('filing.businessAddress.city'),
+      ('filing.paidCents'),
+      ('filing.fundsAtFreeDisposal'),
+      ('filing.noDisqualification'),
+      ('filing.instructedOnDisclosure'),
+      ('filing.paymentEvidenceAttached')
+  ) as supported(path)
+  where old_value #> string_to_array(path, '.') is distinct from
+        new_value #> string_to_array(path, '.');
 $$;
 
-revoke all on function private.jsonb_changed_paths(jsonb, jsonb, text) from public, anon, authenticated;
+revoke all on function private.document_changed_paths(jsonb, jsonb) from public, anon, authenticated;
+
+-- The tuple is client-supplied at draft creation. Log only registered
+-- templates and versions.
+create function private.audit_template(template_id text, template_version text)
+returns jsonb
+language sql
+immutable
+set search_path = ''
+as $$
+  select case
+    when template_id = 'musterprotokoll-einpersonen' and template_version = '2022-08-01'
+      then jsonb_build_object('templateId', template_id, 'templateVersion', template_version)
+    else '{}'::jsonb end;
+$$;
+
+revoke all on function private.audit_template(text, text) from public, anon, authenticated;
 
 -- The signed-in user, if their account still exists. During the cascade of
 -- an account deletion the row is already gone, and the event is then
@@ -276,10 +310,7 @@ security definer
 set search_path = ''
 as $$
 begin
-  if tg_op = 'INSERT' then
-    insert into public.audit_events (tenant_id, actor_id, action, entity_type, entity_id)
-    values (new.id, private.audit_actor(), 'tenant.created', 'tenant', new.id);
-  elsif new.name is distinct from old.name then
+  if new.name is distinct from old.name then
     insert into public.audit_events (tenant_id, actor_id, action, entity_type, entity_id, metadata)
     values (new.id, private.audit_actor(), 'tenant.renamed', 'tenant', new.id,
             jsonb_build_object('fields', jsonb_build_array('name')));
@@ -289,7 +320,7 @@ end;
 $$;
 
 create trigger tenants_audit
-  after insert or update on public.tenants
+  after update of name on public.tenants
   for each row execute function private.audit_tenant_change();
 
 create function private.audit_membership_change()
@@ -357,11 +388,7 @@ begin
   if tg_op = 'INSERT' then
     insert into public.audit_events (tenant_id, actor_id, action, entity_type, entity_id, metadata)
     values (new.tenant_id, actor, 'document.created', 'document', new.id,
-            jsonb_build_object(
-              'templateId', new.template_id,
-              'templateVersion', new.template_version,
-              'status', new.status
-            ));
+            private.audit_template(new.template_id, new.template_version) || jsonb_build_object('status', new.status));
     return null;
   end if;
 
@@ -371,16 +398,13 @@ begin
     end if;
     insert into public.audit_events (tenant_id, actor_id, action, entity_type, entity_id, metadata)
     values (old.tenant_id, actor, 'document.deleted', 'document', old.id,
-            jsonb_build_object(
-              'templateId', old.template_id,
-              'templateVersion', old.template_version
-            ));
+            private.audit_template(old.template_id, old.template_version));
     return null;
   end if;
 
   select coalesce(array_agg(path order by path), '{}') into fields
   from (
-    select path from private.jsonb_changed_paths(old.data, new.data) as path
+    select path from private.document_changed_paths(old.data, new.data) as path
     union
     select 'title' where new.title is distinct from old.title
   ) as changed;
@@ -405,10 +429,6 @@ begin
     end if;
   end if;
 
-  if cardinality(fields) > 100 then
-    details := details || jsonb_build_object('fieldsTruncated', true);
-    fields := fields[1:100];
-  end if;
   insert into public.audit_events (tenant_id, actor_id, action, entity_type, entity_id, metadata)
   values (new.tenant_id, actor, 'document.updated', 'document', new.id,
           details || jsonb_build_object('fields', to_jsonb(fields)));
@@ -471,14 +491,16 @@ begin
   if action = 'document.exported' then
     if (select array_agg(key order by key) from jsonb_object_keys(details) as key)
          is distinct from array['document', 'format']
-       or details ->> 'format' not in ('pdf', 'docx', 'xml')
-       or details ->> 'document' not in ('musterprotokoll', 'anmeldung')
+       or coalesce(details ->> 'format', '') not in ('pdf', 'docx', 'xml')
+       or coalesce(details ->> 'document', '') not in ('musterprotokoll', 'anmeldung')
        or (details ->> 'format' = 'xml' and details ->> 'document' <> 'anmeldung') then
       raise exception 'Export metadata must name a supported format and document.'
         using errcode = 'invalid_parameter_value';
     end if;
   else
-    if not private.has_tenant_role(target.tenant_id, '{admin,editor}')
+    -- Serialize the once-per-document import check.
+    perform 1 from public.documents where id = target.id for no key update;
+    if not found or not private.has_tenant_role(target.tenant_id, '{admin,editor}')
        or target.created_by is distinct from caller
        or target.created_at < now() - interval '1 hour'
        or exists (
@@ -492,9 +514,11 @@ begin
     if (select array_agg(key order by key) from jsonb_object_keys(details) as key)
          is distinct from array['counts', 'model', 'promptVersion']
        or jsonb_typeof(details -> 'model') <> 'string'
-       or details ->> 'model' !~ '^[A-Za-z0-9][A-Za-z0-9._:/-]{0,79}$'
+       or not exists (
+         select 1 from private.app_settings where details ->> 'model' = any(audit_import_models)
+       )
        or jsonb_typeof(details -> 'promptVersion') <> 'string'
-       or details ->> 'promptVersion' !~ '^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$'
+       or details ->> 'promptVersion' <> 'extract-2026-11-23'
        or jsonb_typeof(counts) <> 'object'
        or (select array_agg(key order by key) from jsonb_object_keys(counts) as key)
          is distinct from array['absent', 'unverified', 'verified'] then
@@ -525,10 +549,7 @@ begin
   insert into public.audit_events (tenant_id, actor_id, action, entity_type, entity_id, metadata)
   values (
     target.tenant_id, caller, action, 'document', target.id,
-    details || jsonb_build_object(
-      'templateId', target.template_id,
-      'templateVersion', target.template_version
-    )
+    details || private.audit_template(target.template_id, target.template_version)
   )
   returning id into event_id;
   return event_id;
@@ -575,3 +596,33 @@ comment on function public.list_tenant_members(uuid) is
 
 revoke all on function public.list_tenant_members(uuid) from public, anon, service_role;
 grant execute on function public.list_tenant_members(uuid) to authenticated;
+
+-- The draft and its provenance are a single transaction. Document RLS still
+-- applies to this insert because the wrapper runs as the caller.
+create function public.create_imported_document(
+  target_tenant_id uuid,
+  draft_title text,
+  draft_data jsonb,
+  provenance jsonb
+)
+returns uuid
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  document_id uuid;
+begin
+  insert into public.documents (tenant_id, template_id, template_version, title, data)
+  values (target_tenant_id, 'musterprotokoll-einpersonen', '2022-08-01', draft_title, draft_data)
+  returning id into document_id;
+
+  perform public.record_document_event(document_id, 'document.imported', provenance);
+  return document_id;
+end;
+$$;
+
+revoke all on function public.create_imported_document(uuid, text, jsonb, jsonb)
+  from public, anon, service_role;
+grant execute on function public.create_imported_document(uuid, text, jsonb, jsonb)
+  to authenticated;

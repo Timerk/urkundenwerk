@@ -6,6 +6,44 @@ import type { Messages } from "./en";
  * Fundstellen unverändert.
  */
 export const de: Messages = {
+  audit: {
+    title: "Kanzleiprotokoll",
+    activity: "Verlauf",
+    openAudit: "Gesamten Verlauf dieses Dokuments anzeigen",
+    empty: "Es liegen keine Einträge vor.",
+    former: "Ehemaliges Mitglied",
+    none: "System oder gelöschtes Konto",
+    titleField: "Dokumenttitel",
+    member: "Mitglied: {name}",
+    change: "{from} → {to}",
+    importDetails:
+      "{model} · Prompt {version} · {accepted, number} übernommen, {edited, number} bearbeitet, {cleared, number} geleert",
+    onlyDocument: "Nach Dokument filtern",
+    actionFilter: "Aktion",
+    allActions: "Alle Aktionen",
+    documentFilter: "Dokument-ID",
+    invalidDocument: "Geben Sie eine gültige Dokument-ID ein.",
+    filter: "Filter anwenden",
+    pages: "Seiten des Kanzleiprotokolls",
+    previous: "Zurück",
+    next: "Weiter",
+    page: "Seite {page, number}",
+    statuses: {
+      draft: "Entwurf",
+      final: "Final",
+    },
+    actions: {
+      document_created: "Dokument erstellt",
+      document_updated: "Dokument bearbeitet",
+      document_deleted: "Dokument gelöscht",
+      document_exported: "Dokument exportiert",
+      document_imported: "Dokument importiert",
+      membership_added: "Mitglied hinzugefügt",
+      membership_role_changed: "Rolle geändert",
+      membership_removed: "Mitglied entfernt",
+      tenant_renamed: "Kanzlei umbenannt",
+    },
+  },
   metadata: {
     description:
       "Ein Dokumentenbaukasten für deutsche Kanzleien, der das gesetzliche Musterprotokoll aus strukturierten Falldaten erstellt.",

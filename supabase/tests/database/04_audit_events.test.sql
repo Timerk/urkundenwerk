@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(58);
+select plan(60);
 
 create function pg_temp.sign_in_as(user_id uuid) returns void
 language plpgsql as $$
@@ -52,8 +52,8 @@ select results_eq(
   $$ select action, count(*)::int from public.audit_events
      where tenant_id = '40000000-0000-4000-8000-0000000000aa'
      group by action order by action $$,
-  $$ values ('membership.added', 3), ('tenant.created', 1) $$,
-  'creating a tenant and its memberships records one event each'
+  $$ values ('membership.added', 3) $$,
+  'creating memberships records one event each'
 );
 
 select is(
@@ -128,6 +128,15 @@ select is(
    order by occurred_at desc, id desc limit 1),
   '{"fields": ["company.seat", "title"]}'::jsonb,
   'a change of another field and the title starts a new event'
+);
+
+update public.documents
+set data = data || '{"Fictional Name": "fictional value"}'
+where id = (select id from fixture);
+
+select is_empty(
+  $$ select 1 from public.audit_events where metadata::text like '%Fictional Name%' $$,
+  'unknown draft keys cannot enter the audit trail'
 );
 
 update public.documents set data = data where id = (select id from fixture);
@@ -354,9 +363,8 @@ select is(
 );
 
 select ok(
-  (select count(*)::int from public.audit_events where entity_type = 'membership') = 3
-  and exists (select 1 from public.audit_events where entity_type = 'tenant'),
-  'an admin sees the membership and firm history'
+  (select count(*)::int from public.audit_events where entity_type = 'membership') = 3,
+  'an admin sees membership history'
 );
 
 select pg_temp.sign_in_as('40000000-0000-4000-8000-00000000a003');
@@ -462,6 +470,13 @@ select throws_ok(
   $$ delete from public.audit_events where tenant_id = '40000000-0000-4000-8000-0000000000aa' $$,
   '42501', 'Audit events are append-only.',
   'postgres cannot delete events'
+);
+
+select throws_ok(
+  $$ update public.audit_events set actor_id = null
+     where actor_id = '40000000-0000-4000-8000-00000000a001' $$,
+  '42501', 'Audit events are append-only.',
+  'postgres cannot clear a live actor'
 );
 
 select throws_ok(

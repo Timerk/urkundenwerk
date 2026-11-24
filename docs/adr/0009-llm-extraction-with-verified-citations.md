@@ -55,9 +55,7 @@ validated like any other and checked by the rule engine in the builder.
 is ingested in memory, and the text and review go back to the browser. The
 server stores neither the file nor the text nor the model's answer. Logs
 record only failure kinds. Confirming stores the accepted values as a normal
-draft. Provenance (which fields came from an import, with model and prompt
-version) does not fit the strict draft schema and is left for the audit log
-in M7.
+draft. The audit log records the model, prompt version and decision counts per verification status. See [ADR-0014](0014-audit-log.md).
 
 **Prompt injection.** The document is data: the system prompt says
 instructions inside it must be ignored and reported in a note, there are no

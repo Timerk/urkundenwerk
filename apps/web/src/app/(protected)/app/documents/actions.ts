@@ -114,6 +114,7 @@ export async function saveDraft(
     data: draft.data,
   });
   if (!saved) return notAllowed();
+  revalidatePath(`/app/documents/${documentId.data}`);
   return { ok: true, updatedAt: saved.updated_at };
 }
 

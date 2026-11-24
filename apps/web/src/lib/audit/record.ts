@@ -48,18 +48,3 @@ export async function recordExport(
   if (error) console.error(`[audit] export event failed (${error.code})`);
   return !error;
 }
-
-/** Records where a draft created from a contract import came from. */
-export async function recordImport(
-  supabase: AppSupabaseClient,
-  documentId: string,
-  provenance: ImportProvenance,
-): Promise<boolean> {
-  const { error } = await supabase.rpc("record_document_event", {
-    document_id: documentId,
-    action: "document.imported",
-    metadata: provenance,
-  });
-  if (error) console.error(`[audit] import event failed (${error.code})`);
-  return !error;
-}

@@ -1,6 +1,5 @@
 "use server";
 
-import { musterprotokollMetadata } from "@urkundenwerk/core";
 import {
   ExtractionError,
   type FieldReview,
@@ -24,11 +23,7 @@ import {
   MAX_UPLOAD_BYTES,
   MAX_UPLOAD_MEGABYTES,
 } from "../../../../lib/import/limits";
-import {
-  importProvenanceSchema,
-  recordImport,
-} from "../../../../lib/audit/record";
-import { insertDocument } from "../../../../lib/documents/repository";
+import { importProvenanceSchema } from "../../../../lib/audit/record";
 import {
   defaultDocumentTitle,
   documentIdSchema,
@@ -158,22 +153,22 @@ export async function createDraftFromImport(
 
   const firma = draft.data.company?.name?.trim();
   const supabase = await createClient();
-  const document = await insertDocument(supabase, {
-    tenantId: access.membership.tenantId,
-    templateId: musterprotokollMetadata.id,
-    templateVersion: musterprotokollMetadata.version,
-    title: firma
-      ? firma.slice(0, 120)
-      : defaultDocumentTitle(await getLocale()),
-    createdBy: access.user.id,
-    data: draft.data,
-  });
-  if (!document) return { ok: false, error: t("notAllowed") };
-  // The creation itself is in the log through the documents trigger, so a
-  // failure here loses the provenance, not the fact. It is logged and the
-  // draft opens anyway.
-  await recordImport(supabase, document.id, origin.data);
+  const { data: documentId, error } = await supabase.rpc(
+    "create_imported_document",
+    {
+      target_tenant_id: access.membership.tenantId,
+      draft_title: firma
+        ? firma.slice(0, 120)
+        : defaultDocumentTitle(await getLocale()),
+      draft_data: draft.data,
+      provenance: origin.data,
+    },
+  );
+  if (error || !documentId) {
+    if (error) console.error(`[audit] import failed (${error.code})`);
+    return { ok: false, error: t("notAllowed") };
+  }
 
   revalidatePath("/app");
-  redirect(`/app/documents/${document.id}?imported=1`);
+  redirect(`/app/documents/${documentId}?imported=1`);
 }

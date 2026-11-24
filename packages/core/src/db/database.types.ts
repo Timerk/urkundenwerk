@@ -184,6 +184,15 @@ export type Database = {
     };
     Functions: {
       consume_ai_request: { Args: { kind: string }; Returns: string };
+      create_imported_document: {
+        Args: {
+          draft_data: Json;
+          draft_title: string;
+          provenance: Json;
+          target_tenant_id: string;
+        };
+        Returns: string;
+      };
       create_tenant: { Args: { name: string }; Returns: string };
       list_tenant_members: {
         Args: { target_tenant_id: string };
