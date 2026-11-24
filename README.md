@@ -376,13 +376,17 @@ refresh the screenshots, run `pnpm db:reset`, then
 
 ## Screenshots
 
+![The landing page with a short summary of the product on the left and the fictional example written into the Musterprotokoll sheet on the right](docs/screenshots/landing.png)
+
 ![The import review with extracted values and their status on the left and the uploaded document with its quoted passages marked on the right](docs/screenshots/import-review.png)
 
 ![The register filing form and live Handelsregisteranmeldung preview](docs/screenshots/register-filing.png)
 
-| Documents of a firm                              | Builder in German                                                                  |
-| ------------------------------------------------ | ---------------------------------------------------------------------------------- |
-| ![Document list](docs/screenshots/dashboard.png) | ![The builder in German with the Prüfungen panel](docs/screenshots/builder-de.png) |
+| Documents of a firm                                                                                                                                                        | Builder in German                                                                                                                                                   |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ![The document list of Demo-Kanzlei Nord with each draft's readiness, last change and Delete action](docs/screenshots/dashboard.png)                                       | ![The builder in German with the Prüfungen panel](docs/screenshots/builder-de.png)                                                                                  |
+| **Members and invitations**                                                                                                                                                | **Firm audit log**                                                                                                                                                  |
+| ![The members page with a role select per person, the in-place confirmation for removing Victor Viewer, and a newly created invitation link](docs/screenshots/members.png) | ![The firm audit log as a timeline grouped by day, showing document edits with the changed fields, created documents and added members](docs/screenshots/audit.png) |
 
 ## Roadmap
 
