@@ -154,17 +154,42 @@ export const en = {
   },
   account: {
     title: "Account",
-    dataTitle: "Your account data",
+    signedInAs: "Signed in as {email}",
+    dataTitle: "Your data",
     dataHelp:
-      "The JSON file contains your profile, memberships, invitations you sent, audit events attributed to you, and the IDs and titles of drafts you created that you can still access. Documents belong to the firm.",
+      "Download a copy of the personal data Urkundenwerk keeps about you, as a JSON file.",
+    dataIncludes: "The file contains",
+    dataItems: {
+      profile: "Your profile",
+      memberships: "Your firm memberships and roles",
+      invitations: "Invitations you created",
+      events: "Audit entries attributed to you",
+      drafts: "IDs and titles of drafts you created",
+    },
+    dataExcludes:
+      "Document contents are not included, because they belong to the firm.",
     download: "Download my data",
+    deleteTitle: "Delete account",
+    deleteHelp: "Deleting your account cannot be undone.",
+    deleteEffectsTitle: "What happens",
+    deleteEffects: {
+      account: "Your account and sign-in details are deleted.",
+      memberships: "Your memberships in all firms end.",
+      drafts: "Drafts stay with firms that continue.",
+      audit: "Audit entries remain, without your name.",
+    },
     delete: "Delete my account",
-    protected: "Shared demo accounts are protected from deletion.",
-    deleteHelp:
-      "This permanently deletes your account and ends your firm memberships. Drafts in firms that continue operating stay with the firm. Your name is removed from audit events.",
+    deleteFinal: "Delete account permanently",
+    deleting: "Deleting…",
+    cancel: "Cancel",
+    confirmTitle: "Delete your account permanently?",
+    protectedTitle: "This demo account is protected",
+    protected:
+      "Shared demo accounts cannot be deleted, so that every visitor finds the same sample firms. You can still download your data.",
     confirm: "I want to permanently delete my account.",
+    soleFirmsTitle: "Firms that will be deleted",
     soleFirms:
-      "You are the only member of the following firms. Deleting them also deletes their drafts and audit history.",
+      "You are the only member of these firms. Deleting your account also deletes them, with all their drafts and audit history.",
     confirmSole:
       "I also want to permanently delete these firms and their drafts.",
     confirmRequired: "Confirm that you want to delete your account.",

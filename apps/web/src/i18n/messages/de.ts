@@ -161,17 +161,42 @@ export const de: Messages = {
   },
   account: {
     title: "Konto",
-    dataTitle: "Ihre Kontodaten",
+    signedInAs: "Angemeldet als {email}",
+    dataTitle: "Ihre Daten",
     dataHelp:
-      "Die JSON-Datei enthält Ihr Profil, Ihre Mitgliedschaften, von Ihnen erstellte Einladungen, Ihnen zugeordnete Protokolleinträge sowie IDs und Titel der von Ihnen erstellten Entwürfe, auf die Sie noch Zugriff haben. Die Dokumente gehören der Kanzlei.",
+      "Laden Sie eine Kopie der personenbezogenen Daten, die Urkundenwerk über Sie speichert, als JSON-Datei herunter.",
+    dataIncludes: "Die Datei enthält",
+    dataItems: {
+      profile: "Ihr Profil",
+      memberships: "Ihre Mitgliedschaften und Rollen",
+      invitations: "Von Ihnen erstellte Einladungen",
+      events: "Ihnen zugeordnete Protokolleinträge",
+      drafts: "IDs und Titel der von Ihnen erstellten Entwürfe",
+    },
+    dataExcludes:
+      "Inhalte von Dokumenten sind nicht enthalten, denn sie gehören der Kanzlei.",
     download: "Meine Daten herunterladen",
+    deleteTitle: "Konto löschen",
+    deleteHelp: "Die Löschung lässt sich nicht rückgängig machen.",
+    deleteEffectsTitle: "Was dabei geschieht",
+    deleteEffects: {
+      account: "Ihr Konto und Ihre Anmeldedaten werden gelöscht.",
+      memberships: "Ihre Mitgliedschaften in allen Kanzleien enden.",
+      drafts: "Entwürfe bleiben bei den Kanzleien, die weiter bestehen.",
+      audit: "Protokolleinträge bleiben erhalten, aber ohne Ihren Namen.",
+    },
     delete: "Mein Konto löschen",
-    protected: "Gemeinsam genutzte Demokonten sind vor dem Löschen geschützt.",
-    deleteHelp:
-      "Ihr Konto wird unwiderruflich gelöscht. Ihre Mitgliedschaften enden. Entwürfe bleiben bei fortbestehenden Kanzleien. Der Bezug zu Ihrem Konto wird aus den Protokolleinträgen entfernt.",
+    deleteFinal: "Konto endgültig löschen",
+    deleting: "Wird gelöscht…",
+    cancel: "Abbrechen",
+    confirmTitle: "Konto endgültig löschen?",
+    protectedTitle: "Dieses Demokonto ist geschützt",
+    protected:
+      "Gemeinsam genutzte Demokonten lassen sich nicht löschen, damit alle Besucher dieselben Beispielkanzleien vorfinden. Ihre Daten können Sie trotzdem herunterladen.",
     confirm: "Ich möchte mein Konto unwiderruflich löschen.",
+    soleFirmsTitle: "Diese Kanzleien werden gelöscht",
     soleFirms:
-      "Sie sind das einzige Mitglied der folgenden Kanzleien. Werden diese Kanzleien gelöscht, werden auch ihre Entwürfe und Protokolle gelöscht.",
+      "Sie sind das einzige Mitglied dieser Kanzleien. Mit Ihrem Konto werden auch sie mit allen Entwürfen und Protokollen gelöscht.",
     confirmSole:
       "Ich möchte auch diese Kanzleien und ihre Entwürfe unwiderruflich löschen.",
     confirmRequired: "Bestätigen Sie, dass Sie Ihr Konto löschen möchten.",
