@@ -50,8 +50,15 @@ it("only accepts listed accounts for hosted one-click login", async () => {
   });
 });
 
-it("passes only public account details from the hosted page to the client component", () => {
-  const markup = renderToStaticMarkup(withIntl(<LoginPage />));
+it("passes only public account details from the hosted page to the client component", async () => {
+  const markup = renderToStaticMarkup(
+    withIntl(
+      await LoginPage({
+        params: Promise.resolve({}),
+        searchParams: Promise.resolve({}),
+      }),
+    ),
+  );
   expect(markup).not.toContain(hostedPassword);
   expect(loginForm.mock.lastCall?.[0]).toEqual({
     accounts: [
@@ -60,5 +67,6 @@ it("passes only public account details from the hosted page to the client compon
       { email: "mia.multi@demo.test", description: "mia" },
     ],
     passwordHint: undefined,
+    invite: false,
   });
 });

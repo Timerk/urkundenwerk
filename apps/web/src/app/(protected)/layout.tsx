@@ -31,7 +31,7 @@ export default async function ProtectedLayout({
   const t = await getTranslations();
 
   return (
-    <div className="flex min-h-[calc(100dvh-2rem)] flex-col">
+    <div className="flex flex-1 flex-col">
       <header className="border-b border-rule bg-paper">
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2.5 sm:flex-nowrap sm:gap-x-6 sm:px-6">
           <div className="flex min-w-0 items-center gap-4 max-sm:basis-full">
@@ -76,16 +76,24 @@ export default async function ProtectedLayout({
             </form>
           </div>
         </div>
-        {current?.role === "admin" ? (
-          <nav className="px-4 pb-2 sm:px-6">
-            <Link
-              className="text-sm text-stamp underline underline-offset-2"
-              href="/app/audit"
-            >
+        <nav
+          aria-label={t("common.appNavigation")}
+          className="flex flex-wrap gap-x-4 gap-y-1 px-4 pb-2 text-sm text-stamp sm:px-6"
+        >
+          {current ? (
+            <Link className="underline underline-offset-2" href="/app/members">
+              {t("members.title")}
+            </Link>
+          ) : null}
+          {current?.role === "admin" ? (
+            <Link className="underline underline-offset-2" href="/app/audit">
               {t("audit.title")}
             </Link>
-          </nav>
-        ) : null}
+          ) : null}
+          <Link className="underline underline-offset-2" href="/app/account">
+            {t("account.title")}
+          </Link>
+        </nav>
       </header>
       <main className="flex flex-1 flex-col">{children}</main>
     </div>

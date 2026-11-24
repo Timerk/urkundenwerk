@@ -235,11 +235,16 @@ select throws_ok(
   'the tenant slug is immutable through the API roles'
 );
 
-select lives_ok(
+select throws_ok(
   $$ insert into public.tenant_memberships (tenant_id, user_id, role)
      values ('10000000-0000-4000-8000-0000000000aa', '10000000-0000-4000-8000-00000000c001', 'viewer') $$,
-  'an admin can add a member'
+  '42501', null, 'an admin cannot bypass invitation acceptance'
 );
+
+reset role;
+insert into public.tenant_memberships (tenant_id, user_id, role)
+values ('10000000-0000-4000-8000-0000000000aa', '10000000-0000-4000-8000-00000000c001', 'viewer');
+select pg_temp.sign_in_as('10000000-0000-4000-8000-00000000a001');
 
 select lives_ok(
   $$ update public.tenant_memberships set role = 'editor'

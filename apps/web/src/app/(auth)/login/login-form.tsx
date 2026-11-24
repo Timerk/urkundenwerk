@@ -12,9 +12,11 @@ import { signIn } from "./actions";
 export function LoginForm({
   accounts,
   passwordHint,
+  invite,
 }: {
   accounts: DemoAccounts;
   passwordHint?: string;
+  invite?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(signIn, initialFormState);
   const t = useTranslations("auth");
@@ -22,6 +24,7 @@ export function LoginForm({
   return (
     <div className="space-y-8">
       <form action={formAction} noValidate className="space-y-4">
+        {invite ? <input type="hidden" name="next" value="invite" /> : null}
         <FormError message={state.error} />
         <FormField
           name="email"
@@ -51,6 +54,7 @@ export function LoginForm({
             {t("login.demoAccounts")}
           </h2>
           <form action={formAction}>
+            {invite ? <input type="hidden" name="next" value="invite" /> : null}
             <ul className="divide-y divide-rule rounded-sm border border-rule">
               {accounts.map((account) => (
                 <li key={account.email}>

@@ -49,7 +49,7 @@ export default function Home() {
   const model = buildMusterprotokollPreview(exampleDraft);
 
   return (
-    <main className="relative grid min-h-[calc(100dvh-2rem)] lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+    <main className="relative grid flex-1 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
       {/* Top right, where a language switch is expected; clear of content. */}
       <LanguageSwitcher className="absolute top-3 right-4 z-10 sm:right-6" />
       <div className="flex flex-col justify-center px-5 py-12 sm:px-10 lg:py-16 xl:px-16">

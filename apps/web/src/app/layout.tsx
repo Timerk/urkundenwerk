@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Instrument_Sans, Source_Serif_4 } from "next/font/google";
 import { connection } from "next/server";
 import type { ReactNode } from "react";
+import { LegalFooter } from "../components/legal-footer";
 import { DemoNotice } from "../components/demo-notice";
 import "./globals.css";
 
@@ -39,11 +40,12 @@ export default async function RootLayout({
       lang={locale}
       className={`${instrumentSans.variable} ${sourceSerif.variable}`}
     >
-      <body className="min-h-dvh antialiased">
+      <body className="flex min-h-dvh flex-col antialiased">
         {/* Inherits the request's locale, messages, and time zone. */}
         <NextIntlClientProvider>
           <DemoNotice />
           {children}
+          <LegalFooter />
         </NextIntlClientProvider>
       </body>
     </html>

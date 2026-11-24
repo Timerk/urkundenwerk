@@ -107,7 +107,7 @@ params, and the web app words them in either language
 | [M4 · AI extraction](https://github.com/Timerk/urkundenwerk/issues/4)          | Extract structured data with source citations and evaluate the results | Done    |
 | [M5 · XML export](https://github.com/Timerk/urkundenwerk/issues/5)             | Handelsregisteranmeldung and XSD-validated XML filing data             | Done    |
 | [M6 · MCP server](https://github.com/Timerk/urkundenwerk/issues/6)             | Expose the shared domain workflows over MCP                            | Done    |
-| [M7 · Audit, roles, and GDPR](https://github.com/Timerk/urkundenwerk/issues/7) | Audit log, role-based access, and data protection workflows            | Planned |
+| [M7 · Audit, roles, and GDPR](https://github.com/Timerk/urkundenwerk/issues/7) | Audit log, role-based access, and data protection workflows            | Done    |
 | [M8 · Deployment](https://github.com/Timerk/urkundenwerk/issues/8)             | Deploy the portfolio demo                                              | Planned |
 
 ## Stack and layout
@@ -216,6 +216,14 @@ and exports the deed once no error remains.
 - **Setup.** `claude mcp add` for Claude Code and a JSON snippet for Claude
   Desktop are in the [MCP server README](apps/mcp/README.md), with the
   tool reference and an example conversation.
+
+## Audit, membership, and account data
+
+Drafts have an activity history, and firm admins can filter the complete
+firm audit log. Admins manage roles and share one-use invitation links.
+Urkundenwerk sends no invitation emails, and the hosted demo requires
+invitees to have existing accounts. The Account page offers a JSON
+download and account erasure. See the [privacy and data protection notes](docs/privacy.md).
 
 ## AI and privacy
 

@@ -126,6 +126,54 @@ export type Database = {
         };
         Relationships: [];
       };
+      tenant_invitations: {
+        Row: {
+          accepted_at: string | null;
+          created_at: string;
+          email: string;
+          expires_at: string;
+          id: string;
+          invited_by: string | null;
+          revoked_at: string | null;
+          role: Database["public"]["Enums"]["tenant_role"];
+          tenant_id: string;
+          token_hash: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          accepted_at?: string | null;
+          created_at?: string;
+          email: string;
+          expires_at?: string;
+          id?: string;
+          invited_by?: string | null;
+          revoked_at?: string | null;
+          role: Database["public"]["Enums"]["tenant_role"];
+          tenant_id: string;
+          token_hash: string;
+        };
+        Update: {
+          accepted_at?: string | null;
+          created_at?: string;
+          email?: string;
+          expires_at?: string;
+          id?: string;
+          invited_by?: string | null;
+          revoked_at?: string | null;
+          role?: Database["public"]["Enums"]["tenant_role"];
+          tenant_id?: string;
+          token_hash?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_invitations_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       tenant_memberships: {
         Row: {
           created_at: string;
@@ -183,6 +231,11 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      accept_invitation: { Args: { token: string }; Returns: string };
+      account_deletion_options: {
+        Args: Record<PropertyKey, never>;
+        Returns: Json;
+      };
       consume_ai_request: { Args: { kind: string }; Returns: string };
       create_imported_document: {
         Args: {
@@ -193,7 +246,20 @@ export type Database = {
         };
         Returns: string;
       };
+      create_invitation: {
+        Args: {
+          invitee_email: string;
+          invitee_role: Database["public"]["Enums"]["tenant_role"];
+          target_tenant_id: string;
+        };
+        Returns: string;
+      };
       create_tenant: { Args: { name: string }; Returns: string };
+      delete_my_account: {
+        Args: { confirm_sole_tenants?: string[] };
+        Returns: undefined;
+      };
+      export_my_account: { Args: Record<PropertyKey, never>; Returns: Json };
       list_tenant_members: {
         Args: { target_tenant_id: string };
         Returns: {
@@ -207,6 +273,10 @@ export type Database = {
       record_document_event: {
         Args: { action: string; document_id: string; metadata?: Json };
         Returns: string;
+      };
+      revoke_invitation: {
+        Args: { invitation_id: string };
+        Returns: undefined;
       };
     };
     Enums: {

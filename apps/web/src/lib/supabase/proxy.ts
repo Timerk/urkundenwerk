@@ -12,7 +12,11 @@ const AUTH_PAGES = new Set(["/login", "/signup"]);
  * showing protected data.
  */
 export function usesSession(pathname: string) {
-  return isProtectedPath(pathname) || AUTH_PAGES.has(pathname);
+  return (
+    isProtectedPath(pathname) ||
+    AUTH_PAGES.has(pathname) ||
+    pathname === "/invite"
+  );
 }
 
 function isProtectedPath(pathname: string) {
@@ -64,7 +68,14 @@ export async function updateSession(
     return redirectKeepingCookies(request, response, "/login");
   }
   if (isSignedIn && AUTH_PAGES.has(pathname)) {
-    return redirectKeepingCookies(request, response, "/app");
+    const invite =
+      pathname === "/login" &&
+      request.nextUrl.searchParams.get("next") === "invite";
+    return redirectKeepingCookies(
+      request,
+      response,
+      invite ? "/invite" : "/app",
+    );
   }
   return response;
 }

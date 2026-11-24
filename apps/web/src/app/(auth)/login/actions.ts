@@ -49,5 +49,5 @@ export async function signIn(
     };
   }
 
-  redirect("/app");
+  redirect(formData.get("next") === "invite" ? "/invite" : "/app");
 }
