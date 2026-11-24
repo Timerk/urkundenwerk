@@ -90,6 +90,8 @@ export async function changeMembership(
     .select("user_id")
     .maybeSingle();
   if (error?.code === "23514") return { error: "lastAdmin" };
+  // The shared hosted demo admin keeps its role in the sandbox firm.
+  if (error?.code === "PT403") return { error: "protectedAdmin" };
   if (error || !data) return { error: "failed" };
   revalidatePath("/app", "layout");
   return { success: remove ? "removed" : "roleSaved" };

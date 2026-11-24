@@ -1,16 +1,35 @@
 import "server-only";
 
-// The hosted accounts have only editor or viewer access. Local Supabase also
-// provides an admin for exercising the firm management flow.
-const SHARED_ACCOUNTS = [
-  { email: "erik.editor@demo.test", description: "erik" },
-  { email: "victor.viewer@demo.test", description: "victor" },
-  { email: "mia.multi@demo.test", description: "mia" },
+const ERIK = { email: "erik.editor@demo.test", description: "erik" } as const;
+const VICTOR = {
+  email: "victor.viewer@demo.test",
+  description: "victor",
+} as const;
+const MIA = { email: "mia.multi@demo.test", description: "mia" } as const;
+
+// Hosted visitors share these accounts. Sara administers only the West
+// sandbox, which the nightly reset restores completely; Nord and Süd keep an
+// operator-only admin. Local Supabase seeds Sara as admin of Süd instead.
+const HOSTED_ACCOUNTS = [
+  ERIK,
+  VICTOR,
+  { email: "sara.admin@demo.test", description: "saraSandbox" },
+  MIA,
+] as const;
+
+const LOCAL_ACCOUNTS = [
+  ERIK,
+  VICTOR,
+  { email: "sara.admin@demo.test", description: "sara" },
+  MIA,
 ] as const;
 
 export function demoLogin(env = process.env) {
   if (env.DEMO_LOGIN_PASSWORD) {
-    return { accounts: SHARED_ACCOUNTS, password: env.DEMO_LOGIN_PASSWORD };
+    return {
+      accounts: HOSTED_ACCOUNTS as readonly DemoAccount[],
+      password: env.DEMO_LOGIN_PASSWORD,
+    };
   }
   const host = URL.parse(env.NEXT_PUBLIC_SUPABASE_URL ?? "")?.hostname;
   if (
@@ -20,11 +39,7 @@ export function demoLogin(env = process.env) {
       host === "host.docker.internal")
   ) {
     return {
-      accounts: [
-        ...SHARED_ACCOUNTS.slice(0, 2),
-        { email: "sara.admin@demo.test", description: "sara" } as const,
-        SHARED_ACCOUNTS[2],
-      ],
+      accounts: LOCAL_ACCOUNTS as readonly DemoAccount[],
       password: "demo-password-123",
       showPassword: true,
     };
@@ -32,6 +47,7 @@ export function demoLogin(env = process.env) {
   return null;
 }
 
-export type DemoAccounts = NonNullable<
-  ReturnType<typeof demoLogin>
->["accounts"];
+type DemoAccount =
+  (typeof HOSTED_ACCOUNTS)[number] | (typeof LOCAL_ACCOUNTS)[number];
+
+export type DemoAccounts = readonly DemoAccount[];

@@ -5,7 +5,13 @@ export const memberRole = z.enum(["admin", "editor", "viewer"]);
 
 export type FormResult = {
   error?:
-    "forbidden" | "invalid" | "quota" | "duplicate" | "lastAdmin" | "failed";
+    | "forbidden"
+    | "invalid"
+    | "quota"
+    | "duplicate"
+    | "lastAdmin"
+    | "protectedAdmin"
+    | "failed";
   success?: "revoked" | "removed" | "roleSaved";
   token?: string;
 };

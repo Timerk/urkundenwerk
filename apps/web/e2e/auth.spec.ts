@@ -22,6 +22,28 @@ test("a visitor can use the one-click demo account on the nonce-protected login 
   await expect(page.getByText("Your role: Editor.")).toBeVisible();
 });
 
+test("the one-click demo admin can open the members page and the audit log", async ({
+  page,
+}) => {
+  await page.goto("/login");
+  await page.getByRole("button", { name: /sara.admin@demo.test/ }).click();
+  await expect(page).toHaveURL(/\/app$/);
+  const navigation = page.getByRole("navigation", {
+    name: "Application navigation",
+  });
+  await navigation.getByRole("link", { name: "Members", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Members", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("list", { name: "People with access" }),
+  ).toContainText("sara.admin@demo.test");
+  await navigation.getByRole("link", { name: "Audit log" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Firm audit log" }),
+  ).toBeVisible();
+});
+
 test("an unauthenticated visit to /app redirects to the login page", async ({
   page,
 }) => {
