@@ -43,6 +43,103 @@ export const en = {
       tenant_renamed: "Firm renamed",
     },
   },
+  members: {
+    title: "Members",
+    unknown: "Member without a display name",
+    role: "Role",
+    email: "Invitee email address",
+    create: "Create invitation",
+    copy: "Copy link",
+    link: "Invitation link",
+    copied: "Link copied.",
+    copyManually: "Select and copy the link manually.",
+    invitations: "Invitations",
+    inviteHelp:
+      "Copy the link when you create it and share it with the recipient. Urkundenwerk sends no email. The link expires in seven days and requires an account with the invited email address. The hosted demo requires an existing account.",
+    pending: "Pending invitations",
+    expires: "Expires {date}",
+    noPending: "No pending invitations.",
+    revoke: "Revoke",
+    revoked: "Invitation revoked.",
+    saveRole: "Save role",
+    roleSaved: "Role saved.",
+    remove: "Remove",
+    confirmRemove: "Confirm removal",
+    cancel: "Cancel",
+    removed: "Member removed.",
+    forbidden: "Only firm admins can manage members and invitations.",
+    invalid: "Check the email address and role.",
+    quota: "You can create up to ten invitations per hour. Try again later.",
+    duplicate: "This person is already a member or has a pending invitation.",
+    lastAdmin:
+      "Assign another admin before removing or changing the role of the last admin.",
+    failed: "The change could not be saved. Refresh the page and try again.",
+  },
+  invite: {
+    title: "Accept firm invitation",
+    body: "Use the account with the email address the firm invited. For the hosted demo, you need an existing account.",
+    signedInAs: "Signed in as {email}",
+    signIn: "Sign in to continue",
+    accept: "Accept invitation",
+    invalid:
+      "This invitation is unavailable for your account. Check the email address you are signed in with or ask the firm for a new link.",
+  },
+  account: {
+    title: "Account",
+    dataTitle: "Your account data",
+    dataHelp:
+      "The JSON file contains your profile, memberships, invitations you sent, audit events attributed to you, and the IDs and titles of drafts you created that you can still access. Documents belong to the firm.",
+    download: "Download my data",
+    delete: "Delete my account",
+    protected: "Shared demo accounts are protected from deletion.",
+    deleteHelp:
+      "This permanently deletes your account and ends your firm memberships. Drafts in firms that continue operating stay with the firm. Your name is removed from audit events.",
+    confirm: "I want to permanently delete my account.",
+    soleFirms:
+      "You are the only member of the following firms. Deleting them also deletes their drafts and audit history.",
+    confirmSole:
+      "I also want to permanently delete these firms and their drafts.",
+    confirmRequired: "Confirm that you want to delete your account.",
+    confirmFirms:
+      "Reload the page to review and confirm deletion of the firms where you are the only member.",
+    lastAdmin:
+      "You are the last admin of a firm with other members. Assign another admin on the Members page before deleting your account.",
+    failed: "Your account could not be deleted. Try again.",
+  },
+  legal: {
+    nav: "Legal information",
+    privacyTitle: "Privacy notice",
+    imprintTitle: "Legal notice",
+    unconfigured: "The operator’s legal notice has not been configured.",
+    intro:
+      "Urkundenwerk is a public demonstration. Use fictional case data and upload fictional documents only.",
+    sections: {
+      controller: {
+        title: "Controller and contact",
+        body: "The operator identified in the legal notice is responsible for this demonstration. Use the email address there for data protection requests.",
+      },
+      processing: {
+        title: "What the demo processes",
+        body: "The demo processes account details and firm roles to provide access. It records document and membership activity for security and accountability, and processes technical request data to operate and protect the service. The demo relies on the operator’s legitimate interests in making the demonstration available and preventing abuse (Article 6(1)(f) GDPR). People who send invitations supply the recipient email address.",
+      },
+      providers: {
+        title: "Hosting and AI providers",
+        body: "Supabase provides authentication and the database in the EU. Vercel hosts the site and runs its server functions in Frankfurt, Germany. OpenAI processes fictional contract text and selected fictional draft data when you request an AI feature. Provider processing, including AI requests, may take place outside the EU. The demo’s EU hosting settings apply to the primary database and web compute.",
+      },
+      cookies: {
+        title: "Cookies and browser storage",
+        body: "The application uses cookies for sign-in, the selected firm during the session, and your language preference. The language cookie lasts up to one year. An invitation link is kept in the current tab’s session storage until it is accepted or the tab closes. The application uses no analytics or advertising cookies.",
+      },
+      retention: {
+        title: "Retention",
+        body: "The demo resets drafts in its sample firms nightly and prunes audit events older than 90 days. Invitations expire after seven days and their records are removed 90 days after expiry. Account data is kept while the account is active. An erasure removes your account from the live database and clears the account reference from retained audit events. Drafts in continuing firms remain with the firm. Provider logs and backups follow their own retention schedules.",
+      },
+      rights: {
+        title: "Your rights",
+        body: "Under the GDPR you may request access, rectification, erasure, restriction or portability, and may object to processing where the relevant conditions apply. You can also complain to a data protection supervisory authority. In Account you can download your data or request account deletion. Contact the operator for other requests and for data outside that download.",
+      },
+    },
+  },
   metadata: {
     description:
       "A document builder for German law firms that assembles the statutory Musterprotokoll from structured case data.",
@@ -54,6 +151,7 @@ export const en = {
     notFound: "Page not found",
   },
   common: {
+    appNavigation: "Application navigation",
     serviceUnavailable: "The server is missing valid Supabase configuration.",
     demoNotice:
       "Demonstration project. Not legal advice. Uses fictional data only.",

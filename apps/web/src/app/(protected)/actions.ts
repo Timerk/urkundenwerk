@@ -67,7 +67,6 @@ export async function selectTenant(formData: FormData) {
       httpOnly: true,
       sameSite: "lax",
       path: "/app",
-      maxAge: 60 * 60 * 24 * 365,
     });
   }
   redirect("/app");

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { demoLogin } from "../../../lib/auth/demo";
@@ -11,13 +10,15 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: `${t("login")} · Urkundenwerk` };
 }
 
-export default function LoginPage() {
-  const t = useTranslations("auth.login");
+export default async function LoginPage({ searchParams }: PageProps<"/login">) {
+  const t = await getTranslations("auth.login");
+  const invite = (await searchParams).next === "invite";
   const demo = demoLogin();
   return (
     <section className="space-y-6">
       <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
       <LoginForm
+        invite={invite}
         accounts={demo?.accounts ?? []}
         passwordHint={demo?.showPassword ? demo.password : undefined}
       />

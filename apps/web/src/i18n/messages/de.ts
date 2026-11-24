@@ -44,6 +44,107 @@ export const de: Messages = {
       tenant_renamed: "Kanzlei umbenannt",
     },
   },
+  members: {
+    title: "Mitglieder",
+    unknown: "Mitglied ohne Anzeigenamen",
+    role: "Rolle",
+    email: "E-Mail-Adresse der eingeladenen Person",
+    create: "Einladung erstellen",
+    copy: "Link kopieren",
+    link: "Einladungslink",
+    copied: "Der Link wurde kopiert.",
+    copyManually: "Markieren und kopieren Sie den Link von Hand.",
+    invitations: "Einladungen",
+    inviteHelp:
+      "Kopieren Sie den Link beim Erstellen und geben Sie ihn an die eingeladene Person weiter. Urkundenwerk versendet keine E-Mails. Der Link ist sieben Tage gültig und setzt ein Konto mit der eingeladenen E-Mail-Adresse voraus. In der gehosteten Demo muss das Konto bereits bestehen.",
+    pending: "Offene Einladungen",
+    expires: "Gültig bis {date}",
+    noPending: "Es liegen keine offenen Einladungen vor.",
+    revoke: "Widerrufen",
+    revoked: "Die Einladung wurde widerrufen.",
+    saveRole: "Rolle speichern",
+    roleSaved: "Die Rolle wurde gespeichert.",
+    remove: "Entfernen",
+    confirmRemove: "Entfernen bestätigen",
+    cancel: "Abbrechen",
+    removed: "Das Mitglied wurde entfernt.",
+    forbidden:
+      "Nur Personen mit der Rolle Administration dürfen Mitglieder und Einladungen verwalten.",
+    invalid: "Prüfen Sie die E-Mail-Adresse und die gewählte Rolle.",
+    quota:
+      "Sie können bis zu zehn Einladungen pro Stunde erstellen. Versuchen Sie es später erneut.",
+    duplicate:
+      "Für diese Person besteht bereits eine Mitgliedschaft oder eine offene Einladung.",
+    lastAdmin:
+      "Weisen Sie zuerst einem weiteren Mitglied die Rolle Administration zu.",
+    failed:
+      "Die Änderung konnte nicht gespeichert werden. Laden Sie die Seite neu und versuchen Sie es erneut.",
+  },
+  invite: {
+    title: "Einladung zur Kanzlei annehmen",
+    body: "Melden Sie sich mit dem Konto an, dessen E-Mail-Adresse die Kanzlei eingeladen hat. Für die gehostete Demo benötigen Sie ein bereits bestehendes Konto.",
+    signedInAs: "Angemeldet als {email}",
+    signIn: "Anmelden und fortfahren",
+    accept: "Einladung annehmen",
+    invalid:
+      "Diese Einladung ist für Ihr Konto nicht verfügbar. Prüfen Sie die E-Mail-Adresse Ihres Kontos oder bitten Sie die Kanzlei um einen neuen Link.",
+  },
+  account: {
+    title: "Konto",
+    dataTitle: "Ihre Kontodaten",
+    dataHelp:
+      "Die JSON-Datei enthält Ihr Profil, Ihre Mitgliedschaften, von Ihnen erstellte Einladungen, Ihnen zugeordnete Protokolleinträge sowie IDs und Titel der von Ihnen erstellten Entwürfe, auf die Sie noch Zugriff haben. Die Dokumente gehören der Kanzlei.",
+    download: "Meine Daten herunterladen",
+    delete: "Mein Konto löschen",
+    protected: "Gemeinsam genutzte Demokonten sind vor dem Löschen geschützt.",
+    deleteHelp:
+      "Ihr Konto wird unwiderruflich gelöscht. Ihre Mitgliedschaften enden. Entwürfe bleiben bei fortbestehenden Kanzleien. Der Bezug zu Ihrem Konto wird aus den Protokolleinträgen entfernt.",
+    confirm: "Ich möchte mein Konto unwiderruflich löschen.",
+    soleFirms:
+      "Sie sind das einzige Mitglied der folgenden Kanzleien. Werden diese Kanzleien gelöscht, werden auch ihre Entwürfe und Protokolle gelöscht.",
+    confirmSole:
+      "Ich möchte auch diese Kanzleien und ihre Entwürfe unwiderruflich löschen.",
+    confirmRequired: "Bestätigen Sie, dass Sie Ihr Konto löschen möchten.",
+    confirmFirms:
+      "Laden Sie die Seite neu. Prüfen und bestätigen Sie die Löschung der Kanzleien, in denen Sie das einzige Mitglied sind.",
+    lastAdmin:
+      "Sie sind die einzige Person mit der Rolle Administration in einer Kanzlei mit weiteren Mitgliedern. Weisen Sie zuerst auf der Seite „Mitglieder“ einem weiteren Mitglied diese Rolle zu.",
+    failed: "Ihr Konto konnte nicht gelöscht werden. Versuchen Sie es erneut.",
+  },
+  legal: {
+    nav: "Rechtliche Informationen",
+    privacyTitle: "Datenschutzhinweise",
+    imprintTitle: "Impressum",
+    unconfigured: "Das Impressum wurde noch nicht eingerichtet.",
+    intro:
+      "Urkundenwerk ist eine öffentliche Demonstration. Verwenden Sie ausschließlich fiktive Falldaten und laden Sie nur fiktive Dokumente hoch.",
+    sections: {
+      controller: {
+        title: "Verantwortlicher und Kontakt",
+        body: "Für diese Demonstration ist der im Impressum genannte Betreiber verantwortlich. Für Datenschutzanfragen nutzen Sie bitte die dort angegebene E-Mail-Adresse.",
+      },
+      processing: {
+        title: "Verarbeitete Daten und Zwecke",
+        body: "Die Demo verarbeitet Kontodaten und Kanzleirollen, um den Zugang zu ermöglichen. Zur Sicherheit und Nachvollziehbarkeit protokolliert sie Vorgänge an Dokumenten und Mitgliedschaften. Für Betrieb und Schutz der Demo fallen technische Anfragedaten an. Rechtsgrundlage sind die berechtigten Interessen des Betreibers am Angebot und am Schutz vor Missbrauch (Art. 6 Abs. 1 Buchst. f DSGVO). Die einladende Person gibt die E-Mail-Adresse des Empfängers an.",
+      },
+      providers: {
+        title: "Hosting und KI-Anbieter",
+        body: "Supabase stellt die Anmeldung und die Datenbank in der EU bereit. Vercel hostet die Website und führt die Serverfunktionen in Frankfurt am Main aus. Wenn Sie eine KI-Funktion aufrufen, verarbeitet OpenAI fiktive Vertragstexte oder ausgewählte fiktive Entwurfsdaten. Dienstleister können Daten, einschließlich KI-Anfragen, auch außerhalb der EU verarbeiten. Die EU-Region der Demo gilt für die primäre Datenbank und die Serverfunktionen.",
+      },
+      cookies: {
+        title: "Cookies und Browserspeicher",
+        body: "Die Anwendung verwendet Cookies für die Anmeldung, für die Kanzleiauswahl während der Sitzung und für Ihre Sprachwahl. Das Sprach-Cookie gilt bis zu einem Jahr. Eine Einladung bleibt im Sitzungsspeicher des aktuellen Browsertabs, bis sie angenommen oder der Tab geschlossen wird. Die Anwendung verwendet keine Analyse- oder Werbe-Cookies.",
+      },
+      retention: {
+        title: "Speicherdauer",
+        body: "Die Demo setzt die Entwürfe in den Beispielkanzleien jede Nacht zurück und löscht Protokolleinträge, die älter als 90 Tage sind. Einladungen laufen nach sieben Tagen ab. Ihre Datensätze werden 90 Tage nach Ablauf gelöscht. Kontodaten bleiben gespeichert, solange das Konto besteht. Bei einer Löschung wird das Konto aus der aktiven Datenbank entfernt. Der Kontobezug in aufbewahrten Protokolleinträgen entfällt. Entwürfe verbleiben bei fortbestehenden Kanzleien. Für Protokolle und Sicherungen der Dienstleister gelten deren Aufbewahrungsfristen.",
+      },
+      rights: {
+        title: "Ihre Rechte",
+        body: "Nach der DSGVO können Sie unter den jeweiligen Voraussetzungen Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung oder Datenübertragbarkeit verlangen sowie der Verarbeitung widersprechen. Sie können sich bei einer Datenschutzaufsichtsbehörde beschweren. Unter „Konto“ können Sie Ihre Daten herunterladen oder Ihr Konto löschen lassen. Wenden Sie sich für weitere Anliegen an den Betreiber.",
+      },
+    },
+  },
   metadata: {
     description:
       "Ein Dokumentenbaukasten für deutsche Kanzleien, der das gesetzliche Musterprotokoll aus strukturierten Falldaten erstellt.",
@@ -55,6 +156,7 @@ export const de: Messages = {
     notFound: "Seite nicht gefunden",
   },
   common: {
+    appNavigation: "Anwendungsnavigation",
     serviceUnavailable: "Dem Server fehlt eine gültige Supabase-Konfiguration.",
     demoNotice:
       "Demonstrationsprojekt. Keine Rechtsberatung. Nur fiktive Daten.",
