@@ -123,7 +123,8 @@ and [Supabase CLI commands](https://supabase.com/docs/reference/cli/supabase-db-
    It prunes audit events older than 90 days. For other deployments, set
    `private.app_settings.audit_retention` and schedule
    `select private.prune_audit_events();` as a database operator.
-   See [ADR-0014](adr/0014-audit-log.md).
+   It also removes invitation records 90 days after expiry once the
+   invitations migration is installed. See [ADR-0014](adr/0014-audit-log.md).
 
 ## 5. Configure and deploy the Vercel project
 
@@ -157,6 +158,18 @@ uses the same Supabase project for all visitors.
 | `AI_TIMEOUT_MS`                        | Optional. Explanation timeout per attempt, default `20000` ms.                                                                             | Server only   |
 | `AI_EXTRACT_TIMEOUT_MS`                | Optional. Extraction timeout per attempt, default `120000` ms. Keep the default on the demo so two attempts fit within the function limit. | Server only   |
 
+Set `IMPRESSUM_NAME`, `IMPRESSUM_ADDRESS`, and `IMPRESSUM_EMAIL` in the
+server-only Production environment. These values are publicly displayed
+by `/impressum` and must stay out of Git. Supply the complete address,
+using actual line breaks where needed. The legal notice shows a
+configuration message until all three valid values are present. Configure
+them before publishing a deployment.
+
+Admins copy invitation links and send them separately. Hosted demo
+sign-up is disabled. The invitee needs an existing Supabase Auth account
+with the matching confirmed email address. The signed-out invite page
+takes the invitee to sign-in and back to the invitation.
+
 Leave `ANTHROPIC_API_KEY` unset for OpenAI. Leave Vercel's automatic
 system environment variables enabled for `VERCEL` and
 `VERCEL_GIT_COMMIT_SHA`.
@@ -178,6 +191,9 @@ each paid attempt, including retries. A full global budget leaves the
 user's quota unchanged. Already reserved provider attempts keep their
 slots. The cap counts requests. Actual provider usage also depends on
 token volume and the models selected. The scripted fake works with a zero budget.
+
+Apply new database migrations through the approval-gated `deploy-db.yml`
+workflow before deploying an app that depends on them.
 
 Git-triggered deployments are disabled. After the database workflow
 succeeds, use **Deployments → ⋯ → Create Deployment** with the `master`
