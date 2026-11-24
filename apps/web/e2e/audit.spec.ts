@@ -32,13 +32,23 @@ test("an admin can filter the audit log, a viewer cannot open it", async ({
   browser,
 }, info) => {
   await signIn(page, "anna.admin@demo.test");
-  await page.getByRole("link", { name: "Firm audit log" }).click();
+  await page
+    .getByRole("navigation", { name: "Application navigation" })
+    .getByRole("link", { name: "Audit log" })
+    .click();
+  await expect(page.getByRole("link", { name: "Audit log" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
   await expect(
     page.getByRole("heading", { name: "Firm audit log" }),
   ).toBeVisible();
   await page.getByLabel("Action").selectOption("document.created");
   await page.getByRole("button", { name: "Apply filters" }).click();
   await expect(page).toHaveURL(/action=document.created/);
+  await expect(
+    page.getByRole("link", { name: "Reset filters" }).first(),
+  ).toBeVisible();
   await page.screenshot({ path: info.outputPath("audit-desktop.png") });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({ path: info.outputPath("audit-mobile.png") });
