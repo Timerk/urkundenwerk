@@ -28,6 +28,10 @@ begin
   -- The demo keeps its history for 90 days in every firm; a real deployment
   -- uses private.app_settings.audit_retention (docs/privacy.md).
   perform private.prune_audit_events(interval '90 days');
+  -- The PR that adds invitations is deployed separately from the audit log.
+  if to_regclass('public.tenant_invitations') is not null then
+    delete from public.tenant_invitations where expires_at < now() - interval '90 days';
+  end if;
 
   delete from public.documents where tenant_id in (north, south);
 
