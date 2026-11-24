@@ -12,12 +12,8 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import {
-  EXPLANATIONS_PER_MINUTE,
-  explain,
-  isExplanationEnabled,
-  takeExplanationQuota,
-} from "../../../../lib/ai/explanations";
+import { explain, isExplanationEnabled } from "../../../../lib/ai/explanations";
+import { EXPLANATIONS_PER_MINUTE } from "../../../../lib/ai/quota";
 import { withDefaults } from "../../../../lib/builder/form-model";
 import {
   deleteDocument as deleteDocumentRow,
@@ -184,22 +180,27 @@ export async function explainDocumentIssues(
     return { ok: false, error: t("notExplainable") };
   }
 
-  const { user, supabase } = await signedInClient();
+  const { supabase } = await signedInClient();
   const document = await getDocument(supabase, documentId.data);
   if (!document) return { ok: false, error: t("notFound") };
   if (!isExplanationEnabled()) return { ok: false, error: t("aiOff") };
-  if (!takeExplanationQuota(user.id)) {
-    return {
-      ok: false,
-      error: t("rateLimited", { count: EXPLANATIONS_PER_MINUTE }),
-    };
-  }
 
   const templateId =
     requestedDocument.data === "anmeldung" &&
     document.template_id === musterprotokollMetadata.id
       ? registerFilingMetadata.id
       : document.template_id;
-  const result = await explain(templateId, request.data, await getLocale());
+  const result = await explain(
+    supabase,
+    templateId,
+    request.data,
+    await getLocale(),
+  );
+  if (result.failure === "user_quota") {
+    return {
+      ok: false,
+      error: t("rateLimited", { count: EXPLANATIONS_PER_MINUTE }),
+    };
+  }
   return { ok: true, result };
 }

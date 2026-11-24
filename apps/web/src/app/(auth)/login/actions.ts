@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { demoLogin } from "../../../lib/auth/demo";
 import {
   type FormState,
   invalidFormState,
@@ -14,12 +15,25 @@ export async function signIn(
   _previous: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const fields = readFields(formData, ["email", "password"]);
-  const parsed = loginSchema.safeParse(fields);
-  const values = { email: fields.email };
   const translate = await authErrorTranslator();
+  const demoEmail = formData.get("demo");
+  const demo = demoEmail === null ? null : demoLogin();
+  if (
+    demoEmail !== null &&
+    !demo?.accounts.some(({ email }) => email === demoEmail)
+  ) {
+    return { error: translate("signInFailed") };
+  }
+  const fields = demo
+    ? { email: demoEmail, password: demo.password }
+    : readFields(formData, ["email", "password"]);
+  const parsed = loginSchema.safeParse(fields);
   if (!parsed.success) {
-    return invalidFormState(parsed.error, values, translate);
+    return invalidFormState(
+      parsed.error,
+      { email: typeof fields.email === "string" ? fields.email : "" },
+      translate,
+    );
   }
 
   const supabase = await createClient();

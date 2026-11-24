@@ -97,9 +97,9 @@ schema with source spans, prompt version, and evaluation set, using
 `AI_MODEL_EXTRACT`. Extraction sends document text, so it will need its own
 data protection review. The explanation payload rules do not carry over.
 
-Another provider needs only a new adapter. The in-memory cache and rate
-limit are per server instance. That is enough for a single-instance demo,
-and a shared store is part of the deployment milestone. Explanations of
+Another provider needs only a new adapter. The in-memory cache is per server
+instance. The quotas and the paid budget are shared across instances as
+described in [ADR-0013](0013-hosted-public-demo.md). Explanations of
 issues with the same code but different params share one model answer per
 request; the second falls back to the summary.
 

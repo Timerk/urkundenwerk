@@ -3,7 +3,9 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/package.json ./apps/web/
+COPY packages/ai/package.json ./packages/ai/
 COPY packages/core/package.json ./packages/core/
+COPY packages/extraction/package.json ./packages/extraction/
 COPY packages/render/package.json ./packages/render/
 RUN npm install --global "$(node -p 'require("./package.json").packageManager')"
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
@@ -12,7 +14,9 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 FROM dependencies AS build
 COPY tsconfig.base.json ./
 COPY apps/web ./apps/web
+COPY packages/ai ./packages/ai
 COPY packages/core ./packages/core
+COPY packages/extraction ./packages/extraction
 COPY packages/render ./packages/render
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm build

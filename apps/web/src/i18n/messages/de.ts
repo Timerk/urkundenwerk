@@ -17,6 +17,7 @@ export const de: Messages = {
     notFound: "Seite nicht gefunden",
   },
   common: {
+    serviceUnavailable: "Dem Server fehlt eine gültige Supabase-Konfiguration.",
     demoNotice:
       "Demonstrationsprojekt. Keine Rechtsberatung. Nur fiktive Daten.",
     demoNoticeLabel: "Hinweis zum Demonstrationsprojekt",
@@ -113,6 +114,9 @@ export const de: Messages = {
       signUpFailed: "Mit diesen Angaben konnte kein Konto angelegt werden.",
       confirmEmail:
         "Bestätigen Sie Ihre E-Mail-Adresse und melden Sie sich dann an, um die Einrichtung Ihrer Kanzlei abzuschließen.",
+      firmLimit: "Sie können bis zu drei Kanzleien anlegen.",
+      demoFirmDisabled:
+        "Mit gemeinsamen Demokonten können Sie keine Kanzleien anlegen.",
       firmFailed:
         "Die Kanzlei konnte nicht angelegt werden. Bitte versuchen Sie es erneut.",
     },
@@ -439,6 +443,8 @@ export const de: Messages = {
     explain: "Erläutern",
     retry: "Erneut versuchen",
     loading: "Erläuterung wird erstellt …",
+    dailyBudget:
+      "Das tägliche KI-Kontingent der Demo ist aufgebraucht. Versuchen Sie es nach Mitternacht (UTC) erneut.",
     loadFailed:
       "Die Erläuterung konnte nicht geladen werden. Versuchen Sie es erneut.",
     ruleSummary:
@@ -664,6 +670,8 @@ export const de: Messages = {
         "Das Dokument ist für die KI-Extraktion zu lang. Laden Sie die Gründungsurkunde oder die Satzung einzeln hoch.",
       timeout:
         "Die KI hat zu lange für die Antwort gebraucht. Versuchen Sie es gleich noch einmal.",
+      daily_budget:
+        "Das tägliche KI-Kontingent der Demo ist aufgebraucht. Versuchen Sie es nach Mitternacht (UTC) erneut.",
       rate_limited:
         "Der KI-Dienst ist ausgelastet. Versuchen Sie es in einer Minute erneut.",
       unavailable:

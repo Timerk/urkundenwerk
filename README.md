@@ -111,7 +111,14 @@ params, and the web app words them in either language
 The project uses pnpm, Next.js App Router, React, TypeScript, Tailwind CSS, Zod,
 and Supabase (Postgres, Auth, and RLS). Vitest, pgTAP, and Playwright run in
 GitHub Actions, and Docker Compose runs the standalone web build locally.
-Vercel is planned.
+
+## Deployment
+
+The hosted demo uses Vercel and Supabase in Frankfurt. Follow the
+[deployment guide](docs/deployment.md) to provision the shared accounts,
+set the AI budget, and schedule the draft reset.
+
+Live demo: `<DEMO_URL>`
 
 | Path                                         | Purpose                                                                                                               |
 | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
@@ -157,13 +164,13 @@ register filing. Süd has an unfinished Musterprotokoll.
 
 Local sign-up skips email confirmation (`[auth.email]` in
 [`supabase/config.toml`](supabase/config.toml)), so `/signup` signs the new
-user in and creates their firm immediately. Hosted Auth settings are part of
-the deployment milestone. [`.env.example`](.env.example) lists all variables.
-The other keys there are reserved for later integrations.
+user in and creates their firm immediately. The hosted demo disables public
+sign-up. [`.env.example`](.env.example) lists all variables.
 
-To run the production image locally, use `docker compose up --build` and open
-the same URL. The image serves the public pages; the authenticated area needs
-the Supabase variables at runtime.
+To run the production image locally, start the Supabase stack and run
+`pnpm db:env` before `docker compose up --build`. Open the same URL.
+Compose reads the web app's local environment file and reaches the
+Supabase gateway on the host.
 
 | Command                             | Purpose                                              |
 | ----------------------------------- | ---------------------------------------------------- |
@@ -265,8 +272,11 @@ valid.
   issue, checked against the asked-for codes. Anything else, and any failure,
   falls back to the rule's own summary in the UI language. The panel shows
   the model and the prompt version.
-- **Limits.** Only members of the document's firm can ask, ten times a
-  minute. Answers are cached by code, params, language, model, and prompt version.
+- **Limits.** Only members of the document's firm can ask. PostgreSQL enforces
+  ten paid explanation attempts per user and minute across instances. The bounded
+  in-memory cache keys on code, params, language, model, and prompt version.
+  Each paid attempt also reserves part of the shared daily AI budget through
+  the signed-in user's database client.
 
 ### Configuration
 
@@ -289,6 +299,10 @@ With `AI_PROVIDER=fake`, explanations are scripted and extraction finds a
 few fields with fixed patterns, so the whole flow can be tried without a
 key. The production server reads these settings at request time. Tests and
 CI use the fake and never call a paid API.
+
+Paid calls require a positive daily budget in PostgreSQL. It defaults to
+zero, including on the local stack. See the [deployment guide](docs/deployment.md#5-configure-and-deploy-the-vercel-project)
+for the operator SQL.
 
 ## Evaluation
 

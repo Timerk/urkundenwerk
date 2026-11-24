@@ -23,6 +23,8 @@ const AUTH_ERROR_KEYS: Record<AuthErrorKey, true> = {
   signUpFailed: true,
   confirmEmail: true,
   firmFailed: true,
+  firmLimit: true,
+  demoFirmDisabled: true,
 };
 
 export function isAuthErrorKey(key: string): key is AuthErrorKey {

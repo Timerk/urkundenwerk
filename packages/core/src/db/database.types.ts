@@ -138,6 +138,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      consume_ai_request: { Args: { kind: string }; Returns: string };
       create_tenant: { Args: { name: string }; Returns: string };
     };
     Enums: {

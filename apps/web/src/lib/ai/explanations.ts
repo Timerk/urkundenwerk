@@ -1,4 +1,5 @@
 import "server-only";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   type CachedExplanation,
   type ExplainableIssue,
@@ -7,24 +8,15 @@ import {
   type ExplanationResult,
   LruCache,
 } from "@urkundenwerk/ai";
-import { RateLimiter } from "./rate-limit";
-import { aiState } from "./state";
-
-/** Explanation requests per user and minute. */
-export const EXPLANATIONS_PER_MINUTE = 10;
+import type { Database } from "@urkundenwerk/core/db";
+import { configuredAi, createRequestClient } from "./state";
 
 const cache = new LruCache<CachedExplanation>(500);
-const limiter = new RateLimiter(EXPLANATIONS_PER_MINUTE, 60_000);
 
 /** Whether explanations can be requested on this server. */
 export function isExplanationEnabled(): boolean {
-  const current = aiState();
-  return current.ok && current.explainClient !== null;
-}
-
-/** Counts a request against the user's limit. */
-export function takeExplanationQuota(userId: string): boolean {
-  return limiter.take(userId);
+  const config = configuredAi();
+  return config !== null && config.provider !== "disabled";
 }
 
 /**
@@ -34,13 +26,16 @@ export function takeExplanationQuota(userId: string): boolean {
  * kind, never prompts or answers.
  */
 export async function explain(
+  supabase: SupabaseClient<Database>,
   templateId: string,
   issues: readonly ExplainableIssue[],
   locale: ExplanationLocale,
 ): Promise<ExplanationResult> {
-  const current = aiState();
-  const client = current.ok ? current.explainClient : null;
-  const model = current.ok ? current.config.models.explain : "";
+  const config = configuredAi();
+  const client = config
+    ? createRequestClient(config, supabase, "explain")
+    : null;
+  const model = config?.models.explain ?? "";
   const result = await explainIssues(issues, {
     templateId,
     locale,

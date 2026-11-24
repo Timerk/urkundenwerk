@@ -39,7 +39,13 @@ export async function createFirm(
   });
   if (error) {
     return {
-      error: translate("firmFailed"),
+      error: translate(
+        error.code === "PT409"
+          ? "firmLimit"
+          : error.code === "PT403"
+            ? "demoFirmDisabled"
+            : "firmFailed",
+      ),
       values: { firmName: parsed.data.firmName },
     };
   }

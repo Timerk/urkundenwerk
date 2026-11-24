@@ -109,6 +109,8 @@ const ERROR_MESSAGES: Record<ExtractionErrorCode, string> = {
     "The document is too long for AI extraction. Upload the formation deed or the articles on their own.",
   timeout: "The AI took too long to answer. Try again in a moment.",
   rate_limited: "The AI service is busy. Try again in a minute.",
+  user_quota: "You have reached your import limit. Try again shortly.",
+  daily_budget: "The demo has reached its daily AI limit. Try again tomorrow.",
   unavailable: "The AI service is unavailable. Try again later.",
   unauthorized: "The AI service is not set up correctly on this server.",
   rejected: "The AI service rejected the request.",

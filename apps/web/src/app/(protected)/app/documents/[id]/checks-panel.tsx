@@ -24,6 +24,7 @@ type ExplanationState =
       explanation: Explanation;
       model: string | null;
       promptVersion: string;
+      dailyBudgetExhausted: boolean;
     };
 
 /** Identifies an issue by what the explanation depends on. */
@@ -58,6 +59,9 @@ function ExplanationView({ state }: { state: ExplanationState }) {
       <div className="rounded-sm border border-rule bg-surface px-3 py-2 text-sm text-ink-soft">
         <p>{rules.summary(explanation.code)}</p>
         <p className="mt-1 text-xs text-ink-faint">{t("ruleSummary")}</p>
+        {state.dailyBudgetExhausted ? (
+          <p className="mt-1 text-xs text-ink-faint">{t("dailyBudget")}</p>
+        ) : null}
       </div>
     );
   }
@@ -89,6 +93,7 @@ function resultStates(result: ExplanationResult): [string, ExplanationState][] {
       explanation,
       model: result.model,
       promptVersion: result.promptVersion,
+      dailyBudgetExhausted: result.failure === "daily_budget",
     },
   ]);
 }

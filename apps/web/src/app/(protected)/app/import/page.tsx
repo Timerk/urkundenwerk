@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { buttonClasses } from "../../../../components/ui/button";
 import { Notice } from "../../../../components/ui/notice";
-import { aiState } from "../../../../lib/ai/state";
+import { configuredAi } from "../../../../lib/ai/state";
 import { getCurrentMembership } from "../../../../lib/tenants/memberships";
 import { canEditDocuments } from "../../../../lib/tenants/selection";
 import { ImportFlow } from "./import-flow";
@@ -48,8 +48,8 @@ export default async function ImportPage() {
     );
   }
 
-  const state = aiState();
-  if (!state.ok || !state.extractClient) {
+  const ai = configuredAi();
+  if (!ai || ai.provider === "disabled") {
     return (
       <Unavailable title={t("import.unavailable.aiTitle")}>
         {t.rich("import.unavailable.aiBody", {
@@ -63,8 +63,8 @@ export default async function ImportPage() {
     <ImportFlow
       tenantId={membership.tenantId}
       firmName={membership.name}
-      provider={state.extractClient.provider}
-      model={state.config.models.extract}
+      provider={ai.provider}
+      model={ai.models.extract}
     />
   );
 }

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { isSignupEnabled } from "../../../lib/auth/signup";
 import { SignupForm } from "./signup-form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -11,6 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function SignupPage() {
   const t = useTranslations("auth.signup");
+  if (!isSignupEnabled()) notFound();
   return (
     <section className="space-y-6">
       <div className="space-y-2">

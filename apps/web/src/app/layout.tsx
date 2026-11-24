@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Instrument_Sans, Source_Serif_4 } from "next/font/google";
+import { connection } from "next/server";
 import type { ReactNode } from "react";
 import { DemoNotice } from "../components/demo-notice";
 import "./globals.css";
@@ -30,6 +31,8 @@ export default async function RootLayout({
 }: {
   children: ReactNode;
 }) {
+  // Next applies the proxy's script nonce as it renders each request.
+  await connection();
   const locale = await getLocale();
   return (
     <html

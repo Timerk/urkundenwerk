@@ -7,6 +7,10 @@ export type LlmErrorKind =
   | "timeout"
   /** The provider throttled the request (HTTP 429). */
   | "rate_limited"
+  /** The caller has spent their per-feature allowance. */
+  | "user_quota"
+  /** The deployment has spent its daily allowance of paid model calls. */
+  | "daily_budget"
   /** The provider or the network failed (5xx, overload, connection). */
   | "unavailable"
   /** The key is missing, invalid, or lacks permission (401, 403). */
