@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/server": "^2.4.0",
-    "@supabase/supabase-js": "2.119.1",
+    "@supabase/supabase-js": "2.119.2",
     "@urkundenwerk/core": "workspace:*",
     "@urkundenwerk/render": "workspace:*",
     "tsx": "^4.23.15",
