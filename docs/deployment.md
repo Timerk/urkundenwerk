@@ -7,7 +7,17 @@ account shares its session privileges and can see its firm's drafts.
 
 ## 1. Create the Supabase project
 
-Create a dedicated project in **Central EU (Frankfurt)** (`eu-central-1`).
+Create a dedicated project in **Central EU (Frankfurt)** (`eu-central-1`)
+with these options on the creation form:
+
+| Option                                       | Setting            | Why                                                                                                        |
+| -------------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------- |
+| Connect GitHub                               | Off                | Migrations deploy through the approval-gated `deploy-db.yml` workflow, not the Supabase GitHub integration |
+| Enable Data API                              | On                 | The app uses supabase-js                                                                                   |
+| Grant API access to new tables automatically | Off                | Migrations revoke default privileges and grant every table explicitly                                      |
+| Enable RLS on new tables automatically       | On                 | Defence in depth; migrations enable RLS anyway                                                             |
+| Postgres type                                | Postgres (default) |                                                                                                            |
+
 Save the database password in your password manager. In the project
 dashboard, copy the project ref and the project URL from **Connect** or
 **Project Settings**. Under **API Keys**, copy the publishable key.
@@ -44,11 +54,20 @@ and [password security](https://supabase.com/docs/guides/auth/password-security)
    preventing self-review, designate another reviewer who can approve runs.
 2. Add these **environment secrets**.
 
-   | Name                    | Where to get it                                                                   |
-   | ----------------------- | --------------------------------------------------------------------------------- |
-   | `SUPABASE_ACCESS_TOKEN` | Supabase account access token with access to this project and database operations |
-   | `SUPABASE_PROJECT_REF`  | The ref of the Frankfurt demo project                                             |
-   | `SUPABASE_DB_PASSWORD`  | The database password saved in step 1                                             |
+   | Name                    | Where to get it                                           |
+   | ----------------------- | --------------------------------------------------------- |
+   | `SUPABASE_ACCESS_TOKEN` | Scoped Supabase access token for this project (see below) |
+   | `SUPABASE_PROJECT_REF`  | The ref of the Frankfurt demo project                     |
+   | `SUPABASE_DB_PASSWORD`  | The database password saved in step 1                     |
+
+   Create the access token under **Account → Access Tokens** as a scoped
+   token limited to this project, with these permissions: **Project
+   Settings: Read-write**, **Database: Read-write**, **Connection Pooling:
+   Read**, **API Keys: Read**, **API Key Secrets: Read**, **Auth Config:
+   Read-write**, and **Production Branches: Read**. Give it an expiry (for
+   example 30 days) and put a reminder in your calendar: the migration and
+   reset workflows fail once it expires. Replace the GitHub secret before
+   the old token expires or is revoked.
 
 3. Open **Actions → Deploy database migrations → Run workflow** and choose
    `master`. Have the reviewer approve the deployment and wait for the run

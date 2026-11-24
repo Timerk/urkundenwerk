@@ -11,6 +11,10 @@ data and can be downloaded as PDF or DOCX.
 > **Demonstration project. Not legal advice.** Urkundenwerk uses fictional case
 > data and public legal texts only.
 
+**Live demo: [urkundenwerk.vercel.app](https://urkundenwerk.vercel.app)**.
+Use one-click sign-in with a shared fictional demo account (editor, viewer, or
+member of two firms). Demo drafts are reset nightly.
+
 ![The Musterprotokoll builder with the form on the left and the live deed preview on the right](docs/screenshots/builder.png)
 
 ## Features
@@ -118,7 +122,7 @@ The hosted demo uses Vercel and Supabase in Frankfurt. Follow the
 [deployment guide](docs/deployment.md) to provision the shared accounts,
 set the AI budget, and schedule the draft reset.
 
-Live demo: `<DEMO_URL>`
+Live demo: <https://urkundenwerk.vercel.app> (Vercel `fra1`, Supabase `eu-central-1`).
 
 | Path                                         | Purpose                                                                                                               |
 | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
