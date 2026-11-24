@@ -139,7 +139,7 @@ export async function renameDocument(
   return { ok: true, title: parsedTitle.data, updatedAt: saved.updated_at };
 }
 
-/** Deletes a document and returns to the dashboard. */
+/** Deletes a document; the dashboard announces the result in place. */
 export async function deleteDocument(
   _previous: ActionResult,
   formData: FormData,
@@ -153,7 +153,7 @@ export async function deleteDocument(
   }
 
   revalidatePath("/app");
-  redirect("/app");
+  return { ok: true };
 }
 
 const explainRequestSchema = z.array(explainableIssueSchema).min(1).max(20);
