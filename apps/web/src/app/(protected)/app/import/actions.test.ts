@@ -53,6 +53,13 @@ function upload(file?: File, tenantId = TENANT) {
   return extractContract(form);
 }
 
+function sample(id: string, tenantId = TENANT) {
+  const form = new FormData();
+  form.set("tenantId", tenantId);
+  form.set("sampleId", id);
+  return extractContract(form);
+}
+
 const contractFile = () =>
   new File([pdf], "Musterprotokoll.pdf", { type: "application/pdf" });
 
@@ -74,6 +81,32 @@ beforeEach(() => {
 });
 
 describe("extractContract", () => {
+  it("rejects an unknown sample before extraction", async () => {
+    expect(await sample("../test/13-musterprotokoll/document.pdf")).toEqual({
+      ok: false,
+      error: "This fictional sample is unavailable.",
+    });
+    expect(mocks.extract).not.toHaveBeenCalled();
+  });
+
+  it("applies the same editor and AI quota checks to samples", async () => {
+    expect(await sample("musterprotokoll", OTHER_TENANT)).toMatchObject({
+      ok: false,
+      error: /editor or admin/,
+    });
+    expect(mocks.extract).not.toHaveBeenCalled();
+    mocks.extract.mockRejectedValueOnce(new ExtractionError("user_quota"));
+    expect(await sample("musterprotokoll")).toMatchObject({
+      ok: false,
+      error: /import 6 contracts every 10 minutes/,
+    });
+    mocks.extract.mockRejectedValueOnce(new ExtractionError("daily_budget"));
+    expect(await sample("articles")).toMatchObject({
+      ok: false,
+      error: /daily AI limit/,
+    });
+  });
+
   it("returns the ingested text and the review without storing anything", async () => {
     const result = await upload(contractFile());
 

@@ -90,6 +90,57 @@ test("an editor imports a contract, reviews it, and opens the draft", async ({
   ).toContainText("§ 5 Abs. 1 GmbHG");
 });
 
+test("an editor can extract a fictional sample in one click", async ({
+  page,
+}) => {
+  await signIn(page, "erik.editor@demo.test");
+  await page.goto("/app/import");
+  await expect(
+    page.getByRole("link", { name: "Download sample (PDF)" }),
+  ).toHaveAttribute("href", "/samples/musterprotokoll");
+  await expect(
+    page.getByRole("link", { name: "Download sample (DOCX)" }),
+  ).toHaveAttribute("href", "/samples/articles");
+  await page
+    .getByRole("button", { name: "Use sample Musterprotokoll (PDF)" })
+    .click();
+
+  await expect(
+    page.getByRole("heading", { name: "Review extracted values" }),
+  ).toBeFocused();
+  const firma = row(page, "Firma (company name)");
+  await expect(firma).toContainText("Schieferwabe Prüfstände GmbH");
+  await expect(firma).toContainText("Verified in source");
+  await expect(
+    page.getByRole("article", { name: "Document text" }),
+  ).toContainText("Schieferwabe Prüfstände GmbH");
+});
+
+test("the fictional sample files are available as downloads", async ({
+  request,
+}) => {
+  for (const [id, filename, mime, signature] of [
+    ["musterprotokoll", "Musterprotokoll.pdf", "application/pdf", "%PDF"],
+    [
+      "articles",
+      "Satzung.docx",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "PK",
+    ],
+  ] as const) {
+    const response = await request.get(`/samples/${id}`);
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toBe(mime);
+    expect(response.headers()["content-disposition"]).toBe(
+      `attachment; filename="${filename}"`,
+    );
+    expect(
+      (await response.body()).subarray(0, signature.length).toString(),
+    ).toBe(signature);
+  }
+  expect((await request.get("/samples/document.pdf")).status()).toBe(404);
+});
+
 test("files of the wrong type or size get a friendly error", async ({
   page,
 }) => {

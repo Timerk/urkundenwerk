@@ -4,6 +4,7 @@ import Link from "next/link";
 import { buttonClasses } from "../../../../components/ui/button";
 import { Notice } from "../../../../components/ui/notice";
 import { configuredAi } from "../../../../lib/ai/state";
+import { importSamples } from "../../../../lib/import/samples";
 import { getCurrentMembership } from "../../../../lib/tenants/memberships";
 import { canEditDocuments } from "../../../../lib/tenants/selection";
 import { ImportFlow } from "./import-flow";
@@ -61,6 +62,7 @@ export default async function ImportPage() {
 
   return (
     <ImportFlow
+      samples={importSamples}
       tenantId={membership.tenantId}
       firmName={membership.name}
       provider={ai.provider}

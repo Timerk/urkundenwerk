@@ -6,6 +6,7 @@ import { connection } from "next/server";
 import type { ReactNode } from "react";
 import { LegalFooter } from "../components/legal-footer";
 import { DemoNotice } from "../components/demo-notice";
+import { INTL_LOCALES } from "../i18n/locale";
 import "./globals.css";
 
 // The tool's voice: a compact grotesque with clear figures for form input.
@@ -23,8 +24,34 @@ const sourceSerif = Source_Serif_4({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("metadata");
-  return { title: "Urkundenwerk", description: t("description") };
+  const [t, locale] = await Promise.all([
+    getTranslations("metadata"),
+    getLocale(),
+  ]);
+  const productionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  const metadataBase = new URL(
+    productionHost ? `https://${productionHost}` : "http://localhost:3000",
+  );
+  const title = "Urkundenwerk";
+  const description = t("description");
+  return {
+    metadataBase,
+    title,
+    description,
+    openGraph: {
+      type: "website",
+      siteName: title,
+      title,
+      description,
+      url: "/",
+      locale: INTL_LOCALES[locale].replace("-", "_"),
+      alternateLocale: INTL_LOCALES[locale === "de" ? "en" : "de"].replace(
+        "-",
+        "_",
+      ),
+    },
+    twitter: { card: "summary_large_image" },
+  };
 }
 
 export default async function RootLayout({

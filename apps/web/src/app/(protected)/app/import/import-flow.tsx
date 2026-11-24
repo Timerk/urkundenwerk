@@ -9,6 +9,7 @@ import {
   useId,
   useState,
 } from "react";
+import { Button } from "../../../../components/ui/button";
 import { Notice } from "../../../../components/ui/notice";
 import { formatNumber } from "../../../../i18n/format";
 import {
@@ -16,12 +17,13 @@ import {
   checkUpload,
   MAX_UPLOAD_MEGABYTES,
 } from "../../../../lib/import/limits";
+import type { importSamples } from "../../../../lib/import/samples";
 import { type ExtractedContract, extractContract } from "./actions";
 import { ReviewScreen } from "./review-screen";
 
 type Phase =
   | { kind: "choose"; error?: string }
-  | { kind: "extracting"; file: { name: string; size: number } }
+  | { kind: "extracting"; file: { name: string; size?: number } }
   | { kind: "review"; contract: ExtractedContract };
 
 function FileSize({ bytes }: { bytes: number }) {
@@ -81,11 +83,13 @@ function Elapsed() {
 }
 
 export function ImportFlow({
+  samples,
   tenantId,
   firmName,
   provider,
   model,
 }: {
+  samples: typeof importSamples;
   tenantId: string;
   firmName: string;
   provider: "anthropic" | "openai" | "fake";
@@ -97,22 +101,12 @@ export function ImportFlow({
   const t = useTranslations("import");
   const common = useTranslations("common");
 
-  async function upload(file: File) {
-    const problem = checkUpload(file);
-    if (problem) {
-      setPhase({
-        kind: "choose",
-        error: t(`upload.${problem}`, { size: MAX_UPLOAD_MEGABYTES }),
-      });
-      return;
-    }
-    setPhase({
-      kind: "extracting",
-      file: { name: file.name, size: file.size },
-    });
-    const formData = new FormData();
+  async function runExtraction(
+    formData: FormData,
+    file: { name: string; size?: number },
+  ) {
+    setPhase({ kind: "extracting", file });
     formData.set("tenantId", tenantId);
-    formData.set("file", file);
     try {
       const result = await extractContract(formData);
       setPhase(
@@ -126,10 +120,30 @@ export function ImportFlow({
     }
   }
 
+  function upload(file: File) {
+    const problem = checkUpload(file);
+    if (problem) {
+      setPhase({
+        kind: "choose",
+        error: t(`upload.${problem}`, { size: MAX_UPLOAD_MEGABYTES }),
+      });
+      return;
+    }
+    const formData = new FormData();
+    formData.set("file", file);
+    void runExtraction(formData, { name: file.name, size: file.size });
+  }
+
+  function useSample(sample: (typeof samples)[number]) {
+    const formData = new FormData();
+    formData.set("sampleId", sample.id);
+    void runExtraction(formData, { name: sample.filename });
+  }
+
   function choose(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = "";
-    if (file) void upload(file);
+    if (file) upload(file);
   }
 
   function drop(event: DragEvent<HTMLLabelElement>) {
@@ -140,7 +154,7 @@ export function ImportFlow({
       setPhase({ kind: "choose", error: t("errors.oneFile") });
       return;
     }
-    if (files[0]) void upload(files[0]);
+    if (files[0]) upload(files[0]);
   }
 
   if (phase.kind === "review") {
@@ -190,9 +204,11 @@ export function ImportFlow({
                 <p className="truncate font-medium text-ink">
                   {phase.file.name}
                 </p>
-                <p className="text-sm text-ink-faint">
-                  <FileSize bytes={phase.file.size} />
-                </p>
+                {phase.file.size !== undefined ? (
+                  <p className="text-sm text-ink-faint">
+                    <FileSize bytes={phase.file.size} />
+                  </p>
+                ) : null}
                 <p
                   role="status"
                   aria-live="polite"
@@ -244,6 +260,33 @@ export function ImportFlow({
                 className="sr-only"
               />
             </label>
+            <section aria-labelledby="import-samples" className="mt-6">
+              <h2 id="import-samples" className="font-medium text-ink">
+                {t("samples.title")}
+              </h2>
+              <ul className="mt-2 space-y-2">
+                {samples.map((sample) => (
+                  <li
+                    key={sample.id}
+                    className="flex flex-wrap items-center gap-x-4 gap-y-2"
+                  >
+                    <Button
+                      variant="secondary"
+                      onClick={() => useSample(sample)}
+                    >
+                      {t(`samples.${sample.id}`, { format: sample.format })}
+                    </Button>
+                    <a
+                      href={`/samples/${sample.id}`}
+                      download
+                      className="text-sm text-stamp underline underline-offset-4"
+                    >
+                      {t("samples.download", { format: sample.format })}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
             {phase.error ? (
               <Notice tone="error" className="mt-4">
                 {phase.error}
