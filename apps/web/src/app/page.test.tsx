@@ -1,11 +1,18 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { expect, it } from "vitest";
+import { afterEach, expect, it, vi } from "vitest";
 import { DemoNotice } from "../components/demo-notice";
 import { withIntl } from "../test/i18n";
 import Home from "./page";
 
 const render = (ui: React.ReactNode, locale?: "de" | "en") =>
   renderToStaticMarkup(withIntl(ui, locale));
+
+afterEach(() => vi.unstubAllEnvs());
+
+it("hides the sign-up link when registration is disabled", () => {
+  vi.stubEnv("NEXT_PUBLIC_SIGNUP_ENABLED", "false");
+  expect(render(<Home />)).not.toContain('href="/signup"');
+});
 
 it("explains the product and links to the demo", () => {
   const html = render(<Home />);

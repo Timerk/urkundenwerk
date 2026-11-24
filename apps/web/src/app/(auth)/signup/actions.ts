@@ -1,12 +1,13 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import {
   type FormState,
   invalidFormState,
   readFields,
 } from "../../../lib/auth/form-state";
 import { signupSchema } from "../../../lib/auth/schemas";
+import { isSignupEnabled } from "../../../lib/auth/signup";
 import { authErrorTranslator } from "../../../lib/auth/translate";
 import { createClient } from "../../../lib/supabase/server";
 
@@ -14,6 +15,7 @@ export async function signUp(
   _previous: FormState,
   formData: FormData,
 ): Promise<FormState> {
+  if (!isSignupEnabled()) notFound();
   const fields = readFields(formData, ["firmName", "email", "password"]);
   const parsed = signupSchema.safeParse(fields);
   const values = { firmName: fields.firmName, email: fields.email };

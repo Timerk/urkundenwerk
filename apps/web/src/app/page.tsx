@@ -9,6 +9,7 @@ import { BrandMark } from "../components/brand";
 import { DocumentPreview } from "../components/document-preview";
 import { LanguageSwitcher } from "../components/language-switcher";
 import { buttonClasses } from "../components/ui/button";
+import { isSignupEnabled } from "../lib/auth/signup";
 
 // Fictional case data for the excerpt on this page.
 const exampleDraft: MusterprotokollDraft = {
@@ -81,15 +82,17 @@ export default function Home() {
             >
               {t("signIn")}
             </Link>
-            <Link
-              href="/signup"
-              className={buttonClasses({
-                variant: "quiet",
-                className: "h-11 text-base",
-              })}
-            >
-              {t("signUp")}
-            </Link>
+            {isSignupEnabled() ? (
+              <Link
+                href="/signup"
+                className={buttonClasses({
+                  variant: "quiet",
+                  className: "h-11 text-base",
+                })}
+              >
+                {t("signUp")}
+              </Link>
+            ) : null}
           </div>
           <p className="max-w-prose border-t border-rule pt-5 text-sm text-ink-faint">
             {t("disclaimer")}
