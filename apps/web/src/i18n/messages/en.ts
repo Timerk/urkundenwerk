@@ -145,12 +145,27 @@ export const en = {
   },
   invite: {
     title: "Accept firm invitation",
-    body: "Use the account with the email address the firm invited. For the hosted demo, you need an existing account.",
-    signedInAs: "Signed in as {email}",
+    body: "Accept with the account whose email address the firm invited.",
+    signedInAs: "Signed in as <strong>{email}</strong>",
+    redirecting: "Taking you to sign-in…",
     signIn: "Sign in to continue",
     accept: "Accept invitation",
+    accepting: "Accepting…",
     invalid:
       "This invitation is unavailable for your account. Check the email address you are signed in with or ask the firm for a new link.",
+    unavailableTitle: "This invitation cannot be accepted",
+    reasons: {
+      email:
+        "You are signed in with a different email address than the one invited.",
+      expired: "The invitation has expired or was revoked.",
+      used: "The link has already been used.",
+    },
+    unavailableHelp:
+      "Sign in with the invited address, or ask the firm for a new link.",
+    missingTitle: "No invitation link found",
+    missingBody:
+      "Open the complete link the firm sent you. It ends with a long code after the # sign.",
+    toDocuments: "Go to your documents",
   },
   account: {
     title: "Account",
@@ -203,7 +218,16 @@ export const en = {
     nav: "Legal information",
     privacyTitle: "Privacy notice",
     imprintTitle: "Legal notice",
-    unconfigured: "The operator’s legal notice has not been configured.",
+    contents: "Contents",
+    toImprint: "Go to the legal notice",
+    toPrivacy: "Go to the privacy notice",
+    provider: "Service provider",
+    email: "Email:",
+    unconfigured: "No legal notice has been set up yet",
+    unconfiguredHelp:
+      "The operator of this installation has not yet entered their provider details.",
+    unconfiguredOperator:
+      "Operators set <code>IMPRESSUM_NAME</code>, <code>IMPRESSUM_ADDRESS</code>, and <code>IMPRESSUM_EMAIL</code> on the server.",
     intro:
       "Urkundenwerk is a public demonstration. Use fictional case data and upload fictional documents only.",
     sections: {

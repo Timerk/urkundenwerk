@@ -152,12 +152,27 @@ export const de: Messages = {
   },
   invite: {
     title: "Einladung zur Kanzlei annehmen",
-    body: "Melden Sie sich mit dem Konto an, dessen E-Mail-Adresse die Kanzlei eingeladen hat. Für die gehostete Demo benötigen Sie ein bereits bestehendes Konto.",
-    signedInAs: "Angemeldet als {email}",
+    body: "Nehmen Sie die Einladung mit dem Konto an, dessen E-Mail-Adresse die Kanzlei eingeladen hat.",
+    signedInAs: "Angemeldet als <strong>{email}</strong>",
+    redirecting: "Sie werden zur Anmeldung weitergeleitet…",
     signIn: "Anmelden und fortfahren",
     accept: "Einladung annehmen",
+    accepting: "Wird angenommen…",
     invalid:
       "Diese Einladung ist für Ihr Konto nicht verfügbar. Prüfen Sie die E-Mail-Adresse Ihres Kontos oder bitten Sie die Kanzlei um einen neuen Link.",
+    unavailableTitle: "Diese Einladung kann nicht angenommen werden",
+    reasons: {
+      email:
+        "Sie sind mit einer anderen E-Mail-Adresse angemeldet als der eingeladenen.",
+      expired: "Die Einladung ist abgelaufen oder wurde widerrufen.",
+      used: "Der Link wurde bereits verwendet.",
+    },
+    unavailableHelp:
+      "Melden Sie sich mit der eingeladenen Adresse an oder bitten Sie die Kanzlei um einen neuen Link.",
+    missingTitle: "Kein Einladungslink gefunden",
+    missingBody:
+      "Öffnen Sie den vollständigen Link, den Sie von der Kanzlei erhalten haben. Er endet mit einer langen Zeichenfolge nach dem Zeichen #.",
+    toDocuments: "Zu Ihren Dokumenten",
   },
   account: {
     title: "Konto",
@@ -210,7 +225,16 @@ export const de: Messages = {
     nav: "Rechtliche Informationen",
     privacyTitle: "Datenschutzhinweise",
     imprintTitle: "Impressum",
-    unconfigured: "Das Impressum wurde noch nicht eingerichtet.",
+    contents: "Inhalt",
+    toImprint: "Zum Impressum",
+    toPrivacy: "Zu den Datenschutzhinweisen",
+    provider: "Diensteanbieter",
+    email: "E-Mail:",
+    unconfigured: "Noch kein Impressum hinterlegt",
+    unconfiguredHelp:
+      "Der Betreiber dieser Installation hat seine Anbieterangaben noch nicht eingetragen.",
+    unconfiguredOperator:
+      "Betreiber hinterlegen sie auf dem Server in <code>IMPRESSUM_NAME</code>, <code>IMPRESSUM_ADDRESS</code> und <code>IMPRESSUM_EMAIL</code>.",
     intro:
       "Urkundenwerk ist eine öffentliche Demonstration. Verwenden Sie ausschließlich fiktive Falldaten und laden Sie nur fiktive Dokumente hoch.",
     sections: {
