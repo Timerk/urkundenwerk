@@ -5,5 +5,11 @@ services:
       dockerfile: apps/web/Dockerfile
     ports:
       - "127.0.0.1:3000:3000"
+    env_file:
+      - apps/web/.env.local
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: http://host.docker.internal:54321
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 # The local database and Auth stack run with the Supabase CLI (`pnpm db:start`).
