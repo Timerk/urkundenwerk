@@ -47,6 +47,11 @@ const nextConfig: NextConfig = {
   // it must stay an external package that output tracing copies as a whole.
   serverExternalPackages: ["pdfkit", "xmllint-wasm"],
   outputFileTracingIncludes: {
+    // Both the import action and the download route read the DEV fixtures.
+    "/{app/import,samples/*}": [
+      "../../packages/extraction/eval/dev/11-musterprotokoll/document.pdf",
+      "../../packages/extraction/eval/dev/03-zedernrain/document.docx",
+    ],
     "/app/documents/*/export": [
       // xmllint-wasm starts a worker that loads the WASM file alongside it.
       "../../node_modules/.pnpm/xmllint-wasm@*/node_modules/xmllint-wasm/xmllint*",

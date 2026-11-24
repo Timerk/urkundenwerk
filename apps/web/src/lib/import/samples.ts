@@ -1,5 +1,6 @@
 import "server-only";
 import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { z } from "zod";
 import { ACCEPTED_TYPES } from "./limits";
 
@@ -12,9 +13,9 @@ const samples = {
     contentType: ACCEPTED_TYPES[0],
     read: () =>
       readFile(
-        new URL(
-          "../../../../../packages/extraction/eval/dev/11-musterprotokoll/document.pdf",
-          import.meta.url,
+        join(
+          process.cwd(),
+          "../../packages/extraction/eval/dev/11-musterprotokoll/document.pdf",
         ),
       ),
   },
@@ -24,9 +25,9 @@ const samples = {
     contentType: ACCEPTED_TYPES[1],
     read: () =>
       readFile(
-        new URL(
-          "../../../../../packages/extraction/eval/dev/03-zedernrain/document.docx",
-          import.meta.url,
+        join(
+          process.cwd(),
+          "../../packages/extraction/eval/dev/03-zedernrain/document.docx",
         ),
       ),
   },

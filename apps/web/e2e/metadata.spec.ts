@@ -1,12 +1,11 @@
 import { expect, test } from "@playwright/test";
 
-test.use({ userAgent: "LinkedInBot/1.0" });
+test.use({ locale: "de-DE", userAgent: "LinkedInBot/1.0" });
 
 test("the landing page advertises a large social preview to crawlers", async ({
   page,
   request,
 }) => {
-  await page.setExtraHTTPHeaders({ "Accept-Language": "de-DE" });
   await page.goto("/");
   const og = (property: string) =>
     page.locator(`head meta[property="og:${property}"]`);
