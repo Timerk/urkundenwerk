@@ -1,0 +1,252 @@
+# Deploy the hosted demo
+
+Run the following steps from the repository root on the reviewed `master`
+commit. Replace each angle-bracket placeholder with your own value. Use the
+public demo only with fictional data. Anyone signing in as the same demo
+account shares its session privileges and can see its firm's drafts.
+
+## 1. Create the Supabase project
+
+Create a dedicated project in **Central EU (Frankfurt)** (`eu-central-1`).
+Save the database password in your password manager. In the project
+dashboard, copy the project ref and the project URL from **Connect** or
+**Project Settings**. Under **API Keys**, copy the publishable key.
+Keep the Data API's exposed schemas at their defaults. The `private`
+schema holds the quota counters and is for database functions only.
+[Supabase regions](https://supabase.com/docs/guides/platform/regions)
+and [API keys](https://supabase.com/docs/guides/api/api-keys).
+
+## 2. Configure Supabase Auth
+
+1. Under **Authentication → URL Configuration**, set **Site URL** to
+   `https://<DEMO_HOST>` and add `https://<DEMO_HOST>` as an exact redirect
+   URL. The app uses password sign-in and has no custom Auth callback.
+   Keep localhost, wildcard domains, and PR preview URLs out of this list.
+2. Under **Authentication → Sign In / Providers**, keep Email enabled.
+   Disable public sign-ups and anonymous sign-ins. Enable **Confirm email**
+   and **Secure email change**. Enable **Require current password when
+   changing password** so a shared session alone cannot change the
+   credential. Leave other providers and MFA enrollment disabled for this
+   dedicated demo project.
+3. Set the minimum password length to at least 12 and require upper- and
+   lowercase letters, digits, and a symbol. Use two unique, random
+   passwords of at least 24 characters, one for the operator and one
+   shared by the three visitor accounts. The app's password form supports
+   up to 72 characters. Use ASCII to stay within bcrypt's byte limit.
+
+[Supabase redirect configuration](https://supabase.com/docs/guides/auth/redirect-urls)
+and [password security](https://supabase.com/docs/guides/auth/password-security).
+
+## 3. Set up GitHub Actions and apply the migrations
+
+1. In GitHub **Settings → Environments**, create `production`. Limit
+   deployment branches to `master` and add a required reviewer. If
+   preventing self-review, designate another reviewer who can approve runs.
+2. Add these **environment secrets**.
+
+   | Name                    | Where to get it                                                                   |
+   | ----------------------- | --------------------------------------------------------------------------------- |
+   | `SUPABASE_ACCESS_TOKEN` | Supabase account access token with access to this project and database operations |
+   | `SUPABASE_PROJECT_REF`  | The ref of the Frankfurt demo project                                             |
+   | `SUPABASE_DB_PASSWORD`  | The database password saved in step 1                                             |
+
+3. Open **Actions → Deploy database migrations → Run workflow** and choose
+   `master`. Have the reviewer approve the deployment and wait for the run
+   to succeed. Subsequent pushes to `master` that change migrations also
+   queue a deploy. Confirm migrations succeed before deploying web code
+   that uses them.
+
+   The equivalent CLI commands for an authorized operator are below.
+   Supply `SUPABASE_ACCESS_TOKEN` and `SUPABASE_DB_PASSWORD` in the shell
+   from your password manager. Supabase reads them from the environment.
+
+   ```sh
+   pnpm install --frozen-lockfile
+   pnpm exec supabase link --project-ref '<SUPABASE_PROJECT_REF>'
+   pnpm exec supabase db push --remote --yes
+   ```
+
+   Use `db push` without `--include-seed`. The default seed is for the local
+   Supabase stack.
+
+[GitHub environment protection](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments)
+and [Supabase CLI commands](https://supabase.com/docs/reference/cli/supabase-db-remote).
+
+## 4. Provision the demo users and restore the sample drafts
+
+1. In **Authentication → Users → Add user → Create new user**, create the
+   following fictional accounts with **Auto Confirm User** enabled. Use
+   the password chosen in step 2 for the appropriate account. The
+   addresses use the reserved `.test` domain, so no inbox is required.
+
+   | Email                     | Role                          | Credential                 |
+   | ------------------------- | ----------------------------- | -------------------------- |
+   | `anna.admin@demo.test`    | Operator admin in both firms  | Separate operator password |
+   | `erik.editor@demo.test`   | Editor in Nord                | Shared demo password       |
+   | `victor.viewer@demo.test` | Viewer in Nord                | Shared demo password       |
+   | `mia.multi@demo.test`     | Editor in Nord, viewer in Süd | Shared demo password       |
+
+2. With the access token from step 3 in your shell, run the hosted seed
+   and initial reset. Each command targets the specified project ref.
+   You can also execute each file separately in that project's SQL Editor.
+
+   ```sh
+   pnpm exec supabase db query --remote='<SUPABASE_PROJECT_REF>' --file supabase/demo/seed.sql --yes
+   pnpm exec supabase db query --remote='<SUPABASE_PROJECT_REF>' --file supabase/demo/reset.sql --yes
+   ```
+
+3. **Actions → Reset hosted demo drafts** runs at 02:17 UTC nightly and
+   supports manual dispatch from `master`. With required reviewers on
+   `production`, each scheduled and manual run waits for approval.
+   Assign someone to approve the nightly job and check that it succeeded.
+   The reset replaces drafts in the two seeded firms. It preserves Auth
+   users, memberships, quota counters, and drafts in all other firms.
+
+## 5. Configure and deploy the Vercel project
+
+Connect the Git repository to **one** Vercel project for the Next.js app.
+Set **Production Branch** to `master`, **Root Directory** to `apps/web`, and
+enable **Include source files outside of the Root Directory in the Build
+Step** so Vercel can access the workspace. Set **Node.js Version** to
+`24.x`, leave **Output Directory** at the Next.js default, and enable
+**Fluid Compute** for the 300-second function limit. The committed
+`apps/web/vercel.json` sets the Functions region to `fra1` and runs these
+commands from `apps/web`.
+
+```sh
+npx --yes pnpm@12.23.0 install --frozen-lockfile
+npx --yes pnpm@12.23.0 exec next build
+```
+
+Set these variables for the **Production** environment. The hosted app
+uses the same Supabase project for all visitors.
+
+| Variable                               | Value and source                                                                                                                           | Visibility    |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | `https://<SUPABASE_PROJECT_REF>.supabase.co` from step 1                                                                                   | Public        |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `<SUPABASE_PUBLISHABLE_KEY>` from step 1                                                                                                   | Public        |
+| `NEXT_PUBLIC_SIGNUP_ENABLED`           | `false`, matching the Supabase Auth setting                                                                                                | Public        |
+| `DEMO_LOGIN_PASSWORD`                  | `<SHARED_DEMO_PASSWORD>` from step 2                                                                                                       | Server secret |
+| `AI_PROVIDER`                          | `openai` to enable paid AI, or `disabled`                                                                                                  | Server only   |
+| `OPENAI_API_KEY`                       | `<OPENAI_PROJECT_API_KEY>` from a dedicated OpenAI project. Required for `openai`.                                                         | Server secret |
+| `AI_MODEL_EXTRACT`                     | Optional. The OpenAI default is `gpt-6.1-terra`.                                                                                           | Server only   |
+| `AI_MODEL_EXPLAIN`                     | Optional. The OpenAI default is `gpt-6-luna`.                                                                                              | Server only   |
+| `AI_TIMEOUT_MS`                        | Optional. Explanation timeout per attempt, default `20000` ms.                                                                             | Server only   |
+| `AI_EXTRACT_TIMEOUT_MS`                | Optional. Extraction timeout per attempt, default `120000` ms. Keep the default on the demo so two attempts fit within the function limit. | Server only   |
+
+Leave `ANTHROPIC_API_KEY` unset for OpenAI. Leave Vercel's automatic
+system environment variables enabled for `VERCEL` and
+`VERCEL_GIT_COMMIT_SHA`.
+
+The migration sets the daily paid AI budget to zero. To enable paid calls,
+run this statement in the project's SQL Editor as the operator. The example
+allows 200 attempts per UTC day across both features and all users.
+
+```sql
+update private.app_settings set ai_daily_request_limit = 200;
+```
+
+Set it to zero to pause paid calls. Changes apply to new reservations
+without a web redeploy. The signed-in user's RPC checks both quotas before
+each paid attempt, including retries. A full global budget leaves the
+user's quota unchanged. Already reserved provider attempts keep their
+slots. The cap counts requests. Actual provider usage also depends on
+token volume and the models selected. The scripted fake works with a zero budget.
+
+Git-triggered deployments are disabled. After the database workflow
+succeeds, use **Deployments → ⋯ → Create Deployment** with the `master`
+Git reference and verify the deployment targets **Production**. Skip
+deployments for changes limited to docs, MCP, or the evaluation corpus.
+Under **Deployment Protection**, select **Standard Protection** with
+Vercel Authentication. Share the production domain so generated deployment
+URLs with older settings stay private.
+Keep the Preview environment free of demo credentials. If PR previews
+are needed later, use a separate Supabase project and `AI_PROVIDER=fake`.
+
+Keep Supabase admin keys out of Vercel and browser variables. The web
+app uses the publishable key and the signed-in user's session. Keep
+`apps/mcp` local. It is a stdio server without a Vercel project, route, or
+web dependency.
+
+[Vercel monorepos](https://vercel.com/docs/monorepos),
+[manual Git deployments](https://vercel.com/docs/deployments),
+[Deployment Protection](https://vercel.com/docs/deployment-protection),
+and [Functions limits](https://vercel.com/docs/functions/limitations).
+
+## 6. Verify production
+
+1. Run the health request. Expect HTTP 200 and
+   `{"status":"ok","version":"<GIT_COMMIT_SHA>"}`. The route checks process
+   liveness. The landing and login pages also check the public Supabase
+   configuration at request time.
+
+   ```sh
+   curl --fail-with-body -i 'https://<DEMO_HOST>/api/health'
+   curl --fail-with-body -I 'https://<DEMO_HOST>/login'
+   ```
+
+2. In a private browser window, confirm that the landing and login pages
+   have no sign-up link and that `/signup` returns 404. On the login page,
+   pick Erik. Open **Nordmuster Logistik GmbH**, then download and open the
+   PDF and DOCX. The script CSP on the login page includes a per-response
+   nonce. Check the browser console for policy violations.
+3. From Erik's dashboard, import a fictional PDF or DOCX, such as
+   `packages/extraction/eval/dev/11-musterprotokoll/document.pdf`. Verify
+   the review screen shows source citations and save a test draft. Open
+   **Checks** on a draft with a finding and request an explanation.
+   Verify the configured model and prompt version appear.
+4. Sign out and try Victor. Confirm that editing and importing are
+   unavailable. Try Mia to verify the firm switcher and the viewer role in
+   Süd. To confirm the budget behavior, set the database limit to zero
+   and leave AI configured. Verify that import shows the daily limit
+   message and that an uncached explanation displays it with the rule summary. Repeat
+   after switching between German and English. Restore the chosen limit
+   with the same SQL.
+5. Run the reset workflow manually. Verify that the scratch draft is gone
+   and both sample drafts and the same demo logins are present.
+
+## 7. Rotate credentials
+
+1. For the OpenAI key or the Supabase publishable key, issue a replacement, update the
+   Production variable in Vercel, deploy, and repeat the relevant smoke
+   checks. Revoke the old key after verification. Replace the GitHub
+   environment secret before revoking a Supabase access token. If you
+   change the project database password, update `SUPABASE_DB_PASSWORD`.
+2. Rotate the web demo password by updating all three shared accounts
+   through the Supabase Auth admin API using their user IDs, then update
+   `DEMO_LOGIN_PASSWORD` and redeploy. Preserve the user IDs so firm
+   memberships continue to work. Rotate the operator's password
+   separately. The hosted seed and reset never store passwords.
+
+   Use `supabase.auth.admin.updateUserById` from a trusted server-side
+   environment with a Supabase secret key. To update all three from the
+   repo root, load a Supabase admin key into your shell as
+   `SUPABASE_ADMIN_API_KEY` and the new password as `DEMO_LOGIN_PASSWORD`.
+   These shell values are for the rotation command. Then
+   substitute the project ref and three IDs copied from **Auth → Users**.
+
+   ```sh
+   NEXT_PUBLIC_SUPABASE_URL='https://<SUPABASE_PROJECT_REF>.supabase.co' \
+   pnpm --filter @urkundenwerk/web exec node --input-type=module - \
+     '<EDITOR_USER_ID>' '<VIEWER_USER_ID>' '<MULTI_USER_ID>' <<'JS'
+   import { createClient } from "@supabase/supabase-js";
+   const { NEXT_PUBLIC_SUPABASE_URL, SUPABASE_ADMIN_API_KEY, DEMO_LOGIN_PASSWORD } = process.env;
+   if (!NEXT_PUBLIC_SUPABASE_URL || !SUPABASE_ADMIN_API_KEY || !DEMO_LOGIN_PASSWORD) {
+     throw new Error("Missing rotation environment variables");
+   }
+   const client = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_ADMIN_API_KEY, {
+     auth: { persistSession: false, autoRefreshToken: false },
+   });
+   for (const id of process.argv.slice(2)) {
+     const { error } = await client.auth.admin.updateUserById(id, {
+       password: DEMO_LOGIN_PASSWORD,
+     });
+     if (error) throw new Error(`Password rotation failed for user ${id}`);
+   }
+   JS
+   ```
+
+   If a rotation stops partway through, finish updating the three accounts
+   with the same new password before redeploying. Check the current Auth
+   sessions separately if you are responding to a suspected compromise.
+   [Supabase Auth admin update](https://supabase.com/docs/reference/javascript/auth-admin-updateuserbyid).
