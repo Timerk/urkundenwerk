@@ -10,6 +10,7 @@ import {
   getMemberships,
 } from "../../lib/tenants/memberships";
 import { signOut } from "./actions";
+import { AccountLink, AppNav, type NavItem } from "./app-nav";
 import { TenantSwitcher } from "./tenant-switcher";
 import Link from "next/link";
 
@@ -30,14 +31,33 @@ export default async function ProtectedLayout({
   const current = await getCurrentMembership();
   const t = await getTranslations();
 
+  const items: NavItem[] = current
+    ? [
+        {
+          href: "/app",
+          label: t("common.documents"),
+          prefixes: ["/app/documents", "/app/import"],
+        },
+        { href: "/app/members", label: t("members.title") },
+        ...(current.role === "admin"
+          ? [{ href: "/app/audit", label: t("audit.navLabel") }]
+          : []),
+      ]
+    : [];
+
   return (
     <div className="flex flex-1 flex-col">
+      {/*
+       * Left: the firm and its sections. Right: the person, their language,
+       * and signing out. On wide screens this is one row; below `lg` the
+       * sections move to a second row with the account link at its end.
+       */}
       <header className="border-b border-rule bg-paper">
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2.5 sm:flex-nowrap sm:gap-x-6 sm:px-6">
-          <div className="flex min-w-0 items-center gap-4 max-sm:basis-full">
+        <div className="flex flex-wrap items-center gap-x-4 px-4 sm:px-6 lg:h-14 lg:flex-nowrap lg:gap-x-6">
+          <div className="flex min-w-0 flex-1 items-center gap-3 py-2.5 sm:gap-4 lg:flex-none lg:py-0">
             <Link
               href="/app"
-              className="inline-flex items-center gap-2.5 rounded-sm font-semibold tracking-tight text-ink"
+              className="inline-flex shrink-0 items-center gap-2.5 rounded-sm font-semibold tracking-tight text-ink"
             >
               <BrandMark />
               <span className="max-sm:sr-only">Urkundenwerk</span>
@@ -54,9 +74,10 @@ export default async function ProtectedLayout({
                     }))}
                   />
                 ) : (
-                  <p className="truncate text-sm">
-                    <span className="font-medium">{current.name}</span>{" "}
-                    <span className="text-ink-faint">
+                  <p className="min-w-0 truncate text-sm lg:max-w-80">
+                    <span className="font-medium">{current.name}</span>
+                    <span className="text-ink-faint max-sm:sr-only">
+                      {" "}
                       ({t(`roles.${current.role}`)})
                     </span>
                   </p>
@@ -64,10 +85,23 @@ export default async function ProtectedLayout({
               </>
             ) : null}
           </div>
-          <div className="flex shrink-0 items-center gap-3 text-sm max-sm:ml-auto">
-            <span className="truncate text-ink-soft max-md:hidden">
-              {user.email}
-            </span>
+          <div className="order-last flex h-11 basis-full items-stretch justify-between gap-4 lg:contents">
+            <AppNav
+              label={t("common.appNavigation")}
+              items={items}
+              className="flex min-w-0 lg:h-full"
+            />
+            <div className="flex items-center gap-3 lg:ml-auto">
+              <span
+                className="max-w-64 truncate text-sm text-ink-faint max-xl:hidden"
+                title={user.email}
+              >
+                {user.email}
+              </span>
+              <AccountLink label={t("account.title")} />
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-2 py-2.5 lg:py-0">
             <LanguageSwitcher />
             <form action={signOut}>
               <Button type="submit" variant="quiet" size="sm">
@@ -76,24 +110,6 @@ export default async function ProtectedLayout({
             </form>
           </div>
         </div>
-        <nav
-          aria-label={t("common.appNavigation")}
-          className="flex flex-wrap gap-x-4 gap-y-1 px-4 pb-2 text-sm text-stamp sm:px-6"
-        >
-          {current ? (
-            <Link className="underline underline-offset-2" href="/app/members">
-              {t("members.title")}
-            </Link>
-          ) : null}
-          {current?.role === "admin" ? (
-            <Link className="underline underline-offset-2" href="/app/audit">
-              {t("audit.title")}
-            </Link>
-          ) : null}
-          <Link className="underline underline-offset-2" href="/app/account">
-            {t("account.title")}
-          </Link>
-        </nav>
       </header>
       <main className="flex flex-1 flex-col">{children}</main>
     </div>

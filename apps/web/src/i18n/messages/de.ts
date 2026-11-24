@@ -8,25 +8,57 @@ import type { Messages } from "./en";
 export const de: Messages = {
   audit: {
     title: "Kanzleiprotokoll",
+    navLabel: "Kanzleiprotokoll",
+    intro:
+      "Wer in {firm} Dokumente und Mitgliedschaften geändert hat. Das Protokoll hält fest, welche Felder geändert wurden, aber nie deren Inhalt.",
     activity: "Verlauf",
-    openAudit: "Gesamten Verlauf dieses Dokuments anzeigen",
-    empty: "Es liegen keine Einträge vor.",
+    latest: "Zuletzt: {action}, {date}",
+    recentOnly: "Angezeigt werden die letzten {count, number} Einträge.",
+    openAudit: "Vollständigen Verlauf im Kanzleiprotokoll ansehen",
+    emptyTitle: "Noch keine Einträge",
+    emptyHelp:
+      "Hier erscheinen Änderungen an Dokumenten und Mitgliedschaften dieser Kanzlei.",
+    emptyFiltered: "Keine Einträge für diese Filter",
+    emptyFilteredHelp:
+      "Wählen Sie eine andere Aktion oder ein anderes Dokument oder setzen Sie die Filter zurück.",
+    today: "Heute",
+    yesterday: "Gestern",
+    byPerson: "von {name}",
+    byFormer: "von einem ehemaligen Mitglied",
+    byNone: "vom System oder einem gelöschten Konto",
     former: "Ehemaliges Mitglied",
     none: "System oder gelöschtes Konto",
     titleField: "Dokumenttitel",
+    fieldsLabel: "Felder:",
+    moreFields: "und {count, number} weitere",
     member: "Mitglied: {name}",
-    change: "{from} → {to}",
+    statusChange: "Status: {from} → {to}",
+    roleChange: "Rolle: {from} → {to}",
+    roleNamed: "Rolle: {role}",
+    accountDeleted: "Das Konto wurde gelöscht.",
+    exportDetails: "{document} als {format}",
+    exportDocuments: {
+      musterprotokoll: "Musterprotokoll",
+      anmeldung: "Handelsregisteranmeldung",
+    },
     importDetails:
-      "{model} · Prompt {version} · {accepted, number} übernommen, {edited, number} bearbeitet, {cleared, number} geleert",
-    onlyDocument: "Nach Dokument filtern",
+      "{accepted, number} übernommen, {edited, number} bearbeitet, {cleared, number} geleert (Modell {model}, Prompt {version})",
+    deletedDocument: "Gelöschtes Dokument",
+    onlyDocument: "Nur dieses Dokument anzeigen",
+    filters: "Kanzleiprotokoll filtern",
     actionFilter: "Aktion",
     allActions: "Alle Aktionen",
-    documentFilter: "Dokument-ID",
-    invalidDocument: "Geben Sie eine gültige Dokument-ID ein.",
+    documentFilter: "Dokument",
+    allDocuments: "Alle Dokumente",
+    deletedDocumentId: "Gelöschtes Dokument ({id}…)",
+    invalidDocument:
+      "Dieser Link verweist auf kein gültiges Dokument. Wählen Sie ein Dokument aus der Liste.",
     filter: "Filter anwenden",
+    resetFilters: "Filter zurücksetzen",
+    entries: "Einträge",
     pages: "Seiten des Kanzleiprotokolls",
-    previous: "Zurück",
-    next: "Weiter",
+    newer: "Neuere Einträge",
+    older: "Ältere Einträge",
     page: "Seite {page, number}",
     statuses: {
       draft: "Entwurf",
@@ -46,28 +78,66 @@ export const de: Messages = {
   },
   members: {
     title: "Mitglieder",
+    intro:
+      "{count, plural, one {# Person hat} other {# Personen haben}} Zugriff auf {firm}.",
+    people: "Personen mit Zugriff",
+    you: "Sie",
     unknown: "Mitglied ohne Anzeigenamen",
+    readOnlyTitle: "Mitglieder verwaltet die Administration",
+    readOnlyBody:
+      "Sie sehen, wer Zugriff auf diese Kanzlei hat. Für Einladungen und Rollenänderungen wenden Sie sich an ein Mitglied mit der Rolle Administration.",
     role: "Rolle",
+    roleOf: "Rolle von {name}",
+    roleHelp: {
+      admin:
+        "Alles, was die Bearbeitung darf, dazu Mitglieder, Einladungen und das Kanzleiprotokoll.",
+      editor: "Erstellt, bearbeitet, importiert und löscht Dokumente.",
+      viewer: "Öffnet Dokumente und lädt sie herunter.",
+    },
     email: "E-Mail-Adresse der eingeladenen Person",
     create: "Einladung erstellen",
+    creating: "Wird erstellt…",
+    createdTitle: "Einladung für {email} erstellt",
+    createdBody:
+      "Kopieren Sie den Link jetzt und senden Sie ihn der eingeladenen Person. Er wird nur einmal angezeigt.",
     copy: "Link kopieren",
     link: "Einladungslink",
-    copied: "Der Link wurde kopiert.",
-    copyManually: "Markieren und kopieren Sie den Link von Hand.",
+    copied: "Der Link wurde in die Zwischenablage kopiert.",
+    copiedShort: "Kopiert",
+    copyManually:
+      "Das Kopieren ist fehlgeschlagen. Markieren Sie den Link und kopieren Sie ihn von Hand.",
     invitations: "Einladungen",
     inviteHelp:
-      "Kopieren Sie den Link beim Erstellen und geben Sie ihn an die eingeladene Person weiter. Urkundenwerk versendet keine E-Mails. Der Link ist sieben Tage gültig und setzt ein Konto mit der eingeladenen E-Mail-Adresse voraus. In der gehosteten Demo muss das Konto bereits bestehen.",
+      "Urkundenwerk versendet keine E-Mails. Erstellen Sie die Einladung, kopieren Sie den Link und senden Sie ihn selbst. Er ist sieben Tage gültig, nur einmal verwendbar und nur für ein Konto mit der eingeladenen E-Mail-Adresse.",
+    inviteDemo:
+      "In der gehosteten Demo muss die eingeladene Person bereits ein Konto haben.",
     pending: "Offene Einladungen",
-    expires: "Gültig bis {date}",
-    noPending: "Es liegen keine offenen Einladungen vor.",
+    pendingDetails: "{role}, gültig bis {date}",
+    noPending: "Keine offenen Einladungen",
+    noPendingHelp:
+      "Erstellte Einladungen erscheinen hier, bis sie angenommen, widerrufen oder abgelaufen sind.",
     revoke: "Widerrufen",
+    revoking: "Wird widerrufen…",
+    confirmRevokeTitle: "Einladung für {email} widerrufen?",
+    confirmRevokeBody:
+      "Der Link funktioniert danach nicht mehr. Sie können später eine neue Einladung erstellen.",
     revoked: "Die Einladung wurde widerrufen.",
+    revokedNamed: "Die Einladung für {email} wurde widerrufen.",
     saveRole: "Rolle speichern",
+    saving: "Wird gespeichert…",
     roleSaved: "Die Rolle wurde gespeichert.",
     remove: "Entfernen",
-    confirmRemove: "Entfernen bestätigen",
+    leave: "Kanzlei verlassen",
+    removing: "Wird entfernt…",
+    confirmRemoveTitle: "{name} aus {firm} entfernen?",
+    confirmRemoveBody:
+      "Die Person verliert sofort den Zugriff auf die Dokumente der Kanzlei. Ihre bisherigen Einträge bleiben im Kanzleiprotokoll, und Sie können sie später erneut einladen.",
+    confirmLeaveTitle: "{firm} verlassen?",
+    confirmLeaveBody:
+      "Sie verlieren sofort den Zugriff auf die Dokumente der Kanzlei. Für eine Rückkehr muss die Administration Sie erneut einladen.",
     cancel: "Abbrechen",
     removed: "Das Mitglied wurde entfernt.",
+    removedNamed: "{name} wurde aus der Kanzlei entfernt.",
     forbidden:
       "Nur Personen mit der Rolle Administration dürfen Mitglieder und Einladungen verwalten.",
     invalid: "Prüfen Sie die E-Mail-Adresse und die gewählte Rolle.",
@@ -82,26 +152,66 @@ export const de: Messages = {
   },
   invite: {
     title: "Einladung zur Kanzlei annehmen",
-    body: "Melden Sie sich mit dem Konto an, dessen E-Mail-Adresse die Kanzlei eingeladen hat. Für die gehostete Demo benötigen Sie ein bereits bestehendes Konto.",
-    signedInAs: "Angemeldet als {email}",
+    body: "Nehmen Sie die Einladung mit dem Konto an, dessen E-Mail-Adresse die Kanzlei eingeladen hat.",
+    signedInAs: "Angemeldet als <strong>{email}</strong>",
+    redirecting: "Sie werden zur Anmeldung weitergeleitet…",
     signIn: "Anmelden und fortfahren",
     accept: "Einladung annehmen",
+    accepting: "Wird angenommen…",
     invalid:
       "Diese Einladung ist für Ihr Konto nicht verfügbar. Prüfen Sie die E-Mail-Adresse Ihres Kontos oder bitten Sie die Kanzlei um einen neuen Link.",
+    unavailableTitle: "Diese Einladung kann nicht angenommen werden",
+    reasons: {
+      email:
+        "Sie sind mit einer anderen E-Mail-Adresse angemeldet als der eingeladenen.",
+      expired: "Die Einladung ist abgelaufen oder wurde widerrufen.",
+      used: "Der Link wurde bereits verwendet.",
+    },
+    unavailableHelp:
+      "Melden Sie sich mit der eingeladenen Adresse an oder bitten Sie die Kanzlei um einen neuen Link.",
+    missingTitle: "Kein Einladungslink gefunden",
+    missingBody:
+      "Öffnen Sie den vollständigen Link, den Sie von der Kanzlei erhalten haben. Er endet mit einer langen Zeichenfolge nach dem Zeichen #.",
+    toDocuments: "Zu Ihren Dokumenten",
   },
   account: {
     title: "Konto",
-    dataTitle: "Ihre Kontodaten",
+    signedInAs: "Angemeldet als {email}",
+    dataTitle: "Ihre Daten",
     dataHelp:
-      "Die JSON-Datei enthält Ihr Profil, Ihre Mitgliedschaften, von Ihnen erstellte Einladungen, Ihnen zugeordnete Protokolleinträge sowie IDs und Titel der von Ihnen erstellten Entwürfe, auf die Sie noch Zugriff haben. Die Dokumente gehören der Kanzlei.",
+      "Laden Sie eine Kopie der personenbezogenen Daten, die Urkundenwerk über Sie speichert, als JSON-Datei herunter.",
+    dataIncludes: "Die Datei enthält",
+    dataItems: {
+      profile: "Ihr Profil",
+      memberships: "Ihre Mitgliedschaften und Rollen",
+      invitations: "Von Ihnen erstellte Einladungen",
+      events: "Ihnen zugeordnete Protokolleinträge",
+      drafts: "IDs und Titel der von Ihnen erstellten Entwürfe",
+    },
+    dataExcludes:
+      "Inhalte von Dokumenten sind nicht enthalten, denn sie gehören der Kanzlei.",
     download: "Meine Daten herunterladen",
+    deleteTitle: "Konto löschen",
+    deleteHelp: "Die Löschung lässt sich nicht rückgängig machen.",
+    deleteEffectsTitle: "Was dabei geschieht",
+    deleteEffects: {
+      account: "Ihr Konto und Ihre Anmeldedaten werden gelöscht.",
+      memberships: "Ihre Mitgliedschaften in allen Kanzleien enden.",
+      drafts: "Entwürfe bleiben bei den Kanzleien, die weiter bestehen.",
+      audit: "Protokolleinträge bleiben erhalten, aber ohne Ihren Namen.",
+    },
     delete: "Mein Konto löschen",
-    protected: "Gemeinsam genutzte Demokonten sind vor dem Löschen geschützt.",
-    deleteHelp:
-      "Ihr Konto wird unwiderruflich gelöscht. Ihre Mitgliedschaften enden. Entwürfe bleiben bei fortbestehenden Kanzleien. Der Bezug zu Ihrem Konto wird aus den Protokolleinträgen entfernt.",
+    deleteFinal: "Konto endgültig löschen",
+    deleting: "Wird gelöscht…",
+    cancel: "Abbrechen",
+    confirmTitle: "Konto endgültig löschen?",
+    protectedTitle: "Dieses Demokonto ist geschützt",
+    protected:
+      "Gemeinsam genutzte Demokonten lassen sich nicht löschen, damit alle Besucher dieselben Beispielkanzleien vorfinden. Ihre Daten können Sie trotzdem herunterladen.",
     confirm: "Ich möchte mein Konto unwiderruflich löschen.",
+    soleFirmsTitle: "Diese Kanzleien werden gelöscht",
     soleFirms:
-      "Sie sind das einzige Mitglied der folgenden Kanzleien. Werden diese Kanzleien gelöscht, werden auch ihre Entwürfe und Protokolle gelöscht.",
+      "Sie sind das einzige Mitglied dieser Kanzleien. Mit Ihrem Konto werden auch sie mit allen Entwürfen und Protokollen gelöscht.",
     confirmSole:
       "Ich möchte auch diese Kanzleien und ihre Entwürfe unwiderruflich löschen.",
     confirmRequired: "Bestätigen Sie, dass Sie Ihr Konto löschen möchten.",
@@ -115,7 +225,16 @@ export const de: Messages = {
     nav: "Rechtliche Informationen",
     privacyTitle: "Datenschutzhinweise",
     imprintTitle: "Impressum",
-    unconfigured: "Das Impressum wurde noch nicht eingerichtet.",
+    contents: "Inhalt",
+    toImprint: "Zum Impressum",
+    toPrivacy: "Zu den Datenschutzhinweisen",
+    provider: "Diensteanbieter",
+    email: "E-Mail:",
+    unconfigured: "Noch kein Impressum hinterlegt",
+    unconfiguredHelp:
+      "Der Betreiber dieser Installation hat seine Anbieterangaben noch nicht eingetragen.",
+    unconfiguredOperator:
+      "Betreiber hinterlegen sie auf dem Server in <code>IMPRESSUM_NAME</code>, <code>IMPRESSUM_ADDRESS</code> und <code>IMPRESSUM_EMAIL</code>.",
     intro:
       "Urkundenwerk ist eine öffentliche Demonstration. Verwenden Sie ausschließlich fiktive Falldaten und laden Sie nur fiktive Dokumente hoch.",
     sections: {

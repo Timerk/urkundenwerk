@@ -73,6 +73,35 @@ export function formatTime(locale: Locale, value: Date | string): string {
   ).format(new Date(value));
 }
 
+/** A day in a timeline heading: `Dienstag, 24. November 2026`. */
+export function formatDay(locale: Locale, value: Date | string): string {
+  return cached(
+    `day-${locale}`,
+    () =>
+      new Intl.DateTimeFormat(INTL_LOCALES[locale], {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        timeZone: TIME_ZONE,
+      }),
+  ).format(new Date(value));
+}
+
+/** The German calendar day of a moment as `YYYY-MM-DD`, for grouping. */
+export function dayKey(value: Date | string): string {
+  return cached(
+    "day-key",
+    () =>
+      new Intl.DateTimeFormat("en-CA", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        timeZone: TIME_ZONE,
+      }),
+  ).format(new Date(value));
+}
+
 /** A calendar date stored as ISO `YYYY-MM-DD`, shown as `20.11.2026`. */
 export function formatIsoDate(locale: Locale, iso: string): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);

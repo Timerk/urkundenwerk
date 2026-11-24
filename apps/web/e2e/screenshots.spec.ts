@@ -107,3 +107,32 @@ test("import review", async ({ page }) => {
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: target("import-review") });
 });
+
+test("members", async ({ page }) => {
+  await signIn(page, "anna.admin@demo.test");
+  await page.goto("/app/members");
+  await page.getByLabel("Invitee email address").fill("clara.clerk@demo.test");
+  await page.getByRole("radio", { name: /^Editor/ }).check();
+  await page.getByRole("button", { name: "Create invitation" }).click();
+  await expect(
+    page.getByRole("textbox", { name: "Invitation link" }),
+  ).toBeVisible();
+  // Show the confirmation that guards removing a member.
+  await page
+    .getByRole("listitem")
+    .filter({ hasText: "victor.viewer@demo.test" })
+    .getByRole("button", { name: /^Remove: / })
+    .click();
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.mouse.move(0, 0);
+  await page.screenshot({ path: target("members"), fullPage: true });
+});
+
+test("audit log", async ({ page }) => {
+  await signIn(page, "anna.admin@demo.test");
+  await page.goto("/app/audit");
+  await expect(
+    page.getByRole("heading", { name: "Firm audit log" }),
+  ).toBeVisible();
+  await page.screenshot({ path: target("audit") });
+});

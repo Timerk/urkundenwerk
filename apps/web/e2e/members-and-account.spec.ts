@@ -48,13 +48,28 @@ test("members join by invitation, roles are audited, and account data downloads"
 
     await page.reload();
     const member = page
-      .getByRole("list", { name: "Members" })
+      .getByRole("list", { name: "People with access" })
       .getByRole("listitem")
       .filter({ hasText: email });
     await expect(member).toBeVisible();
-    await member.getByLabel("Role", { exact: true }).selectOption("editor");
+    // Removal asks first; Escape backs out and returns focus to the trigger.
+    const remove = member.getByRole("button", { name: /^Remove: / });
+    await remove.click();
+    await expect(
+      member.getByRole("group", { name: /^Remove .+ from .+\?$/ }),
+    ).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(member.getByRole("group")).toHaveCount(0);
+    await expect(remove).toBeFocused();
+
+    await member
+      .getByRole("combobox", { name: /^Role of / })
+      .selectOption("editor");
     await member.getByRole("button", { name: "Save role" }).click();
     await expect(member.getByText("Role saved.")).toBeVisible();
+    await expect(member.getByRole("button", { name: "Save role" })).toHaveCount(
+      0,
+    );
     await page.screenshot({
       path: info.outputPath("members-en-desktop.png"),
       fullPage: true,
@@ -122,6 +137,7 @@ test("members join by invitation, roles are audited, and account data downloads"
     });
 
     await invitee.getByRole("button", { name: "EN", exact: true }).click();
+    await invitee.getByRole("button", { name: "Delete my account" }).click();
     await invitee
       .getByRole("checkbox", {
         name: "I want to permanently delete my account.",
@@ -132,7 +148,9 @@ test("members join by invitation, roles are audited, and account data downloads"
         name: /I also want to permanently delete these firms/,
       })
       .check();
-    await invitee.getByRole("button", { name: "Delete my account" }).click();
+    await invitee
+      .getByRole("button", { name: "Delete account permanently" })
+      .click();
     await expect(invitee).toHaveURL(/\/$/);
     await invitee.goto("/login");
     await invitee.getByLabel("Email address").fill(email);
@@ -144,6 +162,35 @@ test("members join by invitation, roles are audited, and account data downloads"
   } finally {
     await invitee.close();
   }
+});
+
+test("an admin revokes an invitation after confirming", async ({ page }) => {
+  const email = `revoked-${Date.now()}@demo.test`;
+  await signIn(page, "sara.admin@demo.test");
+  await page.goto("/app/members");
+  await page.getByLabel("Invitee email address").fill(email);
+  await page.getByRole("radio", { name: /^Editor/ }).check();
+  await page.getByRole("button", { name: "Create invitation" }).click();
+  await expect(
+    page.getByText(`Invitation for ${email} created`, { exact: true }),
+  ).toBeFocused();
+  const pending = page.getByRole("listitem").filter({ hasText: email });
+  await expect(pending).toContainText("Editor, valid until");
+
+  await pending.getByRole("button", { name: `Revoke: ${email}` }).click();
+  const confirm = pending.getByRole("group", {
+    name: `Revoke the invitation for ${email}?`,
+  });
+  await expect(confirm).toBeVisible();
+  await confirm.getByRole("button", { name: "Revoke", exact: true }).click();
+  await expect(
+    page
+      .getByRole("status")
+      .getByText(`The invitation for ${email} was revoked.`),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("listitem").filter({ hasText: email }),
+  ).toHaveCount(0);
 });
 
 test("privacy notice and imprint are public and localized", async ({
@@ -176,9 +223,7 @@ test("privacy notice and imprint are public and localized", async ({
     .getByRole("link", { name: "Impressum" })
     .click();
   await expect(page.getByRole("heading", { name: "Impressum" })).toBeVisible();
-  await expect(
-    page.getByText("Das Impressum wurde noch nicht eingerichtet."),
-  ).toBeVisible();
+  await expect(page.getByText("Noch kein Impressum hinterlegt")).toBeVisible();
   await page.screenshot({ path: info.outputPath("impressum-de-mobile.png") });
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.getByRole("button", { name: "EN", exact: true }).click();

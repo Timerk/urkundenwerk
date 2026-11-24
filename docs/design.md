@@ -99,8 +99,53 @@ v4 `@theme`), so a dark theme can redefine them later.
   in the top right corner of the landing page, and above the sign-in card.
   Switching keeps everything typed. Layouts allow for German, which runs
   about a third longer: toolbars and button rows wrap rather than overflow.
+- **Firm on the left, person on the right.** The app header carries the
+  firm and its sections, Documents, Members and, for admins, the audit log,
+  as tabs underlined in ink along its bottom edge (`aria-current="page"`).
+  The signed-in person, their Account link, the language control and Sign
+  out sit on the right, because they belong to the person, not the firm.
+  Below `lg` the tabs move to a second row that ends with the account icon.
+  Settings and list pages share the dashboard's 5xl column and its
+  `PageHeader`: a title and one sentence that names the firm or account.
 - **One radius per role.** Controls use 4 px, panels 6 px, and the sheet has
   square corners because paper does.
+
+## Patterns for firm and account pages
+
+- **Destructive actions confirm in place.** Remove, Revoke, Leave firm and
+  Delete account first show a quiet red trigger. It opens a `ConfirmPanel`
+  where the control was: a 3 px alert rule on an alert wash, a question
+  that names the person, firm or invitation, one sentence on what is lost
+  and what stays, the action again as a solid alert button with the same
+  verb, and Cancel. Focus moves to the question; Escape or Cancel closes
+  the panel and returns focus to the trigger. There are no browser
+  `confirm()` dialogs and no modals. Account deletion keeps its confirmation
+  checkboxes inside the panel, and firms that will be deleted with the
+  account are listed beforehand in a hint box.
+- **Results are announced where they stay visible.** A role save reports
+  next to its row through an always-present `role="status"` region. A
+  result that removes its own row, such as a removal or a revocation, is
+  announced in one status line above the lists, which also takes focus so
+  keyboard users are not left on a control that no longer exists. Errors
+  use `role="alert"`. Buttons say what they are doing while pending
+  ("Saving…", "Removing…").
+- **Change only what changed.** A member's role is a select; Save and
+  Cancel appear only once it differs from the stored role.
+- **Activity as a timeline.** The audit log and a document's Verlauf share
+  `AuditList`: events grouped by German calendar day (headed "Today /
+  Tuesday, 24 November 2026"), the time in tabular figures on the left, and
+  a hairline rail with a stamp-blue dot per event, alert red for deletions
+  and removals. Each event reads as "Document edited by Erik Editor" with
+  its details below; changed fields fold after five. Document titles are
+  set in the deed's serif, link to the document, and offer "Show only this
+  document". Closed, the Verlauf panel says what happened last.
+- **Settings rows.** The account page pairs a heading and one sentence on
+  the left with the control on the right (`SettingsRow`), stacked on narrow
+  screens. What a download contains or what a deletion does is a short
+  list, not a paragraph.
+- **Empty states invite the next step.** Empty lists use the dashboard's
+  dashed panel with a serif heading and one sentence; filtered views add
+  "Reset filters". The unconfigured legal notice says who must act and how.
 
 ## Accessibility
 
@@ -119,6 +164,10 @@ disabled controls they cannot explain.
 
 `apps/web/src/components/ui` holds the primitives: `Button`, `Field` with
 `TextInput`, `TextArea`, and `Select`, `SegmentedControl`, `Notice`, and
-`Section`. `DocumentPreview` renders any core `DocumentModel` and adds only
-layout and field affordances; it never changes the wording. `ChecksPanel`
-renders rule issues and their explanations; it never changes an issue.
+`Section`, plus `ConfirmPanel` and `StatusMessage` for destructive
+confirmation and announced results. `PageHeader`, `SettingsRow` and
+`AuditList` sit in `apps/web/src/components`.
+
+`DocumentPreview` renders any core `DocumentModel` and adds only layout
+and field affordances; it never changes the wording. `ChecksPanel` renders
+rule issues and their explanations; it never changes an issue.
