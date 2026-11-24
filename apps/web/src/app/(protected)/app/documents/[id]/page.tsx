@@ -46,7 +46,7 @@ export default async function DocumentPage({
   const draft = musterprotokollDraftSchema.safeParse(document.data);
   const t = await getTranslations("dashboard");
 
-  const { entries } = await listAudit(supabase, {
+  const { entries, hasNext } = await listAudit(supabase, {
     tenantId: membership.tenantId,
     documentId: document.id,
     limit: 10,
@@ -58,7 +58,9 @@ export default async function DocumentPage({
       : undefined;
   return (
     <Builder
-      activity={<Activity entries={entries} auditHref={auditHref} />}
+      activity={
+        <Activity entries={entries} more={hasNext} auditHref={auditHref} />
+      }
       documentId={document.id}
       title={document.title}
       initialDraft={draft.success ? draft.data : {}}
