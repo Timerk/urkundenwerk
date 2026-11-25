@@ -85,10 +85,11 @@ select is(
     join pg_catalog.pg_namespace as n on n.oid = p.pronamespace
     where n.nspname in ('public', 'private')
       and has_function_privilege('anon', p.oid, 'EXECUTE')
+      and p.oid is distinct from to_regprocedure('public.health_check()')
     order by 1
   ),
   array[]::text[],
-  'anon cannot execute any function in public or private'
+  'anon can execute only the health check in public or private'
 );
 
 select is(
