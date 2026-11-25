@@ -254,9 +254,11 @@ and [Functions limits](https://vercel.com/docs/functions/limitations).
 ## 6. Verify production
 
 1. Run the health request. Expect HTTP 200 and
-   `{"status":"ok","version":"<GIT_COMMIT_SHA>"}`. The route checks process
-   liveness. The landing and login pages also check the public Supabase
-   configuration at request time.
+   `{"status":"ok","db":"ok","version":"<GIT_COMMIT_SHA>"}`. The route calls
+   Supabase anonymously using the publishable key. It returns HTTP 503 with
+   `"db":"error"` if the check fails or exceeds five seconds, or
+   `"db":"unconfigured"` if the Supabase URL or publishable key is missing or
+   invalid. The version is `null` where Vercel does not supply a commit SHA.
 
    ```sh
    curl --fail-with-body -i 'https://<DEMO_HOST>/api/health'
@@ -286,7 +288,35 @@ and [Functions limits](https://vercel.com/docs/functions/limitations).
    the sample drafts in Nord, Süd, and West are back, and West again has
    Sara as admin, Erik as editor, Victor as viewer, and no invitations.
 
-## 7. Rotate credentials
+## 7. Keep the demo available
+
+Supabase can pause Free plan projects after a week of low database
+activity. The [keep-alive workflow](../.github/workflows/keep-alive.yml)
+calls `/api/health` roughly every two days to generate database activity
+and detect outages. It uses the `DEMO_URL` GitHub repository variable and
+defaults to `https://urkundenwerk.vercel.app`. After approving the database
+migration and deploying the updated web app, run **Keep hosted demo
+awake** manually from the Actions tab to verify it passes.
+[Supabase project pausing](https://supabase.com/docs/guides/platform/free-project-pausing)
+
+Enable email notifications for failed Actions runs to receive outage
+alerts for the schedule you own. GitHub disables scheduled workflows
+after 60 days without activity in public repositories. Point a free
+external uptime monitor such as UptimeRobot at
+`https://urkundenwerk.vercel.app/api/health` so checks continue independently
+of GitHub. If GitHub disables the workflow, select it in the Actions tab
+and click **Enable workflow**.
+[GitHub workflow notifications](https://docs.github.com/en/actions/concepts/workflows-and-actions/notifications-for-workflow-runs),
+[enabling workflows](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/disable-and-enable-workflows),
+[UptimeRobot](https://uptimerobot.com/)
+
+If the project is paused, open the Supabase Dashboard, select the
+organization and paused project, then click **Resume project** and
+confirm. Once the project is running, repeat the health smoke test and
+dispatch the keep-alive workflow.
+[Supabase restore instructions](https://supabase.com/docs/guides/platform/free-project-pausing#restoring-a-paused-project)
+
+## 8. Rotate credentials
 
 1. For the OpenAI key or the Supabase publishable key, issue a replacement, update the
    Production variable in Vercel, deploy, and repeat the relevant smoke

@@ -260,6 +260,7 @@ export type Database = {
         Returns: undefined;
       };
       export_my_account: { Args: Record<PropertyKey, never>; Returns: Json };
+      health_check: { Args: Record<PropertyKey, never>; Returns: boolean };
       list_tenant_members: {
         Args: { target_tenant_id: string };
         Returns: {

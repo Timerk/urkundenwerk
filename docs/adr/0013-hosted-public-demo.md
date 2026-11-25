@@ -54,9 +54,16 @@ adds a request-specific script nonce, supplies it to the renderer, and
 allows browser connections to the configured Supabase origin. Fonts are
 self-hosted. The document preview uses a style attribute for alignment.
 Dynamic rendering supplies fresh nonces without allowing inline scripts
-generally or using eval. Missing public Supabase configuration returns
-503 on app requests, while the independent health route returns process
-liveness and the deployment SHA.
+generally or using eval. The health route bypasses the auth and CSP proxy
+and calls `public.health_check()` through PostgREST with the publishable
+key. The function uses caller privileges and reads no tenant data. The
+route reports database health and the deployment SHA, returning 503 on
+missing configuration, RPC failure, or a five-second timeout.
+
+GitHub Actions calls the health route roughly every two days to generate
+database activity on the Supabase Free plan and detect outages. An
+external uptime monitor can continue checks independently of GitHub's
+60-day repository inactivity limit for scheduled workflows.
 
 ## Consequences
 
